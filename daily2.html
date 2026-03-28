@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MILTHA — Daily Word</title>
+<meta name="description" content="MILTHA — The Word, as it was spoken. Daily Scripture in Aramaic, Hebrew, and Greek.">
+<link rel="stylesheet" href="css/miltha.css">
+<style>
+.daily-hero{padding:56px 48px 40px;text-align:center;border-bottom:1px solid var(--ash);position:relative}
+.daily-hero::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);width:500px;height:300px;background:radial-gradient(ellipse,rgba(201,169,110,.055) 0%,transparent 70%);pointer-events:none}
+.daily-date{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.4em;color:var(--flame);opacity:.65;margin-bottom:16px;position:relative;z-index:1}
+.daily-title{font-family:'Cinzel',serif;font-size:clamp(28px,5vw,52px);color:var(--pure);letter-spacing:.12em;margin-bottom:8px;position:relative;z-index:1;text-shadow:0 0 50px rgba(201,169,110,.14)}
+.daily-subtitle{font-size:15px;font-style:italic;color:var(--cream);opacity:.4;position:relative;z-index:1}
+.daily-body{max-width:700px;margin:0 auto;padding:40px 24px 80px}
+.tl-mini{display:flex;gap:12px;margin-bottom:14px;padding:0 2px}
+.tl-mini-dot{width:8px;height:8px;border-radius:50%;background:var(--gold);opacity:.4;flex-shrink:0;margin-top:5px}
+.tl-mini-dot.c{background:var(--flame);opacity:1;box-shadow:0 0 8px rgba(232,129,58,.4)}
+.tl-mini-date{font-family:'Cinzel',serif;font-size:8px;color:var(--gold);opacity:.52;margin-bottom:2px}
+.tl-mini-date.c{color:var(--flame);opacity:1}
+.tl-mini-title{font-size:14px;color:var(--white);margin-bottom:2px}
+.tl-mini-detail{font-size:12px;font-style:italic;color:var(--cream);opacity:.42;line-height:1.5}
+.arch-mini{padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid var(--ash)}
+.arch-mini:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.arch-mini-name{font-family:'Cinzel',serif;font-size:9px;letter-spacing:.1em;color:var(--gold);margin-bottom:3px}
+.arch-mini-date{font-family:'Cinzel',serif;font-size:7px;color:var(--flame);opacity:.62;margin-bottom:4px}
+.arch-mini-desc{font-size:13px;color:var(--cream);opacity:.58;line-height:1.58}
+.map-mini{width:100%;background:#0D1A14;border:1px solid var(--ash);overflow:hidden;margin-bottom:8px}
+.map-mini svg{width:100%;display:block}
+.verse-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.verse-nav-label{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.3em;color:var(--gold);opacity:.4}
+.verse-nav-btns{display:flex;gap:4px}
+.verse-nav-btn{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.1em;padding:7px 14px;background:var(--parchment);border:1px solid var(--ash);color:var(--cream);opacity:.5;cursor:pointer;transition:all .2s}
+.verse-nav-btn:hover,.verse-nav-btn.active{opacity:1;border-color:var(--soft-gold);color:var(--gold);border-color:var(--gold)}
+</style>
+</head>
+<body>
+
+<nav class="miltha-nav" id="miltha-nav">
+  <a href="/" class="nav-brand">MILTHA <span>ܡܸܠܬ݂ܵܐ · THE WORD</span></a>
+  <ul class="nav-links">
+    <li><a href="index.html">DAILY WORD</a></li>
+    <li><a href="knowledge.html">KNOWLEDGE ENGINE</a></li>
+    <li><a href="bible.html">BIBLE</a></li>
+    <li><a href="study.html">WORD BY WORD</a></li>
+    <li><a href="history.html">HISTORY</a></li>
+    <li><a href="library.html">LIBRARY</a></li>
+    <li><a href="community.html">COMMUNITY</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="nav-btn nav-signin" onclick="showToast('ACCOUNTS COMING SOON')">SIGN IN</button>
+    <button class="nav-btn nav-join" onclick="document.getElementById('waitlist-email').focus()">JOIN FREE</button>
+  </div>
+</nav>
+
+<div class="page-content">
+  <div class="daily-hero">
+    <div class="daily-date" id="daily-date">LOADING...</div>
+    <div class="daily-title">DAILY WORD</div>
+    <div class="daily-subtitle">The Word, unfiltered. In the language it was spoken.</div>
+  </div>
+
+  <div class="daily-body">
+
+    <div class="verse-nav">
+      <div class="verse-nav-label">TODAY'S PASSAGE</div>
+      <div class="verse-nav-btns">
+        <button class="verse-nav-btn" onclick="changeVerse(-1)">← YESTERDAY</button>
+        <button class="verse-nav-btn active" id="today-btn">TODAY</button>
+        <button class="verse-nav-btn" onclick="changeVerse(1)">TOMORROW →</button>
+      </div>
+    </div>
+
+    <!-- Scripture Card -->
+    <div id="daily-card"></div>
+
+    <!-- Platform Access Cards -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin:24px 0">
+      <a href="knowledge.html" style="background:var(--parchment);border:1px solid var(--ash);padding:20px 14px;text-decoration:none;display:flex;flex-direction:column;align-items:center;text-align:center;transition:all .2s ease">
+        <span style="font-size:22px;margin-bottom:8px">⊕</span>
+        <span style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:.18em;color:var(--gold);margin-bottom:5px;display:block">KNOWLEDGE ENGINE</span>
+        <span style="font-size:12px;font-style:italic;color:var(--cream);opacity:.42;line-height:1.5">Ask anything. Manuscript sources only.</span>
+      </a>
+      <a href="bible.html" style="background:var(--parchment);border:1px solid var(--ash);padding:20px 14px;text-decoration:none;display:flex;flex-direction:column;align-items:center;text-align:center;transition:all .2s ease">
+        <span style="font-size:22px;margin-bottom:8px">📖</span>
+        <span style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:.18em;color:var(--gold);margin-bottom:5px;display:block">BIBLE READER</span>
+        <span style="font-size:12px;font-style:italic;color:var(--cream);opacity:.42;line-height:1.5">All 27 NT books. Four translations.</span>
+      </a>
+      <a href="study.html" style="background:var(--parchment);border:1px solid var(--ash);padding:20px 14px;text-decoration:none;display:flex;flex-direction:column;align-items:center;text-align:center;transition:all .2s ease">
+        <span style="font-size:22px;margin-bottom:8px">⊞</span>
+        <span style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:.18em;color:var(--gold);margin-bottom:5px;display:block">WORD BY WORD</span>
+        <span style="font-size:12px;font-style:italic;color:var(--cream);opacity:.42;line-height:1.5">Every word in the original language.</span>
+      </a>
+    </div>
+
+    <!-- Church Father -->
+    <div id="daily-father"></div>
+
+    <!-- Waitlist -->
+    <div style="background:var(--parchment);border:1px solid var(--ash);padding:28px;text-align:center;margin-top:32px">
+      <div class="section-label flame" style="text-align:center">JOIN MILTHA</div>
+      <p style="font-size:17px;font-style:italic;color:var(--cream);opacity:.5;margin-bottom:20px;line-height:1.65">Be first to receive the full platform — accounts, community, and the complete Bible reader.</p>
+      <form onsubmit="handleWaitlist(event,'waitlist-success','waitlist-form')" id="waitlist-form" style="display:flex;max-width:420px;margin:0 auto 12px">
+        <input type="email" id="waitlist-email" name="email" placeholder="Your email address..." required
+          style="flex:1;background:var(--stone);border:1px solid var(--ash2);border-right:none;padding:14px 16px;font-family:'Cormorant Garamond',serif;font-size:16px;color:var(--white);outline:none">
+        <button type="submit" style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:.2em;padding:14px 18px;background:var(--gold);border:1px solid var(--gold);color:var(--black);cursor:pointer;font-weight:600;flex-shrink:0">JOIN</button>
+      </form>
+      <div id="waitlist-success" style="display:none;font-family:'Cinzel',serif;font-size:10px;letter-spacing:.2em;color:var(--gold);padding:14px;border:1px solid rgba(201,169,110,.25);max-width:420px;margin:0 auto">
+        THE WORD IS COMING. YOU ARE ON THE LIST. ܡܸܠܬ݂ܵܐ
+      </div>
+      <div style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:.15em;color:var(--cream);opacity:.2">NO SPAM. NO ALGORITHM. ONLY THE WORD.</div>
+    </div>
+
+  </div>
+</div>
+
+<footer class="miltha-footer">
+  <div class="footer-brand">MILTHA <span>ܡܸܠܺܬ݂ܵܐ · MILTHA.ORG</span></div>
+  <ul class="footer-links">
+    <li><a href="bible.html">BIBLE</a></li>
+    <li><a href="study.html">WORD BY WORD</a></li>
+    <li><a href="history.html">HISTORY</a></li>
+    <li><a href="library.html">LIBRARY</a></li>
+    <li><a href="community.html">COMMUNITY</a></li>
+  </ul>
+  <div class="footer-copy">© 2026 MILTHA · THE WORD, AS IT WAS SPOKEN.</div>
+</footer>
+
+<script src="js/miltha.js"></script>
+<script src="js/bible-data.js"></script>
+<script>
+
+const DAILY_VERSES = [
+  {
+    ref:'JOHN 1:1', context:'THE WORD INCARNATE',
+    kjv:'"In the beginning was the Word, and the Word was with God, and the Word was God."',
+    ara:'ܒ݁ܪܺܫܺܝܬ݂ ܐܺܝܬ݂ܰܘܗ݈ܝ ܗ݈ܘܳܐ ܡܶܠܬ݂ܳܐ ܘܗܽܘ ܡܶܠܬ݂ܳܐ ܐܺܝܬ݂ܰܘܗ݈ܝ ܗ݈ܘܳܐ ܠܘܳܬ݂ ܐܰܠܳܗܳܐ ܘܰܐܠܳܗܳܐ ܐܺܝܬ݂ܰܘܗ݈ܝ ܗ݈ܘܳܐ ܗܽܘ ܡܶܠܬ݂ܳܐ',
+    ara_translit:"B'reshith ithawhy hwa Miltha, w'hu Miltha ithawhy hwa lwath Alaha, w'Alaha ithawhy hwa hu Miltha.",
+    ara_source:'PESHITTA · EASTERN SYRIAC · c. 2ND CENTURY AD',
+    gk:'Ἐν ἀρχῇ ἦν ὁ Λόγος, καὶ ὁ Λόγος ἦν πρὸς τὸν Θεόν, καὶ Θεὸς ἦν ὁ Λόγος.',
+    gk_translit:'En archē ēn ho Logos, kai ho Logos ēn pros ton Theon, kai Theos ēn ho Logos.',
+    gk_source:'TEXTUS RECEPTUS · ERASMUS · 1516 AD',
+    heb:'בְּרֵאשִׁית הָיָה הַדָּבָר וְהַדָּבָר הָיָה אֵצֶל הָאֱלֹהִים וֵאלֹהִים הָיָה הַדָּבָר',
+    heb_translit:"B'reishit haya ha-Dabar, v'ha-Dabar haya etzel ha-Elohim...",
+    heb_source:'FRANZ DELITZSCH HEBREW NEW TESTAMENT · 1877',
+    father:{name:'IGNATIUS OF ANTIOCH',source:'EPISTLE TO THE EPHESIANS · c. 107 AD',text:'There is one Physician who is possessed both of flesh and spirit; both made and not made; God existing in flesh; true life in death; both of Mary and of God; first passible and then impassible — even Jesus Christ our Lord.',attr:'DISCIPLE OF THE APOSTLE JOHN · BISHOP OF ANTIOCH · MARTYR · c. 35–108 AD'},
+    tl:[
+      {date:'c. 6–4 BC',title:'Birth of Jesus · Bethlehem',detail:'Confirmed by Josephus and Roman census records. Fulfillment of Micah 5:2.',c:false},
+      {date:'c. 27–30 AD ← THIS PASSAGE',title:'Ministry of Jesus · Galilee and Judea',detail:'John writes as an eyewitness. "The Word became flesh" is testimony, not theology.',c:true},
+      {date:'c. 85–95 AD',title:'Gospel of John Written · Ephesus',detail:'Oldest surviving fragment (P52) dated c. 125 AD — John Rylands Library, Manchester.',c:false}
+    ],
+    arch:[
+      {name:'JOHN RYLANDS PAPYRUS P52',date:'DATED c. 125 AD · EGYPT',desc:'Oldest surviving New Testament fragment — John 18. Proves the Gospel circulated within living memory of the events.'},
+      {name:'THE PILATE STONE',date:'DISCOVERED 1961 · CAESAREA MARITIMA',desc:'Latin inscription confirming Pontius Pilate, Prefect of Judea. Israel Museum, Jerusalem.'}
+    ],
+    secular:[
+      {author:'TACITUS',work:'ANNALS XV.44 · c. 116 AD',quote:'"Christus...suffered the extreme penalty during the reign of Tiberius at the hands of...Pontius Pilatus."'},
+      {author:'JOSEPHUS',work:'ANTIQUITIES XX.9.1 · c. 93 AD',quote:'"...the brother of Jesus who was called Christ, whose name was James..."'}
+    ]
+  },
+  {
+    ref:'JOHN 3:16',context:'THE LOVE OF GOD',
+    kjv:'"For God so loved the world, that he gave his only begotten Son, that whosoever believeth in him should not perish, but have everlasting life."',
+    ara:'ܗܟܢܐ ܓܝܪ ܐܚܒ ܐܠܗܐ ܠܥܠܡܐ ܐܝܟܢܐ ܕܠܒܪܗ ܝܚܝܕܝܐ ܢܬܠ ܕܟܠ ܡܢ ܕܡܗܝܡܢ ܒܗ ܠܐ ܢܐܒܕ ܐܠܐ ܢܗܘܘܢ ܠܗ ܚܝܐ ܕܠܥܠܡ',
+    ara_translit:"Hakana gyr akheb Alaha l'alma, aykana d'l'breh ykhidaya nettel, d'kul man d'mhaymen beh la ne'bed...",
+    ara_source:'PESHITTA · EASTERN SYRIAC · c. 2ND CENTURY AD',
+    gk:'οὕτως γὰρ ἠγάπησεν ὁ Θεὸς τὸν κόσμον, ὥστε τὸν Υἱὸν αὐτοῦ τὸν μονογενῆ ἔδωκεν, ἵνα πᾶς ὁ πιστεύων εἰς αὐτὸν μὴ ἀπόληται ἀλλ᾽ ἔχῃ ζωὴν αἰώνιον.',
+    gk_translit:'Houtōs gar ēgapēsen ho Theos ton kosmon, hōste ton Huion autou ton monogenē edōken...',
+    gk_source:'TEXTUS RECEPTUS · ERASMUS · 1516 AD',
+    heb:'כִּי כֵּן אָהַב אֱלֹהִים אֶת הָעוֹלָם עַד אֲשֶׁר נָתַן אֶת בְּנוֹ יְחִידוֹ לְמַעַן כָּל הַמַּאֲמִין בּוֹ לֹא יֹאבַד כִּי אִם יִהְיֶה לּוֹ חַיֵּי עוֹלָם',
+    heb_translit:"Ki khen ahav Elohim et ha'olam ad asher natan et bno ykhido...",
+    heb_source:'FRANZ DELITZSCH HEBREW NEW TESTAMENT · 1877',
+    father:{name:'IRENAEUS OF LYON',source:'AGAINST HERESIES · c. 180 AD',text:'He became what we are that He might bring us to be even what He is Himself. The Word of God, our Lord Jesus Christ, who did, through His transcendent love, become what we are.',attr:'BISHOP OF LYON · STUDENT OF POLYCARP · c. 130–202 AD'},
+    tl:[
+      {date:'c. 27–30 AD ← THIS PASSAGE',title:'Night conversation with Nicodemus · Jerusalem',detail:'John 3 — Jesus delivers the most quoted verse in Christian history in a private night meeting.',c:true}
+    ],
+    arch:[
+      {name:'THE POOL OF BETHESDA',date:'EXCAVATED · JERUSALEM',desc:'John 5 records a pool with five porticoes — excavations confirmed this exact structure in the Old City of Jerusalem.'}
+    ],
+    secular:[
+      {author:'JOSEPHUS',work:'JEWISH WAR II · c. 75 AD',quote:'"The Pharisees are a certain sect of the Jews that appear more religious than others, and seem to interpret the laws more accurately."'}
+    ]
+  },
+  {
+    ref:'ROMANS 8:38-39',context:'NOTHING CAN SEPARATE',
+    kjv:'"For I am persuaded, that neither death, nor life, nor angels, nor principalities, nor powers, nor things present, nor things to come, nor height, nor depth, nor any other creature, shall be able to separate us from the love of God, which is in Christ Jesus our Lord."',
+    ara:'ܡܛܠ ܕܡܝܬܪ ܐܢܐ ܕܠܐ ܡܘܬܐ ܘܠܐ ܚܝܐ ܘܠܐ ܡܠܐܟܐ ܘܠܐ ܪܝܫܢܘܬܐ ܘܠܐ ܚܝܠܐ ܘܠܐ ܗܘܝܐ ܘܠܐ ܥܬܝܕܬܐ',
+    ara_translit:"Metul d'maytar ana d'la mawta w'la khaye w'la malake w'la rishanutha w'la khyla...",
+    ara_source:'PESHITTA · EASTERN SYRIAC · c. 2ND CENTURY AD',
+    gk:'πέπεισμαι γὰρ ὅτι οὔτε θάνατος οὔτε ζωὴ οὔτε ἄγγελοι οὔτε ἀρχαὶ οὔτε δυνάμεις οὔτε ἐνεστῶτα οὔτε μέλλοντα οὔτε ὕψωμα οὔτε βάθος οὔτε τις κτίσις ἑτέρα δυνήσεται ἡμᾶς χωρίσαι ἀπὸ τῆς ἀγάπης τοῦ Θεοῦ.',
+    gk_translit:'Pepeismai gar hoti oute thanatos oute zōē oute angeloi oute archai oute dynameis...',
+    gk_source:'TEXTUS RECEPTUS · ERASMUS · 1516 AD',
+    heb:'כִּי מְשֻׁכְנַּע אֲנִי כִּי לֹא מָוֶת וְלֹא חַיִּים וְלֹא מַלְאָכִים וְלֹא רָאשִׁים וְלֹא גְבוּרוֹת',
+    heb_translit:"Ki m'shukna ani ki lo mavet v'lo khayim v'lo malachim v'lo rashim...",
+    heb_source:'FRANZ DELITZSCH HEBREW NEW TESTAMENT · 1877',
+    father:{name:'POLYCARP OF SMYRNA',source:'AT HIS MARTYRDOM · 155 AD',text:'Eighty-six years I have served Him, and He never did me any wrong. How then can I blaspheme my King and my Savior? You threaten me with fire which burns for an hour — but are ignorant of the fire of the coming judgment.',attr:'BISHOP OF SMYRNA · DISCIPLE OF THE APOSTLE JOHN · MARTYR · c. 69–155 AD'},
+    tl:[
+      {date:'c. 57 AD ← THIS PASSAGE',title:'Paul writes Romans · Corinth',detail:'The most systematic theological letter in the New Testament. Delivered by Phoebe (Romans 16:1).',c:true}
+    ],
+    arch:[
+      {name:'THE ERASTUS INSCRIPTION',date:'DISCOVERED 1929 · CORINTH',desc:'Pavement inscription: "Erastus laid this pavement at his own expense." Romans 16:23 mentions "Erastus, the city treasurer" — verified by archaeology.'}
+    ],
+    secular:[
+      {author:'TACITUS',work:'ANNALS XIV · c. 116 AD',quote:'"Nero fastened the guilt...on a class hated for their abominations, called Christians by the populace."'}
+    ]
+  },
+  {
+    ref:'ISAIAH 53:5',context:'THE SUFFERING SERVANT',
+    kjv:'"But he was wounded for our transgressions, he was bruised for our iniquities: the chastisement of our peace was upon him; and with his stripes we are healed."',
+    ara:'ܘܗܽܘ ܡܚܺܝܠ ܡܶܛܽܠ ܚܛܳܗܰܝ̈ܢ ܘܰܡܫܰܒ ܡܶܛܽܠ ܥܰܘܠܰܝ̈ܢ ܡܰܪܕܽܘܬ݂ ܫܠܳܡܰܢ ܥܠܰܘܗ̱ܝ ܘܰܒܡܽܘܚܰܘ̈ܗ̱ܝ ܐܶܬ݂ܐܰܣܺܝܢ',
+    ara_translit:"W'hu mkhil metul khtohayn, w'mashab metul awlayn; marduth shlaman alawy, w'b'mukhawhy eth'asin.",
+    ara_source:'PESHITTA OLD TESTAMENT · ARAMAIC · c. 2ND CENTURY AD',
+    gk:'αὐτὸς δὲ ἐτραυματίσθη διὰ τὰς ἀνομίας ἡμῶν καὶ μεμαλάκισται διὰ τὰς ἁμαρτίας ἡμῶν· παιδεία εἰρήνης ἡμῶν ἐπ᾽ αὐτόν, τῷ μώλωπι αὐτοῦ ἡμεῖς ἰάθημεν.',
+    gk_translit:'Autos de etraumatisthē dia tas anomias hēmōn kai memalakistai dia tas hamartias hēmōn...',
+    gk_source:'SEPTUAGINT (LXX) · GREEK OLD TESTAMENT · c. 250 BC',
+    heb:'וְהוּא מְחֹלָל מִפְּשָׁעֵנוּ מְדֻכָּא מֵעֲוֹנֹתֵינוּ מוּסַר שְׁלוֹמֵנוּ עָלָיו וּבַחֲבֻרָתוֹ נִרְפָּא לָנוּ',
+    heb_translit:"V'hu m'kholal mip'sha'enu, m'duka me'avonotenu; musar shlomenu alav, u'vakhaburato nirpa lanu.",
+    heb_source:'HEBREW MASORETIC TEXT · CONFIRMED BY DEAD SEA SCROLLS c. 150 BC',
+    father:{name:'JUSTIN MARTYR',source:'DIALOGUE WITH TRYPHO · c. 155 AD',text:'These words were spoken of Christ by the prophet Isaiah, who lived long before He came among men. And after He came, we saw all this fulfilled exactly as Isaiah had written.',attr:'FIRST APOLOGIST · c. 100–165 AD · MARTYR'},
+    tl:[
+      {date:'c. 700 BC ← THIS PASSAGE',title:'Isaiah writes in Jerusalem',detail:'Written 700 years before the crucifixion. The most detailed Messianic prophecy in the Hebrew scriptures.',c:true},
+      {date:'c. 150 BC',title:'Dead Sea Scrolls preserve Isaiah',detail:'The complete Isaiah scroll is virtually identical to modern Bibles — confirmed unchanged before the birth of Jesus.',c:false}
+    ],
+    arch:[
+      {name:'THE GREAT ISAIAH SCROLL',date:'DEAD SEA SCROLLS · c. 150 BC · QUMRAN',desc:'The oldest surviving Isaiah manuscript. Carbon dated to 150–100 BC. Shrine of the Book, Jerusalem. Confirms Isaiah 53 was written centuries before Christ.'}
+    ],
+    secular:[
+      {author:'DEAD SEA SCROLLS (1QIsa)',work:'QUMRAN · c. 150 BC',quote:'The complete Isaiah scroll is virtually identical to the Masoretic text — a 1,000-year gap with no textual corruption.'}
+    ]
+  },
+  {
+    ref:'EPHESIANS 2:8-9',context:'SAVED BY GRACE',
+    kjv:'"For by grace are ye saved through faith; and that not of yourselves: it is the gift of God: not of works, lest any man should boast."',
+    ara:'ܒܛܝܒܘܬܐ ܓܝܪ ܚܝܬܘܢ ܒܝܕ ܗܝܡܢܘܬܐ ܘܗܕܐ ܠܐ ܗܘܬ ܡܢܟܘܢ ܐܠܐ ܡܘܗܒܬܐ ܗܝ ܕܐܠܗܐ ܘܠܐ ܡܢ ܥܒ̈ܕܐ ܕܠܐ ܐܢܫ ܢܫܬܒܗܪ',
+    ara_translit:"B'taybutha gyr khytun b'yad haymanutha, w'hade la hawat menkun ela mawhabt-a hy d'Alaha...",
+    ara_source:'PESHITTA · EASTERN SYRIAC · c. 2ND CENTURY AD',
+    gk:'τῇ γὰρ χάριτί ἐστε σεσωσμένοι διὰ πίστεως· καὶ τοῦτο οὐκ ἐξ ὑμῶν, Θεοῦ τὸ δῶρον· οὐκ ἐξ ἔργων, ἵνα μή τις καυχήσηται.',
+    gk_translit:'Tē gar chariti este sesōsmenoi dia pisteōs; kai touto ouk ex hymōn, Theou to dōron...',
+    gk_source:'TEXTUS RECEPTUS · ERASMUS · 1516 AD',
+    heb:'כִּי בְחֶסֶד נוֹשַׁעְתֶּם בְּאֶמוּנָה וְלֹא מִכֶּם הוּא מַתְּנַת אֱלֹהִים הוּא לֹא מִמַּעֲשִׂים לְמַעַן לֹא יִתְהַלֵּל אִישׁ',
+    heb_translit:"Ki v'khesed nosha'tem b'emunah, v'lo mikem hu, matnat Elohim hu, lo mima'asim...",
+    heb_source:'FRANZ DELITZSCH HEBREW NEW TESTAMENT · 1877',
+    father:{name:'CLEMENT OF ALEXANDRIA',source:'STROMATA · c. 198 AD',text:'Faith is the foundation of all things. Without it the life of men is unstable and tottering. Grace makes the soul righteous, but love makes it perfect.',attr:'HEAD OF THE CATECHETICAL SCHOOL OF ALEXANDRIA · c. 150–215 AD'},
+    tl:[
+      {date:'c. 60–62 AD ← THIS PASSAGE',title:'Paul writes from prison · Rome',detail:'The letter to the Ephesians is written during Paul\'s Roman imprisonment. It contains the most concise statement of salvation by grace in the New Testament.',c:true}
+    ],
+    arch:[
+      {name:'THE THEATRE OF EPHESUS',date:'EXCAVATED · EPHESUS, TURKEY',desc:'The theater where the riot against Paul occurred (Acts 19:29) has been excavated and confirms the scale of the city described in Acts.'}
+    ],
+    secular:[
+      {author:'PLINY THE YOUNGER',work:'LETTERS X.96 · c. 112 AD',quote:'"They were in the habit of meeting on a certain fixed day...singing an anthem to Christ as to a god."'}
+    ]
+  },
+  {
+    ref:'PHILIPPIANS 4:6-7',context:'THE PEACE OF GOD',
+    kjv:'"Be careful for nothing; but in every thing by prayer and supplication with thanksgiving let your requests be made known unto God. And the peace of God, which passeth all understanding, shall keep your hearts and minds through Christ Jesus."',
+    ara:'ܡܕܡ ܠܐ ܬܐܨܦܘܢ ܐܠܐ ܒܟܠ ܡܕܡ ܒܨܠܘܬܐ ܘܒܒܥܘܬܐ ܥܡ ܬܘܕܝܬܐ ܫܐܠܬܟܘܢ ܬܬܝܕܥ ܩܕܡ ܐܠܗܐ',
+    ara_translit:"Medem la te'sef, ela b'kul medem b'tzeluta u'b'va'uta am tawdita shalatkun tettyad' qdam Alaha...",
+    ara_source:'PESHITTA · EASTERN SYRIAC · c. 2ND CENTURY AD',
+    gk:'μηδὲν μεριμνᾶτε, ἀλλ᾽ ἐν παντὶ τῇ προσευχῇ καὶ τῇ δεήσει μετὰ εὐχαριστίας τὰ αἰτήματα ὑμῶν γνωριζέσθω πρὸς τὸν Θεόν. καὶ ἡ εἰρήνη τοῦ Θεοῦ ἡ ὑπερέχουσα πάντα νοῦν φρουρήσει τὰς καρδίας ὑμῶν.',
+    gk_translit:'Mēden merimnate, all en panti tē proseuchē kai tē deēsei meta eucharistias...',
+    gk_source:'TEXTUS RECEPTUS · ERASMUS · 1516 AD',
+    heb:'אַל תִּדְאֲגוּ לַכֹּל כִּי אִם בַּכֹּל בִּתְפִלָּה וּבְתַחֲנוּן עִם תּוֹדָה יִוָּדְעוּ שְׁאֵלוֹתֵיכֶם לִפְנֵי הָאֱלֹהִים',
+    heb_translit:"Al tid'agu lakol, ki im bakol b'tefila u'v'takhanun im toda yivad'u she'eloteikhem lifney ha-Elohim...",
+    heb_source:'FRANZ DELITZSCH HEBREW NEW TESTAMENT · 1877',
+    father:{name:'TERTULLIAN',source:'ON PRAYER · c. 198 AD',text:'Prayer is the wall of faith, our shield and weapons against the enemy who watches us on all sides. And so we never walk without our arms. By day we are mindful of our station, by night of our watch.',attr:'APOLOGIST · FIRST MAJOR LATIN CHRISTIAN AUTHOR · c. 155–220 AD'},
+    tl:[
+      {date:'c. 61 AD ← THIS PASSAGE',title:'Paul writes from prison · Rome',detail:'Philippians is written from Roman imprisonment — yet overflows with joy and peace. Paul lived what he wrote.',c:true}
+    ],
+    arch:[
+      {name:'PHILIPPI ARCHAEOLOGICAL SITE',date:'EXCAVATED · KAVALA, GREECE',desc:'The ancient city of Philippi is one of the best-excavated sites in Greece. The forum where Paul and Silas were beaten (Acts 16) has been identified.'}
+    ],
+    secular:[
+      {author:'LUCIAN OF SAMOSATA',work:'THE DEATH OF PEREGRINE · c. 165 AD',quote:'"...the man who was crucified in Palestine...and made them believe they were all brothers of one another."'}
+    ]
+  },
+  {
+    ref:'HEBREWS 11:1',context:'THE HALL OF FAITH',
+    kjv:'"Now faith is the substance of things hoped for, the evidence of things not seen."',
+    ara:'ܗܝ ܕܝܢ ܗܝܡܢܘܬܐ ܗܝ ܩܘܝܡܐ ܕܡܕܡ ܕܣܒܪܝܢ ܚܢܢ ܘܓܠܝܢܐ ܕܡܕܡ ܕܠܐ ܡܬܚܙܐ',
+    ara_translit:"Hy deyn haymanutha hy qawima d'medem d'sabrin khnan, w'galyano d'medem d'la methkhez.",
+    ara_source:'PESHITTA · EASTERN SYRIAC · c. 2ND CENTURY AD',
+    gk:'Ἔστιν δὲ πίστις ἐλπιζομένων ὑπόστασις, πραγμάτων ἔλεγχος οὐ βλεπομένων.',
+    gk_translit:'Estin de pistis elpizomenōn hypostasis, pragmatōn elegchos ou blepomenōn.',
+    gk_source:'TEXTUS RECEPTUS · ERASMUS · 1516 AD',
+    heb:'וְהָאֱמוּנָה הִיא קִיּוּם הַנִּשְׂבָּרוֹת וּבִטָּחוֹן הַדְּבָרִים אֲשֶׁר אֵינָם נִרְאִים',
+    heb_translit:"V'ha'emunah hi kiyum ha-nisbarat u'vitakhon ha-d'varim asher einam nir'im.",
+    heb_source:'FRANZ DELITZSCH HEBREW NEW TESTAMENT · 1877',
+    father:{name:'CLEMENT OF ALEXANDRIA',source:'STROMATA · c. 198 AD',text:'Faith is the foundation of all things. Without it the life of men is unstable and tottering. By it we believe things unseen, and by it we live in hope of things not yet received.',attr:'HEAD OF THE CATECHETICAL SCHOOL OF ALEXANDRIA · c. 150–215 AD'},
+    tl:[
+      {date:'c. 60–70 AD ← THIS PASSAGE',title:'Hebrews written · Author unknown',detail:'The most sophisticated Greek in the New Testament. Possibly Paul, Apollos, or Priscilla. The Hall of Faith (Hebrews 11) catalogs the faithful from Abel to the prophets.',c:true}
+    ],
+    arch:[
+      {name:'THE DEAD SEA SCROLLS',date:'QUMRAN · c. 150 BC',desc:'The discovery of the scrolls confirmed that the Old Testament figures named in Hebrews 11 — Abraham, Moses, Rahab — were known and revered in Second Temple Judaism exactly as described.'}
+    ],
+    secular:[
+      {author:'JOSEPHUS',work:'ANTIQUITIES I–XI · c. 93 AD',quote:'Josephus records Abraham, Moses, Rahab, Gideon, and David in extensive historical detail — confirming these were recognized historical figures in first-century Jewish tradition.'}
+    ]
+  }
+];
+
+let currentVerseIndex = 0;
+
+function getDailyIndex() {
+  const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+  return dayOfYear % DAILY_VERSES.length;
+}
+
+function renderVerse(v) {
+  document.getElementById('daily-card').innerHTML = `
+    <div class="scripture-card">
+      <div class="card-inner">
+        <div class="card-ref">${v.ref} · ${v.context}</div>
+        <div class="card-verse">${v.kjv}</div>
+      </div>
+      <div class="tab-row">
+        <button class="tab-btn active" onclick="switchTab('ara',this)">ܐ ARAMAIC</button>
+        <button class="tab-btn" onclick="switchTab('gk',this)">Α GREEK</button>
+        <button class="tab-btn" onclick="switchTab('heb',this)">א HEBREW</button>
+        <button class="tab-btn hist" onclick="switchTab('hist',this)">⊕ HISTORY</button>
+      </div>
+      <div class="tab-panel active" id="dtab-ara">
+        <div class="panel-content">
+          <div class="panel-source">PESHITTA · ARAMAIC — THE LANGUAGE OF JESUS</div>
+          <div class="panel-script rtl">${v.ara}</div>
+          <div class="panel-translit">${v.ara_translit}</div>
+          <div class="panel-ms">${v.ara_source}</div>
+        </div>
+      </div>
+      <div class="tab-panel" id="dtab-gk">
+        <div class="panel-content">
+          <div class="panel-source">TEXTUS RECEPTUS / SEPTUAGINT · GREEK</div>
+          <div class="panel-script">${v.gk}</div>
+          <div class="panel-translit">${v.gk_translit}</div>
+          <div class="panel-ms">${v.gk_source}</div>
+        </div>
+      </div>
+      <div class="tab-panel" id="dtab-heb">
+        <div class="panel-content">
+          <div class="panel-source">HEBREW · MASORETIC / DELITZSCH</div>
+          <div class="panel-script rtl">${v.heb}</div>
+          <div class="panel-translit">${v.heb_translit}</div>
+          <div class="panel-ms">${v.heb_source}</div>
+        </div>
+      </div>
+      <div class="tab-panel" id="dtab-hist">
+        <div class="hist-subtabs">
+          <button class="hist-sub active" onclick="switchHist('tl',this)">TIMELINE</button>
+          <button class="hist-sub" onclick="switchHist('arch',this)">ARCHAEOLOGY</button>
+          <button class="hist-sub" onclick="switchHist('sec',this)">SOURCES</button>
+          <button class="hist-sub" onclick="switchHist('map',this)">MAP</button>
+        </div>
+        <div class="hist-view active" id="dhv-tl">
+          ${v.tl.map(t=>`<div class="tl-mini"><div class="tl-mini-dot ${t.c?'c':''}"></div><div><div class="tl-mini-date ${t.c?'c':''}">${t.date}</div><div class="tl-mini-title">${t.title}</div><div class="tl-mini-detail">${t.detail}</div></div></div>`).join('')}
+        </div>
+        <div class="hist-view" id="dhv-arch">
+          ${v.arch.map(a=>`<div class="arch-mini"><div class="arch-mini-name">${a.name}</div><div class="arch-mini-date">${a.date}</div><div class="arch-mini-desc">${a.desc}</div></div>`).join('')}
+        </div>
+        <div class="hist-view" id="dhv-sec">
+          ${v.secular.map(s=>`<div style="padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid var(--ash)"><div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:.12em;color:var(--gold);margin-bottom:2px">${s.author}</div><div style="font-family:'Cinzel',serif;font-size:7px;color:var(--cream);opacity:.28;margin-bottom:8px">${s.work}</div><div style="font-size:14px;font-style:italic;color:var(--white);opacity:.72;line-height:1.8;padding-left:10px;border-left:1px solid var(--flame)">${s.quote}</div></div>`).join('')}
+        </div>
+        <div class="hist-view" id="dhv-map">
+          <div class="map-mini">
+            <svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg">
+              <rect width="280" height="200" fill="#0D1A14"/>
+              <ellipse cx="168" cy="52" rx="14" ry="20" fill="#0D2535" stroke="#1A4A6A" stroke-width=".8" opacity=".9"/>
+              <text x="168" y="57" text-anchor="middle" fill="#3A7A9A" font-size="4" font-family="serif" opacity=".7">SEA OF GALILEE</text>
+              <ellipse cx="174" cy="148" rx="11" ry="24" fill="#0D2535" stroke="#1A4A6A" stroke-width=".8" opacity=".9"/>
+              <text x="174" y="152" text-anchor="middle" fill="#3A7A9A" font-size="3.5" font-family="serif" opacity=".7">DEAD SEA</text>
+              <path d="M166,72 Q164,100 166,120 Q168,135 170,126" stroke="#1A4A6A" stroke-width="1.5" fill="none" opacity=".6"/>
+              <text x="110" y="35" text-anchor="middle" fill="#2A2820" font-size="6" font-family="serif" font-style="italic" opacity=".55">GALILEE</text>
+              <text x="108" y="100" text-anchor="middle" fill="#2A2820" font-size="6" font-family="serif" font-style="italic" opacity=".55">SAMARIA</text>
+              <text x="104" y="148" text-anchor="middle" fill="#2A2820" font-size="6" font-family="serif" font-style="italic" opacity=".55">JUDEA</text>
+              <circle cx="134" cy="142" r="5" fill="#E8813A" opacity=".9"/>
+              <text x="142" y="145" fill="#E8813A" font-size="6" font-family="serif" font-weight="bold">JERUSALEM</text>
+              <circle cx="134" cy="60" r="3.5" fill="#C9A96E" opacity=".8"/>
+              <text x="85" y="60" fill="#C9A96E" font-size="5.5" font-family="serif" text-anchor="end">NAZARETH</text>
+              <circle cx="158" cy="44" r="3.5" fill="#C9A96E" opacity=".8"/>
+              <text x="158" y="37" fill="#C9A96E" font-size="5.5" font-family="serif" text-anchor="middle">CAPERNAUM</text>
+              <text x="50" y="190" fill="#C9A96E" font-size="7" font-family="serif" opacity=".15">N↑</text>
+            </svg>
+          </div>
+          <div style="font-family:'Cinzel',serif;font-size:7px;letter-spacing:.2em;color:var(--gold);opacity:.28">FIRST-CENTURY ISRAEL · KEY LOCATIONS</div>
+        </div>
+      </div>
+    </div>`;
+
+  document.getElementById('daily-father').innerHTML = `
+    <div class="father-card">
+      <div class="father-label">CHURCH FATHER · ${v.father.name} · ${v.father.source}</div>
+      <div class="father-quote-text">"${v.father.text}"</div>
+      <div class="father-attr">${v.father.attr}</div>
+    </div>`;
+}
+
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('dtab-'+id).classList.add('active');
+}
+
+function switchHist(id, btn) {
+  document.querySelectorAll('.hist-sub').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.hist-view').forEach(v=>v.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('dhv-'+id).classList.add('active');
+}
+
+function changeVerse(dir) {
+  currentVerseIndex = (currentVerseIndex + dir + DAILY_VERSES.length) % DAILY_VERSES.length;
+  renderVerse(DAILY_VERSES[currentVerseIndex]);
+  document.querySelectorAll('.verse-nav-btn').forEach(b=>b.classList.remove('active'));
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('daily-date').textContent =
+    new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}).toUpperCase();
+  currentVerseIndex = getDailyIndex();
+  renderVerse(DAILY_VERSES[currentVerseIndex]);
+  document.getElementById('today-btn').classList.add('active');
+});
+</script>
+</body>
+</html>
