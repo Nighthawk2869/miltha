@@ -60,6 +60,27 @@ nav.scrolled{background:rgba(10,10,15,.97);border-bottom:1px solid var(--ash);ba
 .cta-enter{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.3em;padding:16px 36px;background:var(--gold);border:none;color:var(--black);cursor:pointer;font-weight:600;transition:all .2s ease;text-decoration:none;display:inline-block}
 .cta-enter:hover{background:var(--pure)}
 .cta-sub{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.2em;color:var(--cream);opacity:.25}
+.hero-platform-label{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.5em;color:var(--pure);opacity:.3;margin-top:32px;margin-bottom:14px}
+.hero-platform-row{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;max-width:720px;width:100%;margin-bottom:32px}
+.hero-platform-card{border:1px solid var(--ash);padding:20px 16px;text-decoration:none;display:flex;flex-direction:column;align-items:center;text-align:center;transition:all .25s ease;position:relative;overflow:hidden}
+.hero-platform-card:hover{transform:translateY(-3px);box-shadow:0 8px 32px rgba(0,0,0,.4)}
+.hpc-gold{background:rgba(201,169,110,.07);border-color:rgba(201,169,110,.28)}
+.hpc-gold:hover{background:rgba(201,169,110,.14);border-color:var(--gold)}
+.hpc-gold .hpc-name{color:var(--gold)}
+.hpc-flame{background:rgba(232,129,58,.07);border-color:rgba(232,129,58,.28)}
+.hpc-flame:hover{background:rgba(232,129,58,.14);border-color:var(--flame)}
+.hpc-flame .hpc-name{color:var(--flame)}
+.hpc-blue{background:rgba(58,95,168,.07);border-color:rgba(58,95,168,.28)}
+.hpc-blue:hover{background:rgba(58,95,168,.14);border-color:var(--blue)}
+.hpc-blue .hpc-name{color:#6B93D6}
+.hpc-icon{font-size:22px;margin-bottom:9px;display:block}
+.hpc-name{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.2em;margin-bottom:6px;display:block;font-weight:600}
+.hpc-desc{font-size:12px;font-style:italic;color:var(--cream);opacity:.52;line-height:1.5;display:block}
+.scroll-prompt{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;transition:opacity .2s}
+.scroll-prompt:hover{opacity:.8}
+.scroll-prompt-text{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.28em;color:var(--cream);opacity:.35}
+.scroll-prompt-arrow{font-size:18px;color:var(--gold);opacity:.4;animation:bounce 2s ease infinite}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
 
 /* Scroll indicator */
 .scroll-indicator{position:absolute;bottom:36px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;animation:fadeIn 1s ease 2.2s both}
@@ -165,6 +186,7 @@ footer{padding:44px 48px;border-top:1px solid var(--ash);display:flex;align-item
 @media(max-width:768px){
   nav{padding:14px 20px}
   nav.scrolled{padding:10px 20px}
+  .hero-platform-row{grid-template-columns:repeat(2,1fr)}
   .section,.pillars-section,.fathers-section,.waitlist-section,.john-section{padding:70px 20px}
   .stat-row{grid-template-columns:1fr 1fr}
   .pillars-grid,.fathers-grid{grid-template-columns:1fr}
@@ -182,7 +204,6 @@ footer{padding:44px 48px;border-top:1px solid var(--ash);display:flex;align-item
 <!-- NAV -->
 <nav id="site-nav">
   <a href="/" class="nav-brand">MILTHA <span>ܡܸܠܬ݂ܵܐ · THE WORD</span></a>
-  <a href="daily.html" class="nav-enter">ENTER THE SANCTUARY →</a>
 </nav>
 
 <!-- ===== HERO: THE DECLARATION ===== -->
@@ -219,13 +240,46 @@ footer{padding:44px 48px;border-top:1px solid var(--ash);display:flex;align-item
 
   <div class="hero-cta">
     <a href="daily.html" class="cta-enter">ENTER THE SANCTUARY</a>
-    <span class="cta-sub">DAILY WORD · KNOWLEDGE ENGINE · BIBLE READER · WORD BY WORD · HISTORY · LIBRARY</span>
+    <div class="hero-platform-label">WHAT'S INSIDE</div>
+    <div class="hero-platform-row">
+      <a href="daily.html" class="hero-platform-card hpc-gold">
+        <span class="hpc-icon">☀</span>
+        <span class="hpc-name">DAILY WORD</span>
+        <span class="hpc-desc">One scripture. Three languages. Every day.</span>
+      </a>
+      <a href="knowledge.html" class="hero-platform-card hpc-flame">
+        <span class="hpc-icon">⊕</span>
+        <span class="hpc-name">KNOWLEDGE ENGINE</span>
+        <span class="hpc-desc">Ask anything. Manuscript sources only.</span>
+      </a>
+      <a href="bible.html" class="hero-platform-card hpc-gold">
+        <span class="hpc-icon">📖</span>
+        <span class="hpc-name">BIBLE READER</span>
+        <span class="hpc-desc">All 27 NT books. KJV · Aramaic · Greek.</span>
+      </a>
+      <a href="study.html" class="hero-platform-card hpc-blue">
+        <span class="hpc-icon">⊞</span>
+        <span class="hpc-name">WORD BY WORD</span>
+        <span class="hpc-desc">Every word in the original language.</span>
+      </a>
+      <a href="history.html" class="hero-platform-card hpc-flame">
+        <span class="hpc-icon">⊛</span>
+        <span class="hpc-name">HISTORY LAYER</span>
+        <span class="hpc-desc">Maps. Archaeology. Secular sources.</span>
+      </a>
+      <a href="library.html" class="hero-platform-card hpc-blue">
+        <span class="hpc-icon">📚</span>
+        <span class="hpc-name">THE LIBRARY</span>
+        <span class="hpc-desc">Church Fathers. The earliest voices.</span>
+      </a>
+    </div>
+    <div class="scroll-prompt">
+      <div class="scroll-prompt-text">OR SCROLL TO DISCOVER THE MISSION</div>
+      <div class="scroll-prompt-arrow">↓</div>
+    </div>
   </div>
 
-  <div class="scroll-indicator">
-    <span class="scroll-label">THE MISSION</span>
-    <div class="scroll-line"></div>
-  </div>
+
 </section>
 
 <div class="divider"></div>
