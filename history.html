@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>History — MILTHA</title>
+<link rel="stylesheet" href="css/miltha.css">
+<style>
+.hist-nav{display:flex;gap:4px;margin-bottom:26px;flex-wrap:wrap}
+.hn-btn{font-family:'Cinzel',serif;font-size:22px;letter-spacing:.13em;padding:9px 15px;background:var(--parchment);border:1px solid var(--ash);color:var(--cream);opacity:.84;cursor:pointer;transition:all .2s}
+.hn-btn.active{background:rgba(232,129,58,.07);border-color:var(--flame);color:var(--flame);opacity:1}
+.hn-btn:hover:not(.active){opacity:.7}
+.hist-pg{display:none}
+.hist-pg.active{display:block;animation:fadeIn .3s ease}
+.map-main{background:#0A1410;border:1px solid var(--ash);overflow:hidden;margin-bottom:13px}
+.map-main svg{width:100%;display:block}
+.map-caption{padding:16px 15px;background:var(--parchment);border-top:1px solid var(--ash);font-size:19px;font-style:italic;color:var(--cream);opacity:.36;line-height:1.5}
+.loc-detail{display:none;background:var(--parchment);border:1px solid var(--ash);border-left:2px solid var(--flame);padding:17px;margin-top:4px;animation:slideDown .25s ease}
+.loc-detail.visible{display:block}
+.ld-name{font-family:'Cinzel',serif;font-size:24px;letter-spacing:.13em;color:var(--flame);margin-bottom:4px}
+.ld-coords{font-family:'Cinzel',serif;font-size:19px;color:var(--gold);opacity:.80;margin-bottom:7px}
+.ld-desc{font-size:21px;color:var(--cream);opacity:.7;line-height:1.75;margin-bottom:7px}
+.ld-verse{font-size:19px;font-style:italic;color:var(--white);opacity:.87;padding-left:9px;border-left:1px solid var(--gold);margin-bottom:6px}
+.ld-src{font-family:'Cinzel',serif;font-size:19px;letter-spacing:.09em;color:var(--blue);opacity:.4}
+.tl-wrap{position:relative;padding-left:24px}
+.tl-wrap::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,transparent,var(--gold),transparent);opacity:.18}
+.tl-era{font-family:'Cinzel',serif;font-size:21px;letter-spacing:.28em;color:var(--gold);opacity:.78;padding:18px 0 7px;border-top:1px solid var(--ash);margin-bottom:12px}
+.tl-event{display:flex;gap:13px;margin-bottom:20px}
+.tl-dot{width:10px;height:10px;border-radius:50%;background:var(--gold);opacity:.84;flex-shrink:0;margin-top:4px;position:relative;z-index:1}
+.tl-dot.c{background:var(--flame);opacity:1;box-shadow:0 0 10px rgba(232,129,58,.45)}
+.tl-dot.m{background:var(--blue);opacity:.75}
+.tl-content{flex:1}
+.tl-date{font-family:'Cinzel',serif;font-size:21px;letter-spacing:.13em;color:var(--gold);opacity:.87;margin-bottom:3px}
+.tl-date.c{color:var(--flame);opacity:1}
+.tl-date.m{color:var(--blue);opacity:.75}
+.tl-title{font-size:23px;color:var(--white);margin-bottom:3px;line-height:1.4}
+.tl-detail{font-size:18px;font-style:italic;color:var(--cream);opacity:.84;line-height:1.6}
+.tl-source{font-family:'Cinzel',serif;font-size:19px;letter-spacing:.09em;color:var(--blue);opacity:.84;margin-top:4px}
+.arch-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.arch-card{background:var(--parchment);border:1px solid var(--ash);border-left:2px solid var(--flame);padding:20px;transition:all .3s}
+.arch-card:hover{border-left-color:var(--gold)}
+.arch-icon{font-size:22px;margin-bottom:9px;display:block}
+.arch-name{font-family:'Cinzel',serif;font-size:23px;letter-spacing:.11em;color:var(--gold);margin-bottom:3px}
+.arch-date{font-family:'Cinzel',serif;font-size:19px;color:var(--flame);opacity:.90;margin-bottom:7px}
+.arch-desc{font-size:19px;color:var(--cream);opacity:.90;line-height:1.7;margin-bottom:7px}
+.arch-rel{font-size:18px;font-style:italic;color:var(--white);opacity:.46;line-height:1.62;border-top:1px solid var(--ash);padding-top:8px;margin-top:7px}
+.arch-src{font-family:'Cinzel',serif;font-size:19px;letter-spacing:.09em;color:var(--blue);opacity:.84;margin-top:5px}
+.sec-item{background:var(--parchment);border:1px solid var(--ash);padding:30px;margin-bottom:4px}
+.sec-author{font-family:'Cinzel',serif;font-size:19px;letter-spacing:.13em;color:var(--gold);margin-bottom:3px}
+.sec-work{font-family:'Cinzel',serif;font-size:19px;letter-spacing:.09em;color:var(--cream);opacity:.78;margin-bottom:11px}
+.sec-quote{font-size:23px;font-style:italic;color:var(--white);opacity:.76;line-height:1.82;padding-left:12px;border-left:2px solid var(--flame);margin-bottom:10px}
+.sec-context{font-size:19px;color:var(--cream);opacity:.46;line-height:1.7;margin-bottom:7px}
+.sec-src{font-family:'Cinzel',serif;font-size:19px;letter-spacing:.09em;color:var(--blue);opacity:.46}
+@media(max-width:768px){.arch-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav class="miltha-nav" id="miltha-nav">
+  <a href="index.html" class="nav-brand">MILTHA <span>ܡܸܠܬ݂ܵܐ · THE WORD</span></a>
+  <ul class="nav-links">
+    <li><a href="daily.html">DAILY WORD</a></li>
+    <li><a href="knowledge.html">KNOWLEDGE ENGINE</a></li>
+    <li><a href="bible.html">BIBLE</a></li>
+    <li><a href="study.html">WORD BY WORD</a></li>
+    <li><a href="history.html">HISTORY</a></li>
+    <li><a href="library.html">LIBRARY</a></li>
+    <li><a href="community.html">COMMUNITY</a></li>
+  </ul>
+  <div class="nav-right"><a href="contribute.html" class="nav-btn nav-contribute">✦ CONTRIBUTE</a>
+    
+    
+  </div>
+</nav>
+<div class="page-content">
+  <div class="page-hero">
+    <div class="section-label flame" style="text-align:center">VERIFIED HISTORY</div>
+    <div class="page-title">CHRISTIANITY IS HISTORY</div>
+    <div class="page-subtitle">Real places. Real dates. Real people — verified by archaeology, Roman records, and secular historians who had no motive to support the Christian faith.</div>
+  </div>
+  <div class="page-body wide">
+    <div class="hist-nav">
+      <button class="hn-btn active" onclick="showPg('map',this)">⊕ MAP</button>
+      <button class="hn-btn" onclick="showPg('timeline',this)">↓ TIMELINE</button>
+      <button class="hn-btn" onclick="showPg('arch',this)">⚱ ARCHAEOLOGY</button>
+      <button class="hn-btn" onclick="showPg('secular',this)">✦ SECULAR SOURCES</button>
+    </div>
+
+    <div class="hist-pg active" id="hpg-map">
+      <div class="section-label flame">FIRST-CENTURY ISRAEL · TAP ANY LOCATION</div>
+      <div class="map-main">
+        <svg viewBox="0 0 700 520" xmlns="http://www.w3.org/2000/svg">
+          <rect width="700" height="520" fill="#0A1410"/>
+          <ellipse cx="430" cy="130" rx="38" ry="60" fill="#0D2535" stroke="#1A4A6A" stroke-width="1.5" opacity=".9"/>
+          <text x="430" y="126" text-anchor="middle" fill="#3A7A9A" font-size="10" font-family="serif" opacity=".75">SEA OF GALILEE</text>
+          <ellipse cx="460" cy="372" rx="30" ry="70" fill="#0D2535" stroke="#1A4A6A" stroke-width="1.5" opacity=".9"/>
+          <text x="460" y="370" text-anchor="middle" fill="#3A7A9A" font-size="9" font-family="serif" opacity=".75">DEAD SEA</text>
+          <path d="M415,192 Q408,242 412,292 Q416,332 420,312 Q424,297 428,372" stroke="#1A4A6A" stroke-width="3" fill="none" opacity=".55"/>
+          <path d="M60,0 Q58,130 60,260 Q62,390 65,520" stroke="#1A4A6A" stroke-width="1" fill="none" opacity=".22" stroke-dasharray="6,4"/>
+          <text x="280" y="100" text-anchor="middle" fill="#2A2820" font-size="17" font-family="serif" font-style="italic" opacity=".48">GALILEE</text>
+          <text x="280" y="262" text-anchor="middle" fill="#2A2820" font-size="17" font-family="serif" font-style="italic" opacity=".48">SAMARIA</text>
+          <text x="260" y="390" text-anchor="middle" fill="#2A2820" font-size="17" font-family="serif" font-style="italic" opacity=".48">JUDEA</text>
+          <circle cx="319" cy="420" r="13" fill="#E8813A" opacity=".88" style="cursor:pointer" onclick="showLoc('jerusalem')"/>
+          <circle cx="319" cy="420" r="22" fill="#E8813A" opacity=".08"/>
+          <text x="338" y="424" fill="#E8813A" font-size="13" font-family="serif" font-weight="bold" style="cursor:pointer" onclick="showLoc('jerusalem')">JERUSALEM</text>
+          <circle cx="311" cy="446" r="8" fill="#C9A96E" opacity=".82" style="cursor:pointer" onclick="showLoc('bethlehem')"/>
+          <text x="328" y="450" fill="#C9A96E" font-size="11" font-family="serif" style="cursor:pointer" onclick="showLoc('bethlehem')">BETHLEHEM</text>
+          <circle cx="311" cy="166" r="8" fill="#C9A96E" opacity=".82" style="cursor:pointer" onclick="showLoc('nazareth')"/>
+          <text x="222" y="170" fill="#C9A96E" font-size="11" font-family="serif" text-anchor="end" style="cursor:pointer" onclick="showLoc('nazareth')">NAZARETH</text>
+          <circle cx="403" cy="112" r="8" fill="#C9A96E" opacity=".82" style="cursor:pointer" onclick="showLoc('capernaum')"/>
+          <text x="403" y="98" fill="#C9A96E" font-size="11" font-family="serif" text-anchor="middle" style="cursor:pointer" onclick="showLoc('capernaum')">CAPERNAUM</text>
+          <circle cx="341" cy="434" r="7" fill="#3A5FA8" opacity=".78" style="cursor:pointer" onclick="showLoc('bethany')"/>
+          <text x="222" y="438" fill="#3A5FA8" font-size="10" font-family="serif" text-anchor="end" style="cursor:pointer" onclick="showLoc('bethany')">BETHANY</text>
+          <circle cx="121" cy="222" r="7" fill="#C9A96E" opacity=".68" style="cursor:pointer" onclick="showLoc('caesarea')"/>
+          <text x="136" y="226" fill="#C9A96E" font-size="10" font-family="serif" style="cursor:pointer" onclick="showLoc('caesarea')">CAESAREA MARITIMA</text>
+          <circle cx="346" cy="154" r="7" fill="#3A5FA8" opacity=".75" style="cursor:pointer" onclick="showLoc('cana')"/>
+          <text x="330" y="142" fill="#3A5FA8" font-size="10" font-family="serif" text-anchor="middle" style="cursor:pointer" onclick="showLoc('cana')">CANA</text>
+          <circle cx="401" cy="382" r="7" fill="#C9A96E" opacity=".72" style="cursor:pointer" onclick="showLoc('jericho')"/>
+          <text x="418" y="386" fill="#C9A96E" font-size="11" font-family="serif" style="cursor:pointer" onclick="showLoc('jericho')">JERICHO</text>
+          <text x="82" y="492" fill="#C9A96E" font-size="18" font-family="serif" opacity=".16">N↑</text>
+        </svg>
+        <div class="map-caption">Tap any location marker to see its historical significance. Orange = primary New Testament locations. Blue = secondary locations. All verified against Josephus, archaeological surveys, and Roman records.</div>
+      </div>
+      <div class="loc-detail" id="loc-detail">
+        <div class="ld-name" id="ld-name"></div>
+        <div class="ld-coords" id="ld-coords"></div>
+        <div class="ld-desc" id="ld-desc"></div>
+        <div class="ld-verse" id="ld-verse"></div>
+        <div class="ld-src" id="ld-src"></div>
+      </div>
+    </div>
+
+    <div class="hist-pg" id="hpg-timeline">
+      <div class="tl-wrap">
+        <div class="tl-era">OLD TESTAMENT ERA</div>
+        <div class="tl-event"><div class="tl-dot"></div><div class="tl-content"><div class="tl-date">c. 1000 BC</div><div class="tl-title">Psalms of David Written</div><div class="tl-detail">Psalm 22, Psalm 110, and other Messianic Psalms composed — directly quoted by Jesus as prophecies fulfilled in Christ.</div><div class="tl-source">SOURCE: HEBREW MASORETIC TEXT · DEAD SEA SCROLLS CONFIRM STABILITY</div></div></div>
+        <div class="tl-event"><div class="tl-dot"></div><div class="tl-content"><div class="tl-date">c. 700 BC</div><div class="tl-title">Isaiah Writes the Suffering Servant</div><div class="tl-detail">Isaiah 53 — the most detailed Messianic prophecy. Dead Sea Scrolls (150 BC) prove the text unchanged before Jesus's birth.</div><div class="tl-source">SOURCE: ISAIAH SCROLL · DEAD SEA SCROLLS · ISRAEL MUSEUM · c. 150 BC</div></div></div>
+        <div class="tl-event"><div class="tl-dot"></div><div class="tl-content"><div class="tl-date">c. 150 BC</div><div class="tl-title">Dead Sea Scrolls Composed · Qumran</div><div class="tl-detail">The oldest surviving copies of Hebrew Scripture. Discovered 1947. Identical to modern Bibles — proving no corruption over 2,000 years.</div><div class="tl-source">SOURCE: ISRAEL ANTIQUITIES AUTHORITY · CARBON DATED · THE SHRINE OF THE BOOK, JERUSALEM</div></div></div>
+        <div class="tl-era">THE LIFE OF CHRIST</div>
+        <div class="tl-event"><div class="tl-dot c"></div><div class="tl-content"><div class="tl-date c">c. 6–4 BC — BIRTH</div><div class="tl-title">Birth of Jesus · Bethlehem, Judea</div><div class="tl-detail">Confirmed by Roman census records and Josephus. Fulfillment of Micah 5:2 — written 700 years earlier.</div><div class="tl-source">SOURCE: JOSEPHUS · ANTIQUITIES XVII · LUKE 2:1-7 · ROMAN CENSUS PAPYRI</div></div></div>
+        <div class="tl-event"><div class="tl-dot c"></div><div class="tl-content"><div class="tl-date c">c. 27–30 AD — MINISTRY</div><div class="tl-title">Ministry of Jesus · Galilee and Judea</div><div class="tl-detail">Three years of documented public ministry confirmed by Jewish, Roman, and Christian sources. Eyewitnesses alive and writing within the same generation.</div><div class="tl-source">SOURCE: JOSEPHUS ANTIQUITIES XVIII · TACITUS ANNALS XV · THE FOUR GOSPELS</div></div></div>
+        <div class="tl-event"><div class="tl-dot c"></div><div class="tl-content"><div class="tl-date c">c. 30–33 AD — CRUCIFIXION &amp; RESURRECTION</div><div class="tl-title">Death and Resurrection · Jerusalem</div><div class="tl-detail">Under Pontius Pilate, confirmed by the Pilate Stone (1961), Tacitus's Annals, and Josephus. The most verified execution in ancient history.</div><div class="tl-source">SOURCE: TACITUS ANNALS XV.44 · THE PILATE STONE · ISRAEL MUSEUM</div></div></div>
+        <div class="tl-era">THE EARLY CHURCH</div>
+        <div class="tl-event"><div class="tl-dot m"></div><div class="tl-content"><div class="tl-date m">c. 49–67 AD</div><div class="tl-title">Paul's Letters Written</div><div class="tl-detail">The earliest New Testament documents — within 20 years of the crucifixion. 1 Corinthians 15 records a creed scholars date within 3–5 years of the event.</div><div class="tl-source">SOURCE: 1 CORINTHIANS 15:3-8 · EARLIEST CREED c. 33–36 AD</div></div></div>
+        <div class="tl-event"><div class="tl-dot m"></div><div class="tl-content"><div class="tl-date m">70 AD</div><div class="tl-title">Destruction of the Temple · Jerusalem</div><div class="tl-detail">Roman General Titus destroys the Second Temple, fulfilling Jesus's prophecy in Matthew 24:1-2. The Western Wall is all that remains.</div><div class="tl-source">SOURCE: JOSEPHUS · JEWISH WAR VI · THE ARCH OF TITUS, ROME</div></div></div>
+        <div class="tl-event"><div class="tl-dot m"></div><div class="tl-content"><div class="tl-date m">c. 85–95 AD</div><div class="tl-title">Gospel of John Written · Ephesus</div><div class="tl-detail">The Rylands Papyrus P52 — oldest surviving NT fragment — contains John 18 and is dated c. 125 AD, within living memory of the events.</div><div class="tl-source">SOURCE: JOHN RYLANDS PAPYRUS P52 · JOHN RYLANDS LIBRARY, MANCHESTER</div></div></div>
+        <div class="tl-event"><div class="tl-dot m"></div><div class="tl-content"><div class="tl-date m">c. 2ND CENTURY AD</div><div class="tl-title">Peshitta Canon Established · Syria</div><div class="tl-detail">The Aramaic Peshitta — MILTHA's anchor translation — established as the Bible of the Eastern Church. In continuous liturgical use for 1,900 years.</div><div class="tl-source">SOURCE: PESHITTA INSTITUTE, LEIDEN · STILL IN USE TODAY</div></div></div>
+      </div>
+    </div>
+
+    <div class="hist-pg" id="hpg-arch">
+      <div class="arch-grid">
+        <div class="arch-card"><span class="arch-icon">🪨</span><div class="arch-name">THE PILATE STONE</div><div class="arch-date">DISCOVERED: 1961 · CAESAREA MARITIMA</div><div class="arch-desc">A limestone block bearing a Latin inscription: "Pontius Pilate, Prefect of Judea." Found during theater excavations. Now in the Israel Museum, Jerusalem.</div><div class="arch-rel">John 19:1 — "Then Pilate took Jesus and flogged him." The man who condemned Jesus is confirmed by Rome's own inscription. The argument against His historical existence is permanently closed.</div><div class="arch-src">SOURCE: ISRAEL ANTIQUITIES AUTHORITY · EXCAVATED BY ANTONIO FROVA · 1961</div></div>
+        <div class="arch-card"><span class="arch-icon">🏛️</span><div class="arch-name">THE POOL OF SILOAM</div><div class="arch-date">EXCAVATED: 2004 · CITY OF DAVID, JERUSALEM</div><div class="arch-desc">A large stepped pool from the Second Temple period, discovered during sewer repair work. Dated to the first century by pottery and coins. Five porticoes confirmed.</div><div class="arch-rel">John 9:7 — "Go, wash in the Pool of Siloam." The steps where the blind man walked down are still there. The channel through which the healing water flowed has been identified.</div><div class="arch-src">SOURCE: ISRAEL ANTIQUITIES AUTHORITY · RONNY REICH AND ELI SHUKRON · 2004</div></div>
+        <div class="arch-card"><span class="arch-icon">⚱️</span><div class="arch-name">THE OSSUARY OF CAIAPHAS</div><div class="arch-date">DISCOVERED: 1990 · JERUSALEM</div><div class="arch-desc">A bone box inscribed "Yehosef bar Qayafa" — Joseph son of Caiaphas. Found in a burial cave in Jerusalem. Bones of an elderly man inside. Now in the Israel Museum.</div><div class="arch-rel">John 18:13 — "They led him first to Annas, the father-in-law of Caiaphas." The high priest who presided over Jesus's trial has a verified burial. He was a real man making a real decision.</div><div class="arch-src">SOURCE: ISRAEL ANTIQUITIES AUTHORITY · ZIAS AND REICH · 1992</div></div>
+        <div class="arch-card"><span class="arch-icon">📜</span><div class="arch-name">JOHN RYLANDS PAPYRUS P52</div><div class="arch-date">DATED: c. 125 AD · EGYPT</div><div class="arch-desc">The oldest surviving New Testament fragment, containing John 18:31-33. Written in Greek. Found in Egypt. Now at the John Rylands Library, Manchester.</div><div class="arch-rel">Proves John's Gospel circulated in Egypt within 30 years of composition — within living memory of the events it records. Any theory of late invention is permanently destroyed.</div><div class="arch-src">SOURCE: JOHN RYLANDS LIBRARY · UNIVERSITY OF MANCHESTER · C.H. ROBERTS · 1934</div></div>
+        <div class="arch-card"><span class="arch-icon">📜</span><div class="arch-name">THE DEAD SEA SCROLLS</div><div class="arch-date">DISCOVERED: 1947 · QUMRAN, ISRAEL</div><div class="arch-desc">Over 900 manuscripts including the complete Isaiah scroll. Carbon dated 250 BC–68 AD. One thousand years older than any previously known Hebrew manuscripts.</div><div class="arch-rel">The Isaiah scroll is virtually identical to the Masoretic text in modern Bibles — proving faithful preservation over a millennium. Isaiah 53, written 700 years before Christ, reads exactly as it does today.</div><div class="arch-src">SOURCE: ISRAEL ANTIQUITIES AUTHORITY · THE SHRINE OF THE BOOK, JERUSALEM</div></div>
+        <div class="arch-card"><span class="arch-icon">⛵</span><div class="arch-name">THE SEA OF GALILEE BOAT</div><div class="arch-date">DISCOVERED: 1986 · SEA OF GALILEE</div><div class="arch-desc">A first-century wooden fishing boat recovered from the mud of the Sea of Galilee during a drought. Carbon dated 100 BC–70 AD. Now at the Yigal Allon Museum.</div><div class="arch-rel">Mark 4:37-38 — "A great windstorm arose..." The exact type of boat Jesus and the disciples crossed the Sea of Galilee in is now visible in a museum on its shores.</div><div class="arch-src">SOURCE: YIGAL ALLON MUSEUM · KIBBUTZ GINOSAR · CARBON DATED BY OXFORD UNIVERSITY</div></div>
+      </div>
+    </div>
+
+    <div class="hist-pg" id="hpg-secular">
+      <div class="sec-item"><div class="sec-author">TACITUS</div><div class="sec-work">ANNALS, BOOK XV, SECTION 44 · c. 116 AD · ROMAN SENATOR AND HISTORIAN</div><div class="sec-quote">"Christus, from whom the name had its origin, suffered the extreme penalty during the reign of Tiberius at the hands of one of our procurators, Pontius Pilatus, and a most mischievous superstition, thus checked for the moment, again broke out not only in Judaea, the first source of the evil, but even in Rome..."</div><div class="sec-context">A Roman senator writing with explicit hostility toward Christianity independently confirms the execution of Christ under Pontius Pilate during the reign of Tiberius. Tacitus had no motive to support Christian claims — he calls Christianity a "mischievous superstition." Yet his account matches John 19 precisely.</div><div class="sec-src">SOURCE: TACITUS · ANNALS · BOOK XV · SECTION 44 · LOEB CLASSICAL LIBRARY</div></div>
+      <div class="sec-item"><div class="sec-author">FLAVIUS JOSEPHUS</div><div class="sec-work">ANTIQUITIES OF THE JEWS, BOOK XX · c. 93 AD · FIRST-CENTURY JEWISH HISTORIAN</div><div class="sec-quote">"...the brother of Jesus who was called Christ, whose name was James, and some others...he brought them before them, and accused them, and delivered them to be stoned."</div><div class="sec-context">A first-century Jewish historian writing for a Roman audience with no motive to support Christian claims. His casual reference to "Jesus who was called Christ" demonstrates that Jesus's existence was uncontested historical fact in the first century — requiring no argument or defense.</div><div class="sec-src">SOURCE: JOSEPHUS · JEWISH ANTIQUITIES · BOOK XX · LOEB CLASSICAL LIBRARY</div></div>
+      <div class="sec-item"><div class="sec-author">PLINY THE YOUNGER</div><div class="sec-work">LETTERS, BOOK X, LETTER 96 · c. 112 AD · ROMAN GOVERNOR OF BITHYNIA-PONTUS</div><div class="sec-quote">"They were in the habit of meeting on a certain fixed day before it was light and singing an anthem to Christ as to a god, and binding themselves by a solemn oath, not to any wicked deeds, but never to commit any fraud, theft or adultery, never to falsify their word..."</div><div class="sec-context">A Roman governor writing to Emperor Trajan for legal guidance confirms that within 80 years of the crucifixion, communities were worshipping Jesus as divine across the Roman Empire. He describes practices matching exactly what the New Testament records.</div><div class="sec-src">SOURCE: PLINY THE YOUNGER · LETTERS · BOOK X · LETTER 96 · LOEB CLASSICAL LIBRARY</div></div>
+      <div class="sec-item"><div class="sec-author">THALLUS</div><div class="sec-work">HISTORY · c. 52 AD · SAMARITAN HISTORIAN (cited by Julius Africanus, c. 221 AD)</div><div class="sec-quote">Thallus attempts to explain the darkness at the crucifixion as a solar eclipse — the earliest known non-Christian reference to the death of Jesus, written within 20 years of the event.</div><div class="sec-context">Writing only 20 years after the crucifixion, Thallus acknowledges the unusual darkness and tries to explain it naturally — confirming that the event was widely known and required explanation even among non-believers. Julius Africanus notes a solar eclipse during Passover (a full moon) is astronomically impossible, meaning the darkness was extraordinary.</div><div class="sec-src">SOURCE: THALLUS · FRAGMENT 18 · CITED IN JULIUS AFRICANUS · CHRONOGRAPHY · c. 221 AD</div></div>
+    </div>
+  </div>
+</div>
+<footer class="miltha-footer">
+  <div class="footer-brand">MILTHA <span>ܡܸܠܺܬ݂ܵܐ · MILTHA.ORG</span></div>
+  <ul class="footer-links"><li><a href="daily.html">DAILY WORD</a></li><li><a href="bible.html">BIBLE</a></li><li><a href="library.html">LIBRARY</a></li></ul>
+  <div class="footer-copy">© 2026 MILTHA · THE WORD, AS IT WAS SPOKEN.</div>
+</footer>
+<script src="js/miltha.js"></script>
+<script>
+const LOCATIONS={
+  jerusalem:{name:'JERUSALEM',coords:'31.7784° N · 35.2354° E',desc:'The holy city. Site of Jesus\'s triumphal entry, the Last Supper, His trial, crucifixion, burial, and resurrection. Every major event of Passion Week occurred within these walls.',verse:'John 19:17 — "And he went out, bearing his own cross, to the place called The Place of a Skull, which in Aramaic is called Golgotha."',src:'VERIFIED: JOSEPHUS · ROMAN RECORDS · ONGOING ARCHAEOLOGICAL EXCAVATION'},
+  bethlehem:{name:'BETHLEHEM',coords:'31.7054° N · 35.2024° E',desc:'The birthplace of Jesus, fulfilling Micah 5:2 written 700 years earlier. 6 miles south of Jerusalem. The Church of the Nativity (c. 339 AD) is the oldest continuously operating church in the world.',verse:'Micah 5:2 — "But you, Bethlehem Ephrathah...out of you will come for me one who will be ruler over Israel."',src:'VERIFIED: JOSEPHUS · ROMAN CENSUS RECORDS · CHURCH OF THE NATIVITY · UNESCO WORLD HERITAGE SITE'},
+  nazareth:{name:'NAZARETH',coords:'32.7021° N · 35.2978° E',desc:'The village in lower Galilee where Jesus grew up. Excavations confirmed a small first-century Jewish village. The Nazareth Inscription — a marble slab prohibiting grave robbing — may relate to imperial response to the resurrection.',verse:'Luke 4:16 — "And he came to Nazareth, where he had been brought up. And as was his custom, he went to the synagogue on the Sabbath day."',src:'VERIFIED: FIRST-CENTURY REMAINS EXCAVATED · NAZARETH VILLAGE PROJECT'},
+  capernaum:{name:'CAPERNAUM',coords:'32.8813° N · 35.5756° E',desc:'Jesus\'s base of ministry in Galilee. Excavations uncovered a first-century synagogue beneath a later structure — very likely where Jesus taught. Peter\'s house has also been identified and excavated.',verse:'John 6:59 — "Jesus said these things in the synagogue, as he taught at Capernaum."',src:'VERIFIED: FRANCISCAN ARCHAEOLOGICAL INSTITUTE · FIRST-CENTURY SYNAGOGUE FLOOR CONFIRMED'},
+  bethany:{name:'BETHANY',coords:'31.7726° N · 35.2635° E',desc:'The village of Mary, Martha, and Lazarus — 2 miles east of Jerusalem. Site of the raising of Lazarus and Jesus\'s anointing before Passover. Modern al-Eizariya literally means "place of Lazarus" in Arabic.',verse:'John 11:43-44 — "He cried out with a loud voice, \'Lazarus, come out.\' The man who had died came out."',src:'VERIFIED: IDENTIFIED AS MODERN AL-EIZARIYA · JOSEPHUS · EUSEBIUS ONOMASTICON'},
+  caesarea:{name:'CAESAREA MARITIMA',coords:'32.5028° N · 34.8983° E',desc:'A magnificent port city built by Herod the Great. Home of the Roman governor. The Pilate Stone — confirming Pontius Pilate\'s existence — was discovered here in 1961.',verse:'Acts 23:33 — "When they came to Caesarea and delivered the letter to the governor, they presented Paul also before him."',src:'VERIFIED: THE PILATE STONE DISCOVERED HERE 1961 · ISRAEL ANTIQUITIES AUTHORITY'},
+  cana:{name:'CANA OF GALILEE',coords:'32.7436° N · 35.3424° E',desc:'Site of Jesus\'s first miracle — turning water into wine. Located in lower Galilee. Khirbet Qana is the most archaeologically credible identification, with first-century remains confirmed.',verse:'John 2:11 — "This, the first of his signs, Jesus did at Cana in Galilee, and manifested his glory."',src:'VERIFIED: KHIRBET QANA SURVEY · UNIVERSITY OF PUGET SOUND · FIRST-CENTURY VILLAGE CONFIRMED'},
+  jericho:{name:'JERICHO',coords:'31.8557° N · 35.4571° E',desc:'One of the oldest continuously inhabited cities in the world. Jesus passed through on His final journey to Jerusalem — where Zacchaeus climbed a sycamore tree and blind Bartimaeus received his sight.',verse:'Luke 19:1-2 — "He entered Jericho and was passing through. And behold, there was a man named Zacchaeus."',src:'VERIFIED: ONGOING ARCHAEOLOGICAL SITE · DATING TO 10,000 BC · TELL ES-SULTAN EXCAVATIONS'}
+};
+function showLoc(id){
+  const l=LOCATIONS[id];if(!l)return;
+  document.getElementById('ld-name').textContent=l.name;
+  document.getElementById('ld-coords').textContent=l.coords;
+  document.getElementById('ld-desc').textContent=l.desc;
+  document.getElementById('ld-verse').textContent=l.verse;
+  document.getElementById('ld-src').textContent=l.src;
+  const d=document.getElementById('loc-detail');
+  d.classList.add('visible');
+  d.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function showPg(id,btn){
+  document.querySelectorAll('.hn-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.hist-pg').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('hpg-'+id).classList.add('active');
+}
+</script>
+</body>
+</html>

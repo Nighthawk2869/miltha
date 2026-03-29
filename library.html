@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Library — MILTHA</title>
+<link rel="stylesheet" href="css/miltha.css">
+<style>
+.lib-layout{display:grid;grid-template-columns:250px 1fr;border:1px solid var(--ash);min-height:560px}
+.lib-left{background:var(--parchment);border-right:1px solid var(--ash);display:flex;flex-direction:column}
+.lib-search-wrap{padding:18px;border-bottom:1px solid var(--ash)}
+.lib-search{width:100%;background:var(--stone);border:1px solid var(--ash);padding:8px 12px;font-family:'Cormorant Garamond',serif;font-size:21px;color:var(--white);outline:none}
+.lib-search::placeholder{color:var(--cream);opacity:.78;font-style:italic}
+.lib-search:focus{border-color:var(--gold)}
+.lib-era-label{font-family:'Cinzel',serif;font-size:19px;letter-spacing:.32em;color:var(--flame);opacity:.88;padding:16px 12px 5px}
+.lib-father-btn{padding:16px 12px;border-bottom:1px solid rgba(46,44,42,.45);cursor:pointer;transition:all .18s;border-left:2px solid transparent}
+.lib-father-btn:hover{background:rgba(201,169,110,.035);border-left-color:var(--ash2)}
+.lib-father-btn.active{background:rgba(201,169,110,.055);border-left-color:var(--blue)}
+.lfb-name{font-family:'Cinzel',serif;font-size:22px;letter-spacing:.08em;color:var(--white);opacity:.7;margin-bottom:2px}
+.lib-father-btn.active .lfb-name{opacity:1;color:var(--gold)}
+.lfb-dates{font-family:'Cinzel',serif;font-size:19px;color:var(--gold);opacity:.82;margin-bottom:3px}
+.lfb-preview{font-size:24px;color:var(--cream);opacity:.80;font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lib-main{padding:36px;background:var(--black);overflow-y:auto}
+.lib-fd-header{margin-bottom:22px;padding-bottom:16px;border-bottom:1px solid var(--ash);position:relative}
+.lib-fd-header::after{content:'';position:absolute;bottom:0;left:0;right:40%;height:1px;background:linear-gradient(to right,var(--blue),transparent);opacity:.25}
+.lib-fd-name{font-family:'Cinzel',serif;font-size:19px;letter-spacing:.12em;color:var(--pure);margin-bottom:4px}
+.lib-fd-dates{font-family:'Cinzel',serif;font-size:21px;color:var(--gold);opacity:.86;letter-spacing:.12em;margin-bottom:10px}
+.lib-fd-bio{font-size:21px;color:var(--cream);opacity:.90;line-height:1.82}
+.lib-quote{background:var(--parchment);border:1px solid var(--ash);border-left:2px solid var(--blue);padding:17px;margin-bottom:4px;transition:border-left-color .2s}
+.lib-quote:hover{border-left-color:var(--gold)}
+.lq-source{font-family:'Cinzel',serif;font-size:19px;letter-spacing:.24em;color:var(--blue);opacity:.68;margin-bottom:10px}
+.lq-text{font-size:23px;font-style:italic;color:var(--white);line-height:1.82;opacity:.83}
+.lq-greek{margin-top:10px;padding-top:8px;border-top:1px solid var(--ash);font-size:19px;font-style:italic;color:var(--cream);opacity:.82;line-height:1.7;display:none}
+.lq-greek.visible{display:block}
+.lq-toggle{margin-top:7px;font-family:'Cinzel',serif;font-size:19px;letter-spacing:.16em;color:var(--gold);opacity:.84;cursor:pointer;background:none;border:none;padding:0;transition:opacity .2s}
+.lq-toggle:hover{opacity:.9}
+.lib-empty{text-align:center;padding:60px 20px}
+.lib-empty-ara{font-family:serif;font-size:28px;color:var(--gold);opacity:.13;margin-bottom:12px}
+.lib-empty-txt{font-family:'Cinzel',serif;font-size:21px;letter-spacing:.18em;color:var(--cream);opacity:.75;line-height:1.8}
+@media(max-width:768px){.lib-layout{grid-template-columns:1fr}.lib-left{border-right:none;border-bottom:1px solid var(--ash);max-height:200px;overflow-y:auto}}
+</style>
+</head>
+<body>
+<nav class="miltha-nav" id="miltha-nav">
+  <a href="index.html" class="nav-brand">MILTHA <span>ܡܸܠܬ݂ܵܐ · THE WORD</span></a>
+  <ul class="nav-links">
+    <li><a href="daily.html">DAILY WORD</a></li>
+    <li><a href="knowledge.html">KNOWLEDGE ENGINE</a></li>
+    <li><a href="bible.html">BIBLE</a></li>
+    <li><a href="study.html">WORD BY WORD</a></li>
+    <li><a href="history.html">HISTORY</a></li>
+    <li><a href="library.html">LIBRARY</a></li>
+    <li><a href="community.html">COMMUNITY</a></li>
+  </ul>
+  <div class="nav-right"><a href="contribute.html" class="nav-btn nav-contribute">✦ CONTRIBUTE</a>
+    
+    
+  </div>
+</nav>
+<div class="page-content">
+  <div class="page-hero">
+    <div class="section-label blue" style="text-align:center">THE LIBRARY</div>
+    <div class="page-title">CHURCH FATHERS</div>
+    <div class="page-subtitle">The voices before the denominations. They predate every split in Christianity — and their testimony is the earliest commentary that exists.</div>
+  </div>
+  <div class="page-body wide">
+    <div class="lib-layout">
+      <div class="lib-left">
+        <div class="lib-search-wrap">
+          <input class="lib-search" type="text" placeholder="Search fathers..." oninput="filterFathers(this.value)">
+        </div>
+        <div class="lib-era-label">ANTE-NICENE FATHERS</div>
+        <div id="lib-father-list"></div>
+      </div>
+      <div class="lib-main" id="lib-main">
+        <div class="lib-empty">
+          <div class="lib-empty-ara">ܡܸܠܬ݂ܵܐ</div>
+          <div class="lib-empty-txt">SELECT A CHURCH FATHER<br>TO READ THEIR WRITINGS</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<footer class="miltha-footer">
+  <div class="footer-brand">MILTHA <span>ܡܸܠܺܬ݂ܵܐ · MILTHA.ORG</span></div>
+  <ul class="footer-links"><li><a href="daily.html">DAILY WORD</a></li><li><a href="bible.html">BIBLE</a></li><li><a href="community.html">COMMUNITY</a></li></ul>
+  <div class="footer-copy">© 2026 MILTHA · THE WORD, AS IT WAS SPOKEN.</div>
+</footer>
+<script src="js/miltha.js"></script>
+<script>
+const FATHERS=[
+  {name:'IGNATIUS OF ANTIOCH',dates:'c. 35–108 AD · BISHOP · MARTYR',connection:'Disciple of the Apostle John',bio:'Third Bishop of Antioch. Disciple of the Apostle John. Wrote seven letters on his way to martyrdom in Rome under Emperor Trajan. The earliest witness to many core Christian doctrines after the New Testament itself. The first writer outside the New Testament to use the word "Christianity."',quotes:[
+    {source:'EPISTLE TO THE EPHESIANS · c. 107 AD',text:'There is one Physician who is possessed both of flesh and spirit; both made and not made; God existing in flesh; true life in death; both of Mary and of God; first passible and then impassible — even Jesus Christ our Lord.',greek:'Εἷς ἰατρός ἐστιν, σαρκικός τε καὶ πνευματικός, γεννητὸς καὶ ἀγέννητος, ἐν σαρκὶ γενόμενος Θεός, ἐν θανάτῳ ζωὴ ἀληθινή, καὶ ἐκ Μαρίας καὶ ἐκ Θεοῦ, πρῶτον παθητὸς καὶ τότε ἀπαθής, Ἰησοῦς Χριστὸς ὁ Κύριος ἡμῶν.'},
+    {source:'EPISTLE TO THE ROMANS · c. 107 AD',text:'I am the wheat of God, and let me be ground by the teeth of the wild beasts, that I may be found the pure bread of Christ.',greek:'Σῖτός εἰμι Θεοῦ, καὶ δι᾽ ὀδόντων θηρίων ἀλήθομαι, ἵνα καθαρὸς ἄρτος εὑρεθῶ τοῦ Χριστοῦ.'},
+    {source:'EPISTLE TO THE SMYRNAEANS · c. 107 AD',text:'Wherever the bishop appears, there let the multitude be; even as wherever Jesus Christ is, there is the Catholic Church.',greek:'ὅπου ἂν φανῇ ὁ ἐπίσκοπος, ἐκεῖ τὸ πλῆθος ἔστω, ὥσπερ ὅπου ἂν ᾖ Χριστὸς Ἰησοῦς, ἐκεῖ ἡ καθολικὴ ἐκκλησία.'},
+    {source:'LETTER TO POLYCARP · c. 107 AD',text:'Let your baptism be your armour; your faith, your helmet; your love, your spear; your endurance, your full panoply.',greek:''}
+  ]},
+  {name:'POLYCARP OF SMYRNA',dates:'c. 69–155 AD · BISHOP · MARTYR',connection:'Disciple of the Apostle John',bio:'Bishop of Smyrna. Disciple of the Apostle John. At his martyrdom he declared he had served Christ for eighty-six years. His execution is one of the earliest documented Christian martyrdom accounts outside the New Testament. His single surviving letter to the Philippians is rich with quotations from earlier New Testament writings.',quotes:[
+    {source:'EPISTLE TO THE PHILIPPIANS · c. 110 AD',text:'Now may the God and Father of our Lord Jesus Christ, and Jesus Christ Himself, who is the Son of God, and our everlasting High Priest, build you up in faith and truth, and in all meekness, gentleness, patience, long-suffering, forbearance, and purity.',greek:''},
+    {source:'EPISTLE TO THE PHILIPPIANS · c. 110 AD',text:'For whosoever does not confess that Jesus Christ has come in the flesh, is antichrist; and whosoever does not confess the testimony of the cross, is of the devil.',greek:''},
+    {source:'AT HIS MARTYRDOM · 155 AD',text:'Eighty-six years I have served Him, and He never did me any wrong. How then can I blaspheme my King and my Savior?',greek:'Ὀγδοήκοντα καὶ ἓξ ἔτη ἔχω δουλεύων αὐτῷ, καὶ οὐδέν με ἠδίκησεν· καὶ πῶς δύναμαι βλασφημῆσαι τὸν βασιλέα μου τὸν σώσαντά με;'}
+  ]},
+  {name:'JUSTIN MARTYR',dates:'c. 100–165 AD · APOLOGIST · MARTYR',connection:'First great Christian apologist',bio:'The first great Christian apologist. Born a pagan philosopher, his conversion followed an encounter with an elderly man who directed him to the Hebrew prophets. His First Apology is the oldest surviving systematic defense of Christianity, presented directly to the Roman Emperor. His Dialogue with Trypho is the earliest substantial Christian response to Jewish objections.',quotes:[
+    {source:'FIRST APOLOGY · c. 155 AD',text:'We have been taught that Christ is the first-begotten of God, and have declared...that He is the Reason of which every race of men were partakers.',greek:''},
+    {source:'FIRST APOLOGY · c. 155 AD',text:'We who formerly used to murder one another do not only now refrain from making war upon our enemies, but also...willingly die confessing Christ.',greek:''},
+    {source:'DIALOGUE WITH TRYPHO · c. 155 AD',text:'I am endeavoring to persuade you that no other is Lord of the universe than the Father of righteousness and safety, and His Son who came from Heaven.',greek:''}
+  ]},
+  {name:'IRENAEUS OF LYON',dates:'c. 130–202 AD · BISHOP · THEOLOGIAN',connection:'Student of Polycarp, who knew John the Apostle',bio:'Bishop of Lyon. As a young man he heard Polycarp speak — who had learned directly from John the Apostle. His five-volume work Against Heresies is the definitive early refutation of Gnosticism. He is the first writer to explicitly name all four Gospels as authoritative.',quotes:[
+    {source:'AGAINST HERESIES · BOOK IV · c. 180 AD',text:'The glory of God is a human being fully alive; and to be alive consists in beholding God.',greek:'Gloria enim Dei vivens homo, vita autem hominis visio Dei.'},
+    {source:'AGAINST HERESIES · BOOK III · c. 180 AD',text:'He became what we are that He might bring us to be even what He is Himself.',greek:''},
+    {source:'AGAINST HERESIES · BOOK I · c. 180 AD',text:'The Church, though dispersed throughout the whole world, even to the ends of the earth, has received from the apostles and their disciples this faith: She believes in one God, the Father Almighty, Maker of heaven, and earth.',greek:''}
+  ]},
+  {name:'TERTULLIAN',dates:'c. 155–220 AD · APOLOGIST · THEOLOGIAN',connection:'First major Christian author to write in Latin',bio:'The first major Christian author to write extensively in Latin, Tertullian was a lawyer by training. He coined the term "Trinity" (trinitas) and developed much of the theological vocabulary still used today. His early works are regarded as orthodox and deeply influential in Western Christian thought.',quotes:[
+    {source:'APOLOGY · c. 197 AD',text:'The blood of the martyrs is the seed of the Church.',greek:''},
+    {source:'PRESCRIPTION AGAINST HERETICS · c. 200 AD',text:'What indeed has Athens to do with Jerusalem? What concord is there between the Academy and the Church?',greek:''},
+    {source:'AGAINST PRAXEAS · c. 213 AD',text:'We define that there are two, the Father and the Son, and three with the Holy Spirit, and this number is made by the pattern of salvation...which brings about unity in trinity, interrelating the three, the Father, the Son, and the Holy Spirit.',greek:''}
+  ]},
+  {name:'CLEMENT OF ALEXANDRIA',dates:'c. 150–215 AD · THEOLOGIAN · TEACHER',connection:'Head of the Catechetical School of Alexandria',bio:'Head of the famous Catechetical School of Alexandria — the ancient world\'s greatest center of Christian learning. Clement sought to demonstrate that faith and reason were compatible, and that Greek philosophy could serve as a preparation for the Gospel. His student Origen would become one of the most influential theologians in Church history.',quotes:[
+    {source:'STROMATA · c. 198 AD',text:'Philosophy was a preparation, paving the way for him who is perfected in Christ.',greek:''},
+    {source:'EXHORTATION TO THE GREEKS · c. 195 AD',text:'The Word of God became man, that you also may learn from man how man may become God.',greek:''},
+    {source:'WHO IS THE RICH MAN THAT SHALL BE SAVED · c. 200 AD',text:'Love is the greatest thing, being a divine gift. Grace makes the soul righteous, but love makes it perfect.',greek:''}
+  ]}
+];
+
+let filteredFathers=[...FATHERS],activeFatherIndex=null;
+
+function renderFatherList(){
+  document.getElementById('lib-father-list').innerHTML=filteredFathers.map(f=>{
+    const idx=FATHERS.indexOf(f);
+    return `<div class="lib-father-btn ${activeFatherIndex===idx?'active':''}" onclick="openFather(${idx})">
+      <div class="lfb-name">${f.name}</div>
+      <div class="lfb-dates">${f.dates}</div>
+      <div class="lfb-preview">${f.connection}</div>
+    </div>`;
+  }).join('');
+}
+
+function filterFathers(q){
+  filteredFathers=FATHERS.filter(f=>f.name.toLowerCase().includes(q.toLowerCase())||f.bio.toLowerCase().includes(q.toLowerCase()));
+  renderFatherList();
+}
+
+function openFather(i){
+  activeFatherIndex=i;
+  const f=FATHERS[i];
+  document.getElementById('lib-main').innerHTML=`
+    <div class="lib-fd-header">
+      <div class="lib-fd-name">${f.name}</div>
+      <div class="lib-fd-dates">${f.dates} · ${f.connection}</div>
+      <div class="lib-fd-bio">${f.bio}</div>
+    </div>
+    ${f.quotes.map((q,qi)=>`
+      <div class="lib-quote">
+        <div class="lq-source">${q.source}</div>
+        <div class="lq-text">"${q.text}"</div>
+        ${q.greek?`<div class="lq-greek" id="gk-${i}-${qi}">${q.greek}</div><button class="lq-toggle" onclick="toggleGreek(${i},${qi})">SHOW ORIGINAL GREEK ↓</button>`:''}
+      </div>`).join('')}`;
+  renderFatherList();
+}
+
+function toggleGreek(fi,qi){
+  const el=document.getElementById(`gk-${fi}-${qi}`);
+  const btn=el.nextElementSibling;
+  el.classList.toggle('visible');
+  btn.textContent=el.classList.contains('visible')?'HIDE ORIGINAL GREEK ↑':'SHOW ORIGINAL GREEK ↓';
+}
+
+renderFatherList();
+</script>
+</body>
+</html>
