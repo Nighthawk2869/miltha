@@ -1,0 +1,138 @@
+/* ============================================
+   MILTHA — Shared Stylesheet v7
+   Larger text — maximum readability
+   ============================================ */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Cinzel:wght@400;600;700&display=swap');
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#0A0A0F;--parchment:#12110E;--stone:#1E1C1A;--ash:#2E2C2A;--ash2:#3A3836;
+  --white:#F5F0E8;--cream:#EDE4D0;--gold:#C9A96E;--golddim:rgba(201,169,110,0.1);
+  --flame:#E8813A;--blue:#3A5FA8;--pure:#FFFFFF;--nav-h:62px;
+}
+html{scroll-behavior:smooth;font-size:18px}
+body{background:var(--black);color:var(--white);font-family:'Cormorant Garamond',serif;overflow-x:hidden;min-height:100vh;line-height:1.75}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.028'/%3E%3C/svg%3E");pointer-events:none;z-index:0}
+
+/* NAV */
+nav.miltha-nav{position:fixed;top:0;left:0;right:0;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:14px 36px;background:rgba(10,10,15,0.97);border-bottom:1px solid var(--ash);backdrop-filter:blur(16px);height:var(--nav-h)}
+.nav-brand{font-family:'Cinzel',serif;font-size:17px;letter-spacing:.2em;color:var(--pure);text-decoration:none}
+.nav-brand span{display:block;font-size:9px;color:var(--gold);letter-spacing:.15em;margin-top:2px;opacity:.85}
+.nav-links{display:flex;align-items:center;gap:4px;list-style:none}
+.nav-links a{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.14em;color:var(--cream);opacity:.78;text-decoration:none;transition:all .2s;padding:6px 11px;border:1px solid transparent}
+.nav-links a:hover,.nav-links a.active{opacity:1;color:var(--gold);border-color:rgba(201,169,110,.2);background:var(--golddim)}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-btn{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.16em;padding:8px 16px;cursor:pointer;transition:all .2s;border:none}
+.nav-signin{background:none;color:var(--cream);opacity:.65;border:1px solid transparent!important}
+.nav-signin:hover{opacity:1;border:1px solid var(--ash2)!important}
+.nav-join{background:var(--gold);color:var(--black);font-weight:600}
+.nav-join:hover{background:var(--pure)}
+
+/* PAGE WRAPPER */
+.page-content{padding-top:var(--nav-h);min-height:100vh;position:relative;z-index:1}
+
+/* SHARED COMPONENTS */
+.section-label{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.4em;color:var(--gold);opacity:.85;margin-bottom:16px}
+.section-label.flame{color:var(--flame);opacity:.95}
+.section-label.blue{color:var(--blue);opacity:1}
+.page-hero{padding:60px 48px 44px;text-align:center;border-bottom:1px solid var(--ash);position:relative}
+.page-hero::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);width:500px;height:300px;background:radial-gradient(ellipse,rgba(201,169,110,.055) 0%,transparent 70%);pointer-events:none}
+.page-title{font-family:'Cinzel',serif;font-size:clamp(26px,4vw,48px);color:var(--pure);letter-spacing:.12em;margin-bottom:10px;position:relative;z-index:1}
+.page-subtitle{font-size:19px;font-style:italic;color:var(--cream);opacity:.85;letter-spacing:.03em;position:relative;z-index:1;max-width:620px;margin:0 auto;line-height:1.7}
+.page-body{max-width:780px;margin:0 auto;padding:44px 28px 80px}
+.page-body.wide{max-width:980px}
+
+/* Scripture card */
+.scripture-card{background:var(--parchment);border:1px solid var(--ash);border-top:1px solid rgba(201,169,110,.18);position:relative;margin-bottom:4px}
+.scripture-card::before{content:'';position:absolute;top:0;left:24px;right:24px;height:1px;background:linear-gradient(to right,transparent,var(--gold),transparent);opacity:.28}
+.card-inner{padding:26px 26px 16px}
+.card-ref{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.26em;color:var(--gold);opacity:.95;margin-bottom:14px}
+.card-verse{font-size:clamp(22px,3vw,32px);font-style:italic;font-weight:300;color:var(--pure);line-height:1.82;text-shadow:0 0 22px rgba(245,240,232,.07)}
+
+/* Tabs */
+.tab-row{display:flex;border-top:1px solid var(--ash)}
+.tab-btn{flex:1;font-family:'Cinzel',serif;font-size:10px;letter-spacing:.1em;padding:11px 4px;background:none;border:none;border-right:1px solid var(--ash);color:var(--cream);opacity:.68;cursor:pointer;transition:all .2s;text-align:center}
+.tab-btn:last-child{border-right:none}
+.tab-btn.active{color:var(--gold);opacity:1;background:rgba(201,169,110,.06)}
+.tab-btn.hist.active{color:var(--flame);background:rgba(232,129,58,.06)}
+.tab-panel{display:none}
+.tab-panel.active{display:block;animation:fadeIn .25s ease}
+.panel-content{padding:20px 26px 22px}
+.panel-source{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.26em;color:var(--flame);opacity:.92;margin-bottom:13px}
+.panel-script{font-size:21px;font-style:italic;color:var(--pure);line-height:1.9;margin-bottom:10px;text-shadow:0 0 10px rgba(245,240,232,.07)}
+.panel-script.rtl{direction:rtl;text-align:right;font-family:serif}
+.panel-translit{font-size:16px;font-style:italic;color:var(--gold);opacity:.80;line-height:1.65;margin-bottom:7px}
+.panel-ms{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.1em;color:var(--gold);opacity:.65}
+
+/* Hist subtabs */
+.hist-subtabs{display:flex;border-bottom:1px solid var(--ash)}
+.hist-sub{flex:1;font-family:'Cinzel',serif;font-size:10px;letter-spacing:.1em;padding:11px 2px;background:none;border:none;border-bottom:2px solid transparent;color:var(--cream);opacity:.65;cursor:pointer;text-align:center;transition:all .2s}
+.hist-sub.active{color:var(--flame);opacity:1;border-bottom-color:var(--flame)}
+.hist-view{display:none;padding:18px 26px 20px}
+.hist-view.active{display:block;animation:fadeIn .25s ease}
+
+/* Father card */
+.father-card{background:var(--stone);border:1px solid var(--ash);border-left:2px solid var(--blue);padding:22px;margin-top:16px}
+.father-label{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.22em;color:var(--blue);opacity:.95;margin-bottom:12px}
+.father-quote-text{font-size:19px;font-style:italic;color:var(--pure);line-height:1.85;margin-bottom:12px;opacity:.96}
+.father-attr{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.1em;color:var(--gold);opacity:.75}
+
+/* Action link */
+.action-link{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.2em;color:var(--gold);opacity:.80;text-decoration:none;cursor:pointer;transition:opacity .2s;display:inline-flex;align-items:center;gap:7px}
+.action-link:hover{opacity:1}
+.action-links-row{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin:20px 0}
+
+/* Buttons */
+.btn-gold{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.24em;padding:15px 28px;background:var(--gold);border:1px solid var(--gold);color:var(--black);cursor:pointer;transition:all .2s;font-weight:600;display:inline-block;text-decoration:none}
+.btn-gold:hover{background:var(--pure);border-color:var(--pure)}
+.btn-outline{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.2em;padding:13px 24px;background:none;border:1px solid var(--ash2);color:var(--cream);opacity:.80;cursor:pointer;transition:all .2s;display:inline-block;text-decoration:none}
+.btn-outline:hover{opacity:1;border-color:var(--gold);color:var(--gold)}
+
+/* Loading dots */
+.loading-dots span{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--gold);opacity:.4;margin:0 3px;animation:pulse 1.4s ease infinite}
+.loading-dots span:nth-child(2){animation-delay:.2s}
+.loading-dots span:nth-child(3){animation-delay:.4s}
+
+/* Toast */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--parchment);border:1px solid var(--gold);padding:13px 26px;font-family:'Cinzel',serif;font-size:11px;letter-spacing:.18em;color:var(--gold);z-index:900;transition:transform .3s ease;pointer-events:none}
+.toast.show{transform:translateX(-50%) translateY(0)}
+
+/* Manuscript note */
+.ms-note{background:rgba(232,129,58,.07);border:1px solid rgba(232,129,58,.28);border-left:2px solid var(--flame);padding:13px 16px;margin:7px 0 7px 28px;font-size:15px;font-style:italic;color:var(--flame);opacity:.96;line-height:1.7}
+.ms-note-label{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.22em;color:var(--flame);opacity:.88;margin-bottom:6px}
+
+/* Footer */
+footer.miltha-footer{padding:42px 48px;border-top:1px solid var(--ash);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-top:60px;position:relative;z-index:1}
+.footer-brand{font-family:'Cinzel',serif;font-size:16px;letter-spacing:.2em;color:var(--pure)}
+.footer-brand span{display:block;font-size:10px;color:var(--gold);opacity:.72;letter-spacing:.16em;margin-top:4px}
+.footer-links{display:flex;gap:22px;list-style:none}
+.footer-links a{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.14em;color:var(--cream);opacity:.68;text-decoration:none;transition:opacity .2s;cursor:pointer}
+.footer-links a:hover{opacity:1}
+.footer-copy{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.13em;color:var(--cream);opacity:.48}
+
+/* Reveal animation */
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .8s ease,transform .8s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* ANIMATIONS */
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideDown{from{opacity:0;transform:translateY(-7px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:.2}50%{opacity:.8}}
+@keyframes glow{0%,100%{text-shadow:0 0 40px rgba(201,169,110,.12)}50%{text-shadow:0 0 80px rgba(201,169,110,.28)}}
+
+/* Contribute button */
+.nav-contribute{background:none;color:var(--gold);border:1px solid rgba(201,169,110,.38)!important;text-decoration:none;transition:all .2s ease}
+.nav-contribute:hover{background:var(--golddim);border-color:var(--gold)!important;opacity:1!important}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  html{font-size:16px}
+  nav.miltha-nav{padding:12px 18px}
+  .nav-links{display:none}
+  .page-hero{padding:48px 20px 34px}
+  .page-body{padding:28px 18px 60px}
+  footer.miltha-footer{padding:28px 20px;flex-direction:column;text-align:center}
+  .card-verse{font-size:clamp(20px,5vw,26px)}
+  .panel-script{font-size:18px}
+}
