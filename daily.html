@@ -47,9 +47,9 @@
     <li><a href="library.html">LIBRARY</a></li>
     <li><a href="community.html">COMMUNITY</a></li>
   </ul>
-  <div class="nav-right">
-    <button class="nav-btn nav-signin" onclick="showToast('ACCOUNTS COMING SOON')">SIGN IN</button>
-    <button class="nav-btn nav-join" onclick="document.getElementById('waitlist-email').focus()">JOIN FREE</button>
+  <div class="nav-right"><a href="contribute.html" class="nav-btn nav-contribute">✦ CONTRIBUTE</a>
+    
+    
   </div>
 </nav>
 
@@ -74,11 +74,23 @@
     <!-- Scripture Card -->
     <div id="daily-card"></div>
 
-    <!-- Action Links -->
-    <div class="action-links-row" style="margin:20px 0">
-      <a class="action-link" href="knowledge.html">⊕ ASK THE KNOWLEDGE ENGINE</a>
-      <a class="action-link" href="bible.html">📖 OPEN THE BIBLE READER</a>
-      <a class="action-link" href="study.html">⊞ WORD BY WORD STUDY</a>
+    <!-- Platform Access Cards -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin:24px 0">
+      <a href="knowledge.html" style="background:var(--parchment);border:1px solid var(--ash);padding:20px 14px;text-decoration:none;display:flex;flex-direction:column;align-items:center;text-align:center;transition:all .2s ease">
+        <span style="font-size:22px;margin-bottom:8px">⊕</span>
+        <span style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:.18em;color:var(--gold);margin-bottom:5px;display:block">KNOWLEDGE ENGINE</span>
+        <span style="font-size:12px;font-style:italic;color:var(--cream);opacity:.42;line-height:1.5">Ask anything. Manuscript sources only.</span>
+      </a>
+      <a href="bible.html" style="background:var(--parchment);border:1px solid var(--ash);padding:20px 14px;text-decoration:none;display:flex;flex-direction:column;align-items:center;text-align:center;transition:all .2s ease">
+        <span style="font-size:22px;margin-bottom:8px">📖</span>
+        <span style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:.18em;color:var(--gold);margin-bottom:5px;display:block">BIBLE READER</span>
+        <span style="font-size:12px;font-style:italic;color:var(--cream);opacity:.42;line-height:1.5">All 27 NT books. Four translations.</span>
+      </a>
+      <a href="study.html" style="background:var(--parchment);border:1px solid var(--ash);padding:20px 14px;text-decoration:none;display:flex;flex-direction:column;align-items:center;text-align:center;transition:all .2s ease">
+        <span style="font-size:22px;margin-bottom:8px">⊞</span>
+        <span style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:.18em;color:var(--gold);margin-bottom:5px;display:block">WORD BY WORD</span>
+        <span style="font-size:12px;font-style:italic;color:var(--cream);opacity:.42;line-height:1.5">Every word in the original language.</span>
+      </a>
     </div>
 
     <!-- Church Father -->
