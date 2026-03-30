@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MILTHA — The Word, as it was spoken.</title>
+<meta name="description" content="MILTHA — A digital sanctuary rooted in the earliest translations of Scripture. Coming soon.">
+<meta name="theme-color" content="#0A0806">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0A0806;
+  --gold:#D4AA6A;
+  --gold-dim:rgba(212,170,106,.12);
+  --gold-glow:rgba(212,170,106,.25);
+  --flame:#F09040;
+  --cream:#E8DCC8;
+  --silver:#C8C0B0;
+  --deep:#141210;
+}
+html{font-size:18px;scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--cream);
+  font-family:'Cormorant Garamond',Georgia,serif;
+  line-height:1.7;
+  overflow-x:hidden;
+  min-height:100vh;
+}
+
+/* ===== AMBIENT BACKGROUND ===== */
+.bg-void{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 0%, rgba(212,170,106,.04) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 60% at 20% 80%, rgba(140,100,60,.03) 0%, transparent 60%),
+    radial-gradient(ellipse 35% 45% at 80% 60%, rgba(100,80,50,.025) 0%, transparent 55%),
+    var(--bg);
+}
+.bg-stars{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  opacity:.35;
+}
+
+/* ===== NAV ===== */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:20px 36px;
+  background:linear-gradient(180deg, rgba(10,8,6,.95) 0%, rgba(10,8,6,.6) 70%, transparent 100%);
+  backdrop-filter:blur(8px);
+}
+.nav-brand{
+  font-family:'Cinzel',serif;font-size:15px;letter-spacing:.28em;
+  color:var(--gold);text-decoration:none;font-weight:500;
+}
+.nav-brand span{font-size:10px;letter-spacing:.15em;color:var(--silver);opacity:.7;margin-left:8px}
+.nav-contribute{
+  font-family:'Cinzel',serif;font-size:9px;letter-spacing:.22em;
+  color:var(--gold);border:1px solid rgba(212,170,106,.35);
+  padding:9px 22px;text-decoration:none;transition:all .35s ease;
+}
+.nav-contribute:hover{background:var(--gold-dim);border-color:var(--gold)}
+
+/* ===== HERO ===== */
+.hero{
+  min-height:100vh;display:flex;flex-direction:column;
+  justify-content:center;align-items:center;text-align:center;
+  padding:120px 24px 80px;position:relative;z-index:1;
+}
+.hero-aramaic{
+  font-size:clamp(38px,10vw,72px);
+  color:var(--gold);
+  letter-spacing:.08em;
+  line-height:1;
+  opacity:0;animation:fadeIn 2.5s ease .3s forwards;
+  text-shadow:0 0 60px rgba(212,170,106,.2), 0 0 120px rgba(212,170,106,.08);
+  direction:rtl;
+}
+.hero-title{
+  font-family:'Cinzel',serif;
+  font-size:clamp(32px,7vw,64px);
+  font-weight:400;letter-spacing:.18em;
+  color:var(--gold);
+  margin-top:16px;
+  opacity:0;animation:fadeIn 2s ease .8s forwards;
+  text-shadow:0 0 40px rgba(212,170,106,.15);
+}
+.hero-sub{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(14px,2.5vw,20px);
+  font-style:italic;font-weight:400;
+  color:var(--silver);letter-spacing:.08em;
+  margin-top:14px;
+  opacity:0;animation:fadeIn 1.8s ease 1.4s forwards;
+}
+.hero-line{
+  width:60px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);
+  margin:32px auto;
+  opacity:0;animation:fadeIn 1.5s ease 1.8s forwards;
+}
+.hero-status{
+  font-family:'Cinzel',serif;
+  font-size:11px;letter-spacing:.3em;
+  color:var(--flame);
+  opacity:0;animation:fadeIn 1.5s ease 2.2s forwards;
+}
+
+/* ===== SCROLL INDICATOR ===== */
+.scroll-hint{
+  position:absolute;bottom:36px;left:0;right:0;
+  display:flex;flex-direction:column;align-items:center;gap:8px;
+  opacity:0;animation:fadeIn 1.5s ease 3s forwards;
+}
+.scroll-hint span{font-family:'Cinzel',serif;font-size:8px;letter-spacing:.25em;color:var(--silver);opacity:.5}
+
+/* ===== SECTIONS ===== */
+.section{
+  position:relative;z-index:1;
+  max-width:800px;margin:0 auto;
+  padding:100px 28px;
+}
+.section-label{
+  font-family:'Cinzel',serif;font-size:9px;letter-spacing:.35em;
+  color:var(--gold);opacity:.7;margin-bottom:28px;
+}
+.section-divider{
+  width:40px;height:1px;
+  background:linear-gradient(90deg,var(--gold),transparent);
+  margin-bottom:28px;
+}
+
+/* ===== VERSE BAND ===== */
+.verse-band{
+  position:relative;z-index:1;
+  text-align:center;padding:80px 24px;
+  border-top:1px solid rgba(212,170,106,.08);
+  border-bottom:1px solid rgba(212,170,106,.08);
+  background:linear-gradient(180deg,transparent,rgba(212,170,106,.02),transparent);
+}
+.verse-text{
+  font-family:'Cormorant Garamond',serif;
+  font-size:clamp(18px,3.5vw,28px);
+  font-style:italic;font-weight:400;
+  color:var(--cream);line-height:1.8;
+  max-width:700px;margin:0 auto;
+  opacity:.9;
+}
+.verse-ref{
+  font-family:'Cinzel',serif;font-size:10px;letter-spacing:.25em;
+  color:var(--gold);margin-top:24px;opacity:.6;
+}
+.verse-aramaic{
+  font-size:clamp(16px,3vw,24px);
+  color:var(--gold);opacity:.5;margin-top:16px;
+  direction:rtl;
+}
+
+/* ===== TEASER CARDS ===== */
+.teasers{
+  display:grid;grid-template-columns:1fr;gap:28px;
+  margin-top:40px;
+}
+.teaser-card{
+  background:linear-gradient(135deg, rgba(212,170,106,.04), rgba(20,18,16,.8));
+  border:1px solid rgba(212,170,106,.1);
+  border-radius:2px;padding:32px;
+  transition:all .4s ease;
+}
+.teaser-card:hover{
+  border-color:rgba(212,170,106,.25);
+  background:linear-gradient(135deg, rgba(212,170,106,.07), rgba(20,18,16,.9));
+}
+.teaser-icon{
+  font-size:24px;margin-bottom:14px;display:block;
+  filter:grayscale(.3);
+}
+.teaser-title{
+  font-family:'Cinzel',serif;font-size:14px;letter-spacing:.15em;
+  color:var(--gold);margin-bottom:10px;
+}
+.teaser-desc{
+  font-size:16px;color:var(--silver);line-height:1.7;
+}
+.teaser-verse{
+  font-style:italic;font-size:14px;color:var(--cream);
+  opacity:.6;margin-top:14px;padding-top:14px;
+  border-top:1px solid rgba(212,170,106,.06);
+}
+
+/* ===== WAITLIST ===== */
+.waitlist-box{
+  text-align:center;padding:60px 28px;
+  border:1px solid rgba(212,170,106,.1);
+  background:linear-gradient(180deg, rgba(212,170,106,.03), transparent);
+  margin-top:40px;
+}
+.waitlist-heading{
+  font-family:'Cinzel',serif;font-size:clamp(16px,3vw,22px);
+  letter-spacing:.12em;color:var(--gold);margin-bottom:12px;
+}
+.waitlist-sub{
+  font-size:16px;color:var(--silver);margin-bottom:28px;max-width:460px;margin-left:auto;margin-right:auto;
+}
+.waitlist-form{display:flex;gap:10px;max-width:420px;margin:0 auto;flex-wrap:wrap;justify-content:center}
+.waitlist-input{
+  flex:1;min-width:220px;padding:13px 18px;
+  background:rgba(20,18,16,.9);border:1px solid rgba(212,170,106,.2);
+  color:var(--cream);font-family:'Cormorant Garamond',serif;font-size:16px;
+  outline:none;transition:border-color .3s;
+}
+.waitlist-input::placeholder{color:var(--silver);opacity:.5}
+.waitlist-input:focus{border-color:var(--gold)}
+.waitlist-btn{
+  font-family:'Cinzel',serif;font-size:10px;letter-spacing:.22em;
+  padding:13px 28px;background:transparent;
+  border:1px solid var(--gold);color:var(--gold);
+  cursor:pointer;transition:all .35s ease;white-space:nowrap;
+}
+.waitlist-btn:hover{background:var(--gold);color:var(--bg)}
+.waitlist-success{
+  display:none;font-family:'Cinzel',serif;font-size:12px;
+  letter-spacing:.15em;color:var(--flame);margin-top:16px;
+}
+
+/* ===== CONTRIBUTE CTA ===== */
+.contribute-section{
+  text-align:center;padding:80px 24px;
+  position:relative;z-index:1;
+  border-top:1px solid rgba(212,170,106,.06);
+}
+.contribute-text{
+  font-size:17px;color:var(--silver);max-width:520px;
+  margin:0 auto 28px;line-height:1.8;
+}
+.contribute-btn{
+  display:inline-block;
+  font-family:'Cinzel',serif;font-size:11px;letter-spacing:.22em;
+  padding:16px 40px;
+  border:1px solid var(--gold);color:var(--gold);
+  text-decoration:none;transition:all .4s ease;
+}
+.contribute-btn:hover{background:var(--gold);color:var(--bg)}
+
+/* ===== FOOTER ===== */
+footer{
+  text-align:center;padding:48px 24px 36px;
+  border-top:1px solid rgba(212,170,106,.06);
+  position:relative;z-index:1;
+}
+.footer-brand{
+  font-family:'Cinzel',serif;font-size:13px;letter-spacing:.2em;
+  color:var(--gold);opacity:.5;
+}
+.footer-copy{
+  font-family:'Cinzel',serif;font-size:9px;letter-spacing:.15em;
+  color:var(--silver);opacity:.4;margin-top:12px;
+}
+
+/* ===== REVEAL ===== */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity 1s ease,transform 1s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* ===== ANIMATIONS ===== */
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scrollPulse{0%,100%{opacity:.3;transform:scaleY(1)}50%{opacity:.8;transform:scaleY(1.2)}}
+@keyframes twinkle{0%,100%{opacity:.15}50%{opacity:.6}}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:640px){
+  nav{padding:16px 20px}
+  .nav-brand{font-size:13px}
+  .nav-brand span{display:none}
+  .section{padding:70px 20px}
+  .hero{padding:100px 20px 60px}
+  .waitlist-form{flex-direction:column}
+  .waitlist-input{min-width:100%}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-void"></div>
+<canvas class="bg-stars" id="starfield"></canvas>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-brand">MILTHA <span>ܡܸܠܺܬ݂ܵܐ</span></a>
+  <a href="contribute.html" class="nav-contribute">✦ CONTRIBUTE</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-aramaic">ܡܸܠܺܬ݂ܵܐ</div>
+  <h1 class="hero-title">MILTHA</h1>
+  <p class="hero-sub">The Word, as it was spoken.</p>
+  <div class="hero-line"></div>
+  <p class="hero-status">COMING SOON</p>
+  <div class="scroll-hint">
+    <span>DISCOVER</span>
+    <span style="font-size:14px;color:var(--gold);opacity:.4">▼</span>
+  </div>
+</div>
+
+<!-- VERSE BAND -->
+<div class="verse-band reveal">
+  <p class="verse-text">"In the beginning was the Word, and the Word was with God, and the Word was God."</p>
+  <p class="verse-aramaic">ܒܪܫܝܬ ܐܝܬܘܗܝ ܗܘܐ ܡܠܬܐ ܘܗܘ ܡܠܬܐ ܐܝܬܘܗܝ ܗܘܐ ܠܘܬ ܐܠܗܐ ܘܐܠܗܐ ܐܝܬܘܗܝ ܗܘܐ ܗܘ ܡܠܬܐ</p>
+  <p class="verse-ref">JOHN 1:1 · PESHITTA · c. 2nd CENTURY</p>
+</div>
+
+<!-- WHAT IS MILTHA -->
+<div class="section reveal">
+  <div class="section-divider"></div>
+  <div class="section-label">THE MISSION</div>
+  <p style="font-size:clamp(18px,3vw,24px);color:var(--cream);line-height:1.8;margin-bottom:20px;font-weight:500">
+    A digital sanctuary built on the earliest manuscripts of Scripture.
+  </p>
+  <p style="font-size:17px;color:var(--silver);line-height:1.8;margin-bottom:16px">
+    Jesus Christ spoke Aramaic. His apostles carried the gospel in Greek and Aramaic across the ancient world. The earliest complete New Testament — the Peshitta — was written in the language Christ Himself used.
+  </p>
+  <p style="font-size:17px;color:var(--silver);line-height:1.8;margin-bottom:16px">
+    MILTHA — ܡܸܠܺܬ݂ܵܐ — is the Aramaic word for "The Word" from John 1:1 in the Peshitta. It means far more than "word" — it carries the weight of manifestation, substance, the very essence of God made known.
+  </p>
+  <p style="font-size:17px;color:var(--silver);line-height:1.8">
+    We are building a platform that presents the scriptures and teachings of Jesus Christ as accurate, authentic, and accessible to all people — rooted in the earliest manuscript evidence, at no cost, for all time. Christ is King, and His Word endures.
+  </p>
+</div>
+
+<!-- TEASER PREVIEWS -->
+<div class="section reveal">
+  <div class="section-divider"></div>
+  <div class="section-label">WHAT WE ARE BUILDING</div>
+  <div class="teasers">
+
+    <div class="teaser-card">
+      <span class="teaser-icon">📖</span>
+      <div class="teaser-title">FULL BIBLE READER</div>
+      <p class="teaser-desc">All 66 books of the Old and New Testament in KJV and Young's Literal Translation, with manuscript notes showing where the earliest Peshitta and Greek witnesses differ from later traditions.</p>
+      <p class="teaser-verse">"All scripture is given by inspiration of God, and is profitable for doctrine…" — 2 Timothy 3:16</p>
+    </div>
+
+    <div class="teaser-card">
+      <span class="teaser-icon">✦</span>
+      <div class="teaser-title">WORD BY WORD</div>
+      <p class="teaser-desc">Study every verse in its original language — Aramaic, Hebrew, and Greek — with transliterations, root meanings, and grammatical parsing. See what the text actually says beneath the translation.</p>
+      <p class="teaser-verse">"Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth." — 2 Timothy 2:15</p>
+    </div>
+
+    <div class="teaser-card">
+      <span class="teaser-icon">🗺</span>
+      <div class="teaser-title">HISTORY LAYER</div>
+      <p class="teaser-desc">Interactive maps, archaeological evidence, and secular historical sources that corroborate the New Testament record. The Pilate Stone, the Caiaphas Ossuary, Tacitus, Josephus, Pliny the Younger — all presented alongside Scripture.</p>
+      <p class="teaser-verse">"For we have not followed cunningly devised fables…" — 2 Peter 1:16</p>
+    </div>
+
+    <div class="teaser-card">
+      <span class="teaser-icon">🕊</span>
+      <div class="teaser-title">CHURCH FATHERS LIBRARY</div>
+      <p class="teaser-desc">Ignatius of Antioch, Polycarp, Justin Martyr, Irenaeus — the men who knew the Apostles and their students. Their own words, with original Greek, showing what the earliest Christians believed and taught.</p>
+      <p class="teaser-verse">"Remember them which have the rule over you, who have spoken unto you the word of God…" — Hebrews 13:7</p>
+    </div>
+
+  </div>
+
+  <!-- AND MORE -->
+  <div style="text-align:center;margin-top:48px;padding:50px 20px;border:1px solid rgba(212,170,106,.1);background:linear-gradient(180deg,rgba(212,170,106,.035),transparent)">
+    <p style="font-family:'Cinzel',serif;font-size:clamp(18px,3.5vw,26px);letter-spacing:.14em;color:var(--gold);line-height:1.7">
+      …and much more on the way.
+    </p>
+    <p style="font-size:16px;color:var(--silver);line-height:1.8;margin-top:14px">
+      Creative interactive tools designed to bring you deeper into the Word.
+    </p>
+  </div>
+
+</div>
+
+<!-- SAMPLE VERSE -->
+<div class="verse-band reveal">
+  <p class="verse-text">"And the Word was made flesh, and dwelt among us, and we beheld his glory, the glory as of the only begotten of the Father, full of grace and truth."</p>
+  <p class="verse-ref">JOHN 1:14 · KJV 1611</p>
+</div>
+
+<!-- WAITLIST -->
+<div class="section reveal">
+  <div class="waitlist-box">
+    <h2 class="waitlist-heading">BE THE FIRST TO ENTER</h2>
+    <p class="waitlist-sub">Join the waitlist and be notified the moment MILTHA opens its doors. The Word is free. Always.</p>
+    <div class="waitlist-form" id="waitlistForm">
+      <input type="email" class="waitlist-input" id="emailInput" placeholder="Your email address" required>
+      <button class="waitlist-btn" onclick="submitWaitlist()">JOIN WAITLIST</button>
+    </div>
+    <p class="waitlist-success" id="waitlistSuccess">✦ YOU ARE ON THE LIST · THE WORD IS COMING ✦</p>
+  </div>
+</div>
+
+<!-- CONTRIBUTE -->
+<div class="contribute-section reveal">
+  <p style="font-family:'Cinzel',serif;font-size:clamp(14px,2.5vw,18px);letter-spacing:.1em;color:var(--gold);margin-bottom:12px">SUPPORT THE MISSION</p>
+  <p class="contribute-text">MILTHA is ran by one person. No corporate backing. No algorithms. No ads. Your contribution keeps the Word free and accessible to all, and allows MILTHA to expand and create more for all.</p>
+  <a href="contribute.html" class="contribute-btn">✦ CONTRIBUTE TO MILTHA</a>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">MILTHA · ܡܸܠܺܬ݂ܵܐ · MILTHA.ORG</div>
+  <div class="footer-copy">© 2026 MILTHA · THE WORD IS FREE. ALWAYS. CHRIST IS KING.</div>
+</footer>
+
+<script>
+// ===== STARFIELD =====
+(function(){
+  const c=document.getElementById('starfield');
+  const ctx=c.getContext('2d');
+  let stars=[];
+  function resize(){c.width=window.innerWidth;c.height=window.innerHeight;init()}
+  function init(){
+    stars=[];
+    for(let i=0;i<120;i++){
+      stars.push({
+        x:Math.random()*c.width,
+        y:Math.random()*c.height,
+        r:Math.random()*1.2+.3,
+        a:Math.random(),
+        s:Math.random()*.003+.001,
+        p:Math.random()*Math.PI*2
+      });
+    }
+  }
+  function draw(){
+    ctx.clearRect(0,0,c.width,c.height);
+    const t=Date.now();
+    stars.forEach(s=>{
+      const a=s.a*(.4+.6*(.5+.5*Math.sin(t*s.s+s.p)));
+      ctx.beginPath();
+      ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle='rgba(212,170,106,'+a+')';
+      ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  resize();
+  window.addEventListener('resize',resize);
+  draw();
+})();
+
+// ===== REVEAL ON SCROLL =====
+const obs=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')});
+},{threshold:.15});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// ===== WAITLIST =====
+function submitWaitlist(){
+  const email=document.getElementById('emailInput').value;
+  if(!email||!email.includes('@'))return;
+  document.getElementById('waitlistForm').style.display='none';
+  document.getElementById('waitlistSuccess').style.display='block';
+  // Store in localStorage as backup
+  try{
+    const list=JSON.parse(localStorage.getItem('miltha_waitlist')||'[]');
+    list.push({email,ts:new Date().toISOString()});
+    localStorage.setItem('miltha_waitlist',JSON.stringify(list));
+  }catch(e){}
+}
+</script>
+
+</body>
+</html>
