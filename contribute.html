@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contribute — MILTHA</title>
+<meta name="description" content="Support MILTHA's mission to make the Word of Christ accessible to every believer, at no cost, for all time.">
+<meta name="theme-color" content="#0A0806">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0A0806;
+  --gold:#D4AA6A;
+  --gold-dim:rgba(212,170,106,.12);
+  --flame:#F09040;
+  --cream:#E8DCC8;
+  --silver:#C8C0B0;
+  --deep:#141210;
+}
+html{font-size:18px;scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--cream);
+  font-family:'Cormorant Garamond',Georgia,serif;
+  line-height:1.7;
+  overflow-x:hidden;
+  min-height:100vh;
+}
+.bg-void{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 0%, rgba(212,170,106,.04) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 60% at 20% 80%, rgba(140,100,60,.03) 0%, transparent 60%),
+    var(--bg);
+}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;justify-content:space-between;align-items:center;
+  padding:20px 36px;
+  background:linear-gradient(180deg, rgba(10,8,6,.95) 0%, rgba(10,8,6,.6) 70%, transparent 100%);
+  backdrop-filter:blur(8px);
+}
+.nav-brand{
+  font-family:'Cinzel',serif;font-size:15px;letter-spacing:.28em;
+  color:var(--gold);text-decoration:none;font-weight:500;
+}
+.nav-brand span{font-size:10px;letter-spacing:.15em;color:var(--silver);opacity:.7;margin-left:8px}
+.nav-home{
+  font-family:'Cinzel',serif;font-size:9px;letter-spacing:.22em;
+  color:var(--silver);text-decoration:none;transition:color .3s;
+}
+.nav-home:hover{color:var(--gold)}
+
+/* HERO */
+.page-hero{
+  text-align:center;padding:140px 24px 60px;
+  position:relative;z-index:1;
+}
+.page-title{
+  font-family:'Cinzel',serif;
+  font-size:clamp(24px,5vw,42px);
+  font-weight:400;letter-spacing:.15em;
+  color:var(--gold);
+  text-shadow:0 0 40px rgba(212,170,106,.15);
+}
+.page-sub{
+  font-size:clamp(15px,2.5vw,19px);
+  font-style:italic;color:var(--silver);
+  margin-top:14px;max-width:520px;margin-left:auto;margin-right:auto;
+}
+
+/* CONTENT */
+.content{
+  max-width:720px;margin:0 auto;padding:40px 28px 80px;
+  position:relative;z-index:1;
+}
+.divider{
+  width:40px;height:1px;
+  background:linear-gradient(90deg,var(--gold),transparent);
+  margin:48px auto;
+}
+
+/* VERSE */
+.verse-block{
+  text-align:center;padding:40px 20px;
+  border:1px solid rgba(212,170,106,.06);
+  background:linear-gradient(180deg,rgba(212,170,106,.02),transparent);
+  margin-bottom:48px;
+}
+.verse-text{
+  font-size:clamp(16px,3vw,22px);font-style:italic;
+  color:var(--cream);line-height:1.8;opacity:.9;
+}
+.verse-ref{
+  font-family:'Cinzel',serif;font-size:9px;letter-spacing:.2em;
+  color:var(--gold);opacity:.5;margin-top:16px;
+}
+
+/* MISSION TEXT */
+.mission-text{
+  font-size:17px;color:var(--silver);line-height:1.85;
+  text-align:center;margin-bottom:48px;
+}
+
+/* TIERS */
+.tiers-label{
+  font-family:'Cinzel',serif;font-size:10px;letter-spacing:.3em;
+  color:var(--gold);opacity:.65;text-align:center;margin-bottom:28px;
+}
+.tiers{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+  margin-bottom:48px;
+}
+.tier{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:32px 16px;
+  border:1px solid rgba(212,170,106,.15);
+  background:linear-gradient(135deg,rgba(212,170,106,.04),rgba(20,18,16,.8));
+  text-decoration:none;
+  transition:all .4s ease;
+  cursor:pointer;
+}
+.tier:hover{
+  border-color:var(--gold);
+  background:linear-gradient(135deg,rgba(212,170,106,.1),rgba(20,18,16,.9));
+  transform:translateY(-2px);
+}
+.tier-amount{
+  font-family:'Cinzel',serif;
+  font-size:clamp(22px,4vw,32px);
+  font-weight:500;letter-spacing:.05em;
+  color:var(--gold);
+}
+.tier-label{
+  font-family:'Cinzel',serif;font-size:9px;letter-spacing:.2em;
+  color:var(--silver);margin-top:8px;
+}
+
+/* OTHER WAYS */
+.ways-label{
+  font-family:'Cinzel',serif;font-size:10px;letter-spacing:.3em;
+  color:var(--gold);opacity:.65;text-align:center;margin-bottom:20px;
+}
+.ways{
+  text-align:center;font-size:16px;color:var(--silver);line-height:2;
+}
+
+/* FOOTER */
+footer{
+  text-align:center;padding:48px 24px 36px;
+  border-top:1px solid rgba(212,170,106,.06);
+  position:relative;z-index:1;
+}
+.footer-brand{
+  font-family:'Cinzel',serif;font-size:13px;letter-spacing:.2em;
+  color:var(--gold);opacity:.5;
+}
+.footer-copy{
+  font-family:'Cinzel',serif;font-size:9px;letter-spacing:.15em;
+  color:var(--silver);opacity:.4;margin-top:12px;
+}
+
+/* RESPONSIVE */
+@media(max-width:640px){
+  nav{padding:16px 20px}
+  .nav-brand{font-size:13px}
+  .nav-brand span{display:none}
+  .content{padding:30px 20px 60px}
+  .tiers{grid-template-columns:repeat(3,1fr);gap:12px}
+  .tier{padding:24px 12px}
+}
+@media(max-width:380px){
+  .tiers{grid-template-columns:1fr 1fr;gap:10px}
+}
+</style>
+</head>
+<body>
+
+<div class="bg-void"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="/" class="nav-brand">MILTHA <span>ܡܸܠܺܬ݂ܵܐ</span></a>
+  <a href="/" class="nav-home">← BACK</a>
+</nav>
+
+<!-- HERO -->
+<div class="page-hero">
+  <h1 class="page-title">✦ CONTRIBUTE</h1>
+  <p class="page-sub">Support the mission. Keep the Word free.</p>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- VERSE -->
+  <div class="verse-block">
+    <p class="verse-text">"Ho, every one that thirsteth, come ye to the waters, and he that hath no money; come ye, buy, and eat; yea, come, buy wine and milk without money and without price."</p>
+    <p class="verse-ref">ISAIAH 55:1 · KJV 1611</p>
+  </div>
+
+  <!-- MISSION -->
+  <p class="mission-text">
+    MILTHA is ran by one person. No corporate backing. No algorithms. No ads. Your contribution keeps the Word free and accessible to all, and allows MILTHA to expand and create more for all.
+  </p>
+
+  <div class="divider"></div>
+
+  <!-- TIERS -->
+  <div class="tiers-label">GIVE TO THE MISSION</div>
+  <div class="tiers">
+    <a href="https://buy.stripe.com/28EfZh0KQ0Cy0vM8ix3F600" target="_blank" rel="noopener" class="tier">
+      <div class="tier-amount">$1</div>
+      <div class="tier-label">SEED</div>
+    </a>
+    <a href="https://buy.stripe.com/3cIbJ1gJO99492i56l3F602" target="_blank" rel="noopener" class="tier">
+      <div class="tier-amount">$5</div>
+      <div class="tier-label">SUSTAIN</div>
+    </a>
+    <a href="https://buy.stripe.com/4gM7sLcty994fqGdCR3F601" target="_blank" rel="noopener" class="tier">
+      <div class="tier-amount">$10</div>
+      <div class="tier-label">BUILD</div>
+    </a>
+    <a href="https://buy.stripe.com/28E3cvbpu1GC7YedCR3F603" target="_blank" rel="noopener" class="tier">
+      <div class="tier-amount">$25</div>
+      <div class="tier-label">CORNERSTONE</div>
+    </a>
+    <a href="https://buy.stripe.com/28E3cvfFKfxs2DUdCR3F604" target="_blank" rel="noopener" class="tier">
+      <div class="tier-amount">$50</div>
+      <div class="tier-label">PILLAR</div>
+    </a>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- OTHER WAYS -->
+  <div class="ways-label">OTHER WAYS TO HELP</div>
+  <div class="ways">
+    <p>Pray for MILTHA and its mission.</p>
+    <p>Share miltha.org with a fellow believer.</p>
+    <p>Send feedback or join the team — hello@miltha.org</p>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">MILTHA · ܡܸܠܺܬ݂ܵܐ · MILTHA.ORG</div>
+  <div class="footer-copy">© 2026 MILTHA · THE WORD IS FREE. ALWAYS. CHRIST IS KING.</div>
+</footer>
+
+</body>
+</html>
