@@ -14,16 +14,16 @@
 .bl-search{width:100%;background:var(--stone);border:1px solid var(--ash);padding:8px 11px;font-family:'Cormorant Garamond',serif;font-size:21px;color:var(--white);outline:none}
 .bl-search::placeholder{color:var(--cream);opacity:.78;font-style:italic}
 .bl-search:focus{border-color:var(--gold)}
-.bl-label{font-family:'Cinzel',serif;font-size:19px;letter-spacing:.32em;color:var(--flame);opacity:.87;padding:14px 16px 8px}
+.bl-label{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.24em;color:var(--flame);opacity:.87;padding:14px 16px 8px}
 .bl-list{flex:1;overflow-y:auto}
 .bl-list::-webkit-scrollbar{width:3px}
 .bl-list::-webkit-scrollbar-thumb{background:var(--ash)}
-.bl-book{display:flex;align-items:center;justify-content:space-between;padding:7px 11px;cursor:pointer;transition:all .15s;border-left:2px solid transparent}
+.bl-book{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 11px;cursor:pointer;transition:all .15s;border-left:2px solid transparent}
 .bl-book:hover{background:rgba(201,169,110,.035);border-left-color:var(--ash2)}
 .bl-book.active{background:rgba(201,169,110,.06);border-left-color:var(--gold)}
-.bl-book-name{font-family:'Cinzel',serif;font-size:22px;letter-spacing:.07em;color:var(--white);opacity:.68}
+.bl-book-name{font-family:'Cinzel',serif;font-size:15px;letter-spacing:.07em;color:var(--white);opacity:.68}
 .bl-book.active .bl-book-name{opacity:1;color:var(--gold)}
-.bl-book-ara{font-family:serif;font-size:24px;color:var(--gold);opacity:.26}
+.bl-book-ara{font-family:serif;font-size:16px;color:var(--gold);opacity:.4;white-space:nowrap}
 .bc-topbar{display:flex;align-items:center;gap:7px;padding:8px 13px;border-bottom:1px solid var(--ash);background:var(--parchment);flex-shrink:0;flex-wrap:wrap}
 .bc-title{font-family:'Cinzel',serif;font-size:24px;letter-spacing:.13em;color:var(--gold)}
 .ch-nav{display:flex;align-items:center;gap:4px}
@@ -32,7 +32,7 @@
 .ch-btn:disabled{opacity:.18;cursor:not-allowed}
 .ch-select{font-family:'Cinzel',serif;font-size:22px;padding:5px 8px;background:var(--stone);border:1px solid var(--ash);color:var(--gold);outline:none;cursor:pointer}
 .ch-select option{background:var(--stone)}
-.trans-bar{display:flex;align-items:center;gap:4px;padding:6px 13px;border-bottom:1px solid var(--ash);background:var(--black);flex-shrink:0}
+.trans-bar{display:flex;align-items:center;flex-wrap:wrap;gap:4px;padding:6px 13px;border-bottom:1px solid var(--ash);background:var(--black);flex-shrink:0}
 .trans-label{font-family:'Cinzel',serif;font-size:19px;letter-spacing:.2em;color:var(--gold);opacity:.80;margin-right:4px}
 .trans-btn{font-family:'Cinzel',serif;font-size:21px;letter-spacing:.08em;padding:4px 10px;background:none;border:1px solid var(--ash);color:var(--cream);opacity:.80;cursor:pointer;transition:all .15s}
 .trans-btn.active{color:var(--gold);opacity:1;border-color:rgba(201,169,110,.38);background:var(--golddim)}
@@ -54,6 +54,7 @@
 .verse-text{font-size:24px;color:var(--white);line-height:1.84}
 .verse-text.ylt{font-style:italic;opacity:.84}
 .verse-text.ara{font-family:serif;font-size:23px;opacity:.88}
+.verse-text[dir=rtl]{flex:1;text-align:right;line-height:2}
 .verse-text.gk{font-family:serif;font-size:23px;opacity:.88}
 .no-data{padding:40px 16px;text-align:center}
 .no-data-ara{font-family:serif;font-size:32px;color:var(--gold);opacity:.11;margin-bottom:13px}
@@ -106,7 +107,6 @@
     <div class="bl-header">
       <input class="bl-search" type="text" placeholder="Search books..." oninput="filterBooks(this.value)">
     </div>
-    <div class="bl-label">NEW TESTAMENT · 27 BOOKS</div>
     <div class="bl-list" id="bl-list"></div>
   </div>
   <div class="bible-center">
@@ -120,10 +120,11 @@
     </div>
     <div class="trans-bar">
       <span class="trans-label">TEXT</span>
-      <button class="trans-btn active" onclick="setTrans('kjv',this)">KJV 1611</button>
-      <button class="trans-btn" onclick="setTrans('ylt',this)">YLT 1862</button>
-      <button class="trans-btn" onclick="setTrans('ara',this)">ܐ ARAMAIC</button>
-      <button class="trans-btn" onclick="setTrans('gk',this)">Α GREEK</button>
+      <button class="trans-btn active" data-trans="kjv" onclick="setTrans('kjv')">KJV</button>
+      <button class="trans-btn" data-trans="ylt" onclick="setTrans('ylt')">YLT</button>
+      <button class="trans-btn" data-trans="heb" onclick="setTrans('heb')">א HEBREW</button>
+      <button class="trans-btn" data-trans="ara" onclick="setTrans('ara')">ܐ ARAMAIC</button>
+      <button class="trans-btn" data-trans="gk" onclick="setTrans('gk')">Α GREEK</button>
     </div>
     <div class="bc-scroll" id="bc-scroll">
       <div class="no-data"><div class="no-data-ara">ܡܸܠܬ݂ܵܐ</div><div class="no-data-text">SELECT A BOOK TO BEGIN READING</div></div>
@@ -132,7 +133,7 @@
   <div class="bible-right">
     <div class="br-header">
       <div class="br-ref" id="br-ref">TAP A VERSE</div>
-      <div class="br-hint">ORIGINAL LANGUAGES · MAP · CHURCH FATHER</div>
+      <div class="br-hint">OTHER TEXTS · MAP · CHURCH FATHER</div>
     </div>
     <div class="br-scroll" id="br-scroll">
       <div class="br-empty"><div class="br-empty-ara">ܡܸܠܺܬ݂ܵܐ</div><div class="br-empty-text">TAP ANY VERSE<br>TO SEE ITS ORIGINAL<br>LANGUAGES AND CONTEXT</div></div>
@@ -143,100 +144,148 @@
 <script src="js/miltha.js"></script>
 <script src="js/bible-data.js"></script>
 <script>
-let currentBook=null,currentChapter=1,currentTrans='kjv',filteredBooks=[...BIBLE_BOOKS];
+/* Bible reader — verse text is fetched per book from data/bible/<translation>/<book>.json */
+const ALL_BOOKS=[...OT_BOOKS,...BIBLE_BOOKS.map(b=>({...b,orig:b.peshitta,testament:'nt'}))];
+const TRANS={
+  kjv:{label:'KING JAMES VERSION',cls:'verse-text'},
+  ylt:{label:"YOUNG'S LITERAL TRANSLATION · 1898",cls:'verse-text ylt'},
+  heb:{label:'HEBREW · MASORETIC TEXT',cls:'verse-text ara',rtl:true,source:'WESTMINSTER LENINGRAD CODEX',only:'ot'},
+  ara:{label:'PESHITTA · ARAMAIC',cls:'verse-text ara',rtl:true,source:'SYRIAC PESHITTA',only:'nt'},
+  gk:{label:'TEXTUS RECEPTUS · GREEK',cls:'verse-text gk',source:'TEXTUS RECEPTUS · 1550/1894',only:'nt'}
+};
+let currentBook=null,currentChapter=1,currentTrans='kjv',filteredBooks=[...ALL_BOOKS],INDEX=null,loadToken=0;
+const cache={};
+
+function esc(t){return String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function available(t,book){const o=TRANS[t].only;return !o||o===book.testament;}
+function fetchJSON(url){return fetch(url).then(r=>{if(!r.ok)throw new Error(r.status);return r.json();});}
+function loadBook(t,id){
+  const k=t+'/'+id;
+  if(!cache[k])cache[k]=fetchJSON('data/bible/'+k+'.json').catch(e=>{delete cache[k];throw e;});
+  return cache[k];
+}
+function chapterCount(){return INDEX?.[currentBook.id]?.[currentTrans]?.length||currentBook.ch;}
+// True when this translation numbers the chapter's verses differently from the KJV
+function numberingDiffers(t,ch){
+  const i=INDEX?.[currentBook.id];if(!i||!i[t]||!i.kjv)return false;
+  return i[t].length!==i.kjv.length||i[t][ch-1]!==i.kjv[ch-1];
+}
 
 function renderBookList(){
-  document.getElementById('bl-list').innerHTML=filteredBooks.map(b=>`
-    <div class="bl-book ${currentBook?.id===b.id?'active':''}" onclick="selectBook('${b.id}')">
-      <span class="bl-book-name">${b.name}</span>
-      <span class="bl-book-ara">${b.peshitta}</span>
-    </div>`).join('');
+  let html='',last='';
+  filteredBooks.forEach(b=>{
+    if(b.testament!==last){last=b.testament;html+=`<div class="bl-label">${last==='ot'?'OLD TESTAMENT · 39 BOOKS':'NEW TESTAMENT · 27 BOOKS'}</div>`;}
+    html+=`<div class="bl-book ${currentBook?.id===b.id?'active':''}" onclick="selectBook('${b.id}')">
+      <span class="bl-book-name">${b.name}</span><span class="bl-book-ara">${b.orig}</span></div>`;
+  });
+  document.getElementById('bl-list').innerHTML=html||'<div class="bl-label">NO BOOKS FOUND</div>';
 }
-function filterBooks(q){filteredBooks=BIBLE_BOOKS.filter(b=>b.name.toLowerCase().includes(q.toLowerCase()));renderBookList();}
-function selectBook(id){currentBook=BIBLE_BOOKS.find(b=>b.id===id);currentChapter=1;renderBookList();updateChapterNav();loadChapter(1);clearDetail();}
+function filterBooks(q){filteredBooks=ALL_BOOKS.filter(b=>b.name.toLowerCase().includes(q.trim().toLowerCase()));renderBookList();}
+function updateTransBar(){
+  document.querySelectorAll('.trans-btn').forEach(btn=>{
+    const t=btn.dataset.trans;
+    btn.style.display=(!currentBook||available(t,currentBook))?'':'none';
+    btn.classList.toggle('active',t===currentTrans);
+  });
+}
+function selectBook(id,ch){
+  currentBook=ALL_BOOKS.find(b=>b.id===id);if(!currentBook)return;
+  if(!available(currentTrans,currentBook))currentTrans='kjv';
+  renderBookList();updateTransBar();loadChapter(ch||1);
+}
 function updateChapterNav(){
-  if(!currentBook)return;
   document.getElementById('bc-title').textContent=currentBook.name;
   document.getElementById('ch-nav').style.display='flex';
-  document.getElementById('ch-select').innerHTML=Array.from({length:currentBook.ch},(_,i)=>`<option value="${i+1}" ${i+1===currentChapter?'selected':''}>CHAPTER ${i+1}</option>`).join('');
+  const n=chapterCount();
+  document.getElementById('ch-select').innerHTML=Array.from({length:n},(_,i)=>`<option value="${i+1}" ${i+1===currentChapter?'selected':''}>CHAPTER ${i+1}</option>`).join('');
 }
-function changeChapter(dir){if(!currentBook)return;const n=currentChapter+dir;if(n<1||n>currentBook.ch)return;loadChapter(n);}
-function loadChapter(ch){
+function changeChapter(dir){if(!currentBook)return;const n=currentChapter+dir;if(n<1||n>chapterCount())return;loadChapter(n);}
+function bookIntro(ch){
+  const b=currentBook;
+  const meta=b.author?`<div class="book-intro-meta">
+      <span class="bim"><strong>AUTHOR</strong> ${b.author}</span>
+      <span class="bim"><strong>WRITTEN</strong> ${b.written}</span>
+      <span class="bim"><strong>THEME</strong> ${b.theme}</span></div>`:'';
+  return `<div class="book-intro"><div class="book-intro-name">${b.name}</div><div class="book-intro-ara">${b.orig}</div>${meta}</div>
+    <div class="ch-heading">CHAPTER ${ch} · ${TRANS[currentTrans].label}</div>`;
+}
+async function loadChapter(ch){
   if(!currentBook)return;
-  currentChapter=ch;
-  clearDetail();
-  document.getElementById('ch-select').value=ch;
-  const chData=VERSES[currentBook.id]?.[ch];
-  const verses=chData?(chData[currentTrans]||chData.kjv||[]):[];
-  const kp=KEY_PASSAGES[currentBook.id];
-  let html=`<div class="book-intro">
-    <div class="book-intro-name">${currentBook.name}</div>
-    <div class="book-intro-ara">${currentBook.peshitta}</div>
-    <div class="book-intro-meta">
-      <span class="bim"><strong>AUTHOR</strong> ${currentBook.author}</span>
-      <span class="bim"><strong>WRITTEN</strong> ${currentBook.written}</span>
-      <span class="bim"><strong>THEME</strong> ${currentBook.theme}</span>
-    </div></div>
-    <div class="ch-heading">CHAPTER ${ch}</div>`;
-  if(verses.length>0){
-    verses.forEach((text,i)=>{
-      const vn=i+1,locKey=`${currentBook.id}-${ch}-${vn}`,hasLoc=!!VERSE_LOCATIONS[locKey];
-      const msNote=MS_NOTES[`${currentBook.id}-${ch}-${vn}`];
-      const tc=currentTrans==='ylt'?'verse-text ylt':currentTrans==='ara'?'verse-text ara':currentTrans==='gk'?'verse-text gk':'verse-text';
-      html+=`<div class="verse-block ${hasLoc?'has-loc':''}" id="vb-${vn}" onclick="selectVerse(${vn},'${locKey}')"><span class="verse-num">${vn}</span><span class="${tc}">${text}</span></div>`;
-      if(msNote)html+=`<div class="ms-note"><div class="ms-note-label">MANUSCRIPT NOTE</div>${msNote}</div>`;
-    });
-  } else {
-    html+=`<div class="no-data"><div class="no-data-ara">${currentBook.peshitta}</div><div class="no-data-text">${currentBook.name} ${ch}${kp?`<br><br>KEY PASSAGE: ${currentBook.name} ${kp.ch} — ${kp.label}`:''}<br><br>FULL TEXT COMING SOON<br><br><a href="knowledge.html" style="font-family:'Cinzel',serif;font-size:8px;letter-spacing:.16em;color:var(--gold);opacity:.5;text-decoration:none;border:1px solid rgba(201,169,110,.2);padding:8px 16px">⊕ ASK THE KNOWLEDGE ENGINE</a></div></div>`;
+  ch=Math.min(Math.max(1,ch||1),chapterCount());
+  currentChapter=ch;clearDetail();updateChapterNav();
+  history.replaceState(null,'','#'+currentBook.id+'/'+ch+(currentTrans!=='kjv'?'/'+currentTrans:''));
+  const scroll=document.getElementById('bc-scroll'),token=++loadToken,t=TRANS[currentTrans];
+  scroll.innerHTML=bookIntro(ch)+`<div class="no-data"><div class="no-data-text">LOADING…</div></div>`;
+  let verses;
+  try{verses=(await loadBook(currentTrans,currentBook.id))[ch-1]||[];}
+  catch(e){
+    if(token!==loadToken)return;
+    scroll.innerHTML=bookIntro(ch)+`<div class="no-data"><div class="no-data-text">THE TEXT COULD NOT BE LOADED.<br>CHECK YOUR CONNECTION AND TRY AGAIN.</div></div>`;
+    return;
   }
-  document.getElementById('bc-scroll').innerHTML=html;
-  document.getElementById('bc-scroll').scrollTop=0;
+  if(token!==loadToken)return;
+  let html=bookIntro(ch);
+  if(currentTrans!=='kjv'&&numberingDiffers(currentTrans,ch))html+=`<div class="ms-note"><div class="ms-note-label">VERSE NUMBERING</div>This chapter is numbered differently in the ${t.label.split(' · ')[0].toLowerCase().replace(/^./,c=>c.toUpperCase())} text than in English Bibles.</div>`;
+  verses.forEach((text,i)=>{
+    const vn=i+1,key=`${currentBook.id}-${ch}-${vn}`,hasLoc=!!VERSE_LOCATIONS[key],msNote=MS_NOTES[key];
+    html+=`<div class="verse-block ${hasLoc?'has-loc':''}" id="vb-${vn}" onclick="selectVerse(${vn})"><span class="verse-num">${vn}</span><span class="${t.cls}"${t.rtl?' dir="rtl"':''}>${text?esc(text):'<em style="opacity:.5">— not present in this text —</em>'}</span></div>`;
+    if(msNote)html+=`<div class="ms-note"><div class="ms-note-label">MANUSCRIPT NOTE</div>${msNote}</div>`;
+  });
+  scroll.innerHTML=html;scroll.scrollTop=0;
 }
-function setTrans(t,btn){currentTrans=t;document.querySelectorAll('.trans-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');if(currentBook)loadChapter(currentChapter);}
-function selectVerse(vn,key){
+function setTrans(t){
+  if(currentBook&&!available(t,currentBook))return;
+  currentTrans=t;updateTransBar();
+  if(currentBook)loadChapter(currentChapter);
+}
+function selectVerse(vn){
   document.querySelectorAll('.verse-block').forEach(v=>v.classList.remove('active'));
   document.getElementById('vb-'+vn)?.classList.add('active');
-  const parts=key.split('-');
-  document.getElementById('br-ref').textContent=`${currentBook?.name||''} ${parts[1]}:${parts[2]}`;
-  renderDetail(key,vn);
+  document.getElementById('br-ref').textContent=`${currentBook.name} ${currentChapter}:${vn}`;
+  renderDetail(vn);
 }
-function renderDetail(key,vn){
-  const chData=VERSES[currentBook?.id]?.[currentChapter];
-  let html='';
-  if(chData){
-    const trans=[
-      {id:'kjv',label:'KJV 1611',data:chData.kjv?.[vn-1]},
-      {id:'ylt',label:"YOUNG'S LITERAL 1862",data:chData.ylt?.[vn-1]},
-      {id:'ara',label:'PESHITTA · ARAMAIC',data:chData.ara?.[vn-1],rtl:true,source:'EASTERN SYRIAC · c. 2ND CENTURY AD'},
-      {id:'gk',label:'TEXTUS RECEPTUS · GREEK',data:chData.gk?.[vn-1],source:'ERASMUS · 1516 AD'}
-    ].filter(t=>t.data&&t.id!==currentTrans);
-    if(trans.length>0){
-      html+='<div class="br-section"><div class="br-section-label">TRANSLATIONS</div>';
-      trans.forEach(t=>{html+=`<div style="margin-bottom:10px"><div style="font-family:'Cinzel',serif;font-size:6px;letter-spacing:.2em;color:var(--gold);opacity:.32;margin-bottom:4px">${t.label}</div><div class="br-text ${t.rtl?'rtl':''}">${t.data}</div>${t.source?`<div class="br-source">${t.source}</div>`:''}</div>`;});
-      html+='</div>';
-    }
-  }
+async function renderDetail(vn){
+  const book=currentBook,ch=currentChapter,key=`${book.id}-${ch}-${vn}`,token=loadToken;
+  const pane=document.getElementById('br-scroll');
+  pane.innerHTML='<div class="br-empty"><div class="br-empty-text">LOADING…</div></div>';
+  const others=Object.keys(TRANS).filter(t=>t!==currentTrans&&available(t,book));
+  const texts=await Promise.all(others.map(t=>loadBook(t,book.id).then(d=>d[ch-1]?.[vn-1]||'').catch(()=>'')));
+  if(token!==loadToken||!document.getElementById('vb-'+vn)?.classList.contains('active'))return;
+  let html='',rows='';
+  others.forEach((t,i)=>{
+    if(!texts[i])return;
+    const T=TRANS[t],warn=numberingDiffers(t,ch)||numberingDiffers(currentTrans,ch);
+    rows+=`<div style="margin-bottom:14px"><div class="br-source" style="margin:0 0 4px">${T.label}</div><div class="br-text ${T.rtl?'rtl':''}">${esc(texts[i])}</div>${T.source?`<div class="br-source">${T.source}</div>`:''}${warn&&(T.only||TRANS[currentTrans].only)?`<div class="br-source" style="color:var(--flame)">VERSE NUMBERING DIFFERS IN THIS CHAPTER — THIS LINE MAY BE A VERSE OFF</div>`:''}</div>`;
+  });
+  if(rows)html+=`<div class="br-section"><div class="br-section-label">OTHER TEXTS</div>${rows}</div>`;
   const loc=VERSE_LOCATIONS[key];
   if(loc){
     const x=Math.min(Math.max(Math.round(((loc.lng-34.5)/3)*130+10),8),142);
     const y=Math.min(Math.max(Math.round(((35-loc.lat)/8)*100+10),8),112);
     html+=`<div class="br-section"><div class="br-section-label">LOCATION</div>
-      <div class="map-mini-br"><svg viewBox="0 0 155 125" xmlns="http://www.w3.org/2000/svg"><rect width="155" height="125" fill="#0D1A14"/><ellipse cx="92" cy="40" rx="7" ry="11" fill="#0D2535" stroke="#1A4A6A" stroke-width=".5" opacity=".8"/><ellipse cx="97" cy="93" rx="5" ry="14" fill="#0D2535" stroke="#1A4A6A" stroke-width=".5" opacity=".8"/><path d="M90,51 Q88,67 90,80 Q92,88 94,80" stroke="#1A4A6A" stroke-width="1" fill="none" opacity=".5"/><circle cx="${x}" cy="${y}" r="5" fill="#E8813A" opacity=".9"/><circle cx="${x}" cy="${y}" r="9" fill="#E8813A" opacity=".1"/><text x="12" y="117" fill="#C9A96E" font-size="6" font-family="serif" opacity=".13">N↑</text></svg></div>
+      <div class="map-mini-br"><svg viewBox="0 0 155 125" xmlns="http://www.w3.org/2000/svg"><rect width="155" height="125" fill="#0D1A14"/><ellipse cx="92" cy="40" rx="7" ry="11" fill="#0D2535" stroke="#1A4A6A" stroke-width=".5" opacity=".8"/><ellipse cx="97" cy="93" rx="5" ry="14" fill="#0D2535" stroke="#1A4A6A" stroke-width=".5" opacity=".8"/><path d="M90,51 Q88,67 90,80 Q92,88 94,80" stroke="#1A4A6A" stroke-width="1" fill="none" opacity=".5"/><circle cx="${x}" cy="${y}" r="5" fill="#E8813A" opacity=".9"/><circle cx="${x}" cy="${y}" r="9" fill="#E8813A" opacity=".1"/></svg></div>
       <div class="map-loc-name">${loc.name}</div>
       <div class="map-loc-note">${loc.note}</div>
-      <a href="history.html" style="font-family:'Cinzel',serif;font-size:7px;letter-spacing:.16em;color:var(--gold);opacity:.45;text-decoration:none;display:inline-flex;margin-top:8px">→ FULL HISTORY LAYER</a>
+      <a href="history.html" class="br-source" style="text-decoration:none;display:inline-flex;margin-top:8px;color:var(--gold)">→ FULL HISTORY LAYER</a>
     </div>`;
   }
-  const f=PASSAGE_FATHERS[`${currentBook?.id}-${currentChapter}`];
-  if(f){html+=`<div class="br-section"><div class="br-section-label">CHURCH FATHER</div><div class="father-mini"><div class="fm-name">${f.father} · ${f.source}</div><div class="fm-quote">"${f.text}"</div></div></div>`;}
-  if(!html)html=`<div class="br-empty"><div class="br-empty-ara">${currentBook?.peshitta||'ܡܸܠܺܬ݂ܵܐ'}</div><div class="br-empty-text">FULL ANNOTATIONS<br>COMING SOON</div></div>`;
-  document.getElementById('br-scroll').innerHTML=html;
+  const f=PASSAGE_FATHERS[`${book.id}-${ch}`];
+  if(f)html+=`<div class="br-section"><div class="br-section-label">CHURCH FATHER</div><div class="father-mini"><div class="fm-name">${f.father} · ${f.source}</div><div class="fm-quote">"${f.text}"</div></div></div>`;
+  pane.innerHTML=html||`<div class="br-empty"><div class="br-empty-ara">${book.orig}</div><div class="br-empty-text">NO OTHER TEXTS<br>FOR THIS VERSE</div></div>`;
 }
 function clearDetail(){
   document.getElementById('br-ref').textContent='TAP A VERSE';
-  document.getElementById('br-scroll').innerHTML='<div class="br-empty"><div class="br-empty-ara">ܡܸܠܺܬ݂ܵܐ</div><div class="br-empty-text">TAP ANY VERSE<br>TO SEE ITS ORIGINAL<br>LANGUAGES AND CONTEXT</div></div>';
+  document.getElementById('br-scroll').innerHTML='<div class="br-empty"><div class="br-empty-ara">ܡܸܠܬ݂ܵܐ</div><div class="br-empty-text">TAP ANY VERSE<br>TO SEE IT IN THE<br>OTHER TEXTS</div></div>';
 }
-renderBookList();
+function openFromHash(){
+  const [id,ch,t]=location.hash.slice(1).split('/');
+  const book=ALL_BOOKS.find(b=>b.id===id);if(!book)return false;
+  if(t&&TRANS[t]&&available(t,book))currentTrans=t;
+  selectBook(id,parseInt(ch)||1);return true;
+}
+renderBookList();updateTransBar();
+fetchJSON('data/bible/index.json').then(i=>{INDEX=i;}).catch(()=>{}).then(()=>{openFromHash();});
+window.addEventListener('hashchange',()=>{const [id,ch]=location.hash.slice(1).split('/');if(currentBook&&id===currentBook.id&&parseInt(ch)===currentChapter)return;openFromHash();});
 </script>
 </body>
 </html>
