@@ -6,7 +6,7 @@
 <title>Bible — MILTHA</title>
 <link rel="stylesheet" href="css/miltha.css">
 <style>
-.bible-layout{display:grid;grid-template-columns:230px 1fr 260px;height:calc(100vh - 58px);margin-top:58px;overflow:hidden}
+.bible-layout{display:grid;grid-template-columns:230px 1fr 260px;height:calc(100vh - 58px);height:calc(100dvh - 58px);margin-top:58px;overflow:hidden}
 .bible-left{background:var(--parchment);border-right:1px solid var(--ash);display:flex;flex-direction:column;overflow:hidden}
 .bible-center{display:flex;flex-direction:column;overflow:hidden;background:var(--black)}
 .bible-right{background:var(--stone);border-left:1px solid var(--ash);display:flex;flex-direction:column;overflow:hidden}
@@ -81,8 +81,43 @@
 .map-mini-br svg{width:100%;height:100%}
 .map-loc-name{font-family:'Cinzel',serif;font-size:21px;letter-spacing:.1em;color:var(--flame);margin-bottom:3px}
 .map-loc-note{font-size:24px;font-style:italic;color:var(--cream);opacity:.86;line-height:1.5}
-@media(max-width:900px){.bible-layout{grid-template-columns:200px 1fr}.bible-right{display:none}}
-@media(max-width:640px){.bible-layout{grid-template-columns:1fr}.bible-left{height:160px;border-right:none;border-bottom:1px solid var(--ash)}}
+.mobile-only{display:none}
+.books-btn{font-family:'Cinzel',serif;font-size:14px;letter-spacing:.14em;padding:8px 12px;background:none;border:1px solid var(--ash2);color:var(--gold);cursor:pointer}
+.br-close{display:none;background:none;border:1px solid var(--ash2);color:var(--cream);font-family:'Cinzel',serif;font-size:12px;letter-spacing:.16em;padding:7px 11px;cursor:pointer;flex-shrink:0}
+.br-header-row{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+.sheet-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:590}
+.sheet-backdrop.open{display:block}
+/* Tablets and phones: the verse panel becomes a sheet that slides up when a verse is tapped */
+@media(max-width:900px){
+  .bible-layout{grid-template-columns:200px 1fr}
+  .bible-right{display:flex;position:fixed;left:0;right:0;bottom:0;height:min(72vh,620px);height:min(72dvh,620px);z-index:600;border-left:none;border-top:2px solid var(--gold);box-shadow:0 -12px 40px rgba(0,0,0,.6);transform:translateY(105%);transition:transform .25s ease;visibility:hidden}
+  .bible-right.open{transform:translateY(0);visibility:visible}
+  .br-close{display:inline-block}
+  .br-hint{display:none}
+  .verse-block.has-loc::after{display:none}
+}
+/* Phones: the book list becomes a drawer opened from the BOOKS button */
+@media(max-width:640px){
+  .bible-layout{grid-template-columns:1fr}
+  .mobile-only{display:inline-block}
+  .bible-left{position:fixed;top:58px;bottom:0;left:0;width:min(86vw,330px);z-index:600;border-right:1px solid var(--gold);box-shadow:12px 0 40px rgba(0,0,0,.6);transform:translateX(-105%);transition:transform .25s ease;visibility:hidden}
+  .bible-left.open{transform:translateX(0);visibility:visible}
+  .bc-topbar{padding:8px 10px;gap:6px}
+  .bc-title{display:none}
+  .books-btn{flex:1;min-width:0;text-align:left;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ch-btn{font-size:17px;padding:5px 9px}
+  .ch-select{font-size:16px;padding:5px 6px}
+  .trans-bar{padding:6px 10px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .trans-label{display:none}
+  .trans-btn{font-size:15px;padding:5px 9px;white-space:nowrap;flex-shrink:0}
+  .bc-scroll{padding:20px 14px 70px}
+  .verse-text{font-size:21px;line-height:1.75}
+  .verse-text.ara,.verse-text.gk{font-size:21px}
+  .book-intro-meta{gap:8px}
+  .bim{font-size:14px;opacity:.6}
+  .ms-note{margin-left:0}
+}
+@media(prefers-reduced-motion:reduce){.bible-left,.bible-right{transition:none}}
 </style>
 </head>
 <body>
@@ -105,7 +140,7 @@
 </nav>
 
 <div class="bible-layout">
-  <div class="bible-left">
+  <div class="bible-left" id="bible-left">
     <div class="bl-header">
       <input class="bl-search" type="text" placeholder="Search books..." oninput="filterBooks(this.value)">
     </div>
@@ -113,6 +148,7 @@
   </div>
   <div class="bible-center">
     <div class="bc-topbar">
+      <button type="button" class="books-btn mobile-only" id="books-btn" aria-controls="bible-left" aria-expanded="false">☰ BOOKS</button>
       <span class="bc-title" id="bc-title">SELECT A BOOK</span>
       <div class="ch-nav" id="ch-nav" style="display:none">
         <button class="ch-btn" onclick="changeChapter(-1)">←</button>
@@ -132,16 +168,20 @@
       <div class="no-data"><div class="no-data-ara">ܡܸܠܬ݂ܵܐ</div><div class="no-data-text">SELECT A BOOK TO BEGIN READING</div></div>
     </div>
   </div>
-  <div class="bible-right">
+  <div class="bible-right" id="bible-right" aria-label="Verse details">
     <div class="br-header">
-      <div class="br-ref" id="br-ref">TAP A VERSE</div>
-      <div class="br-hint">OTHER TEXTS · MAP · CHURCH FATHER</div>
+      <div class="br-header-row">
+        <div><div class="br-ref" id="br-ref">TAP A VERSE</div>
+        <div class="br-hint">OTHER TEXTS · MAP · CHURCH FATHER</div></div>
+        <button type="button" class="br-close mobile-sheet" id="br-close">CLOSE ✕</button>
+      </div>
     </div>
     <div class="br-scroll" id="br-scroll">
       <div class="br-empty"><div class="br-empty-ara">ܡܸܠܺܬ݂ܵܐ</div><div class="br-empty-text">TAP ANY VERSE<br>TO SEE ITS ORIGINAL<br>LANGUAGES AND CONTEXT</div></div>
     </div>
   </div>
 </div>
+<div class="sheet-backdrop" id="sheet-backdrop"></div>
 
 <script src="js/miltha.js"></script>
 <script src="js/bible-data.js"></script>
@@ -190,13 +230,31 @@ function updateTransBar(){
     btn.classList.toggle('active',t===currentTrans);
   });
 }
+/* Phone and tablet panels: the book drawer (≤640px) and the verse sheet (≤900px) */
+const smallScreen=w=>window.matchMedia(`(max-width:${w}px)`).matches;
+function setPanel(id,open){
+  const el=document.getElementById(id);if(!el)return;
+  el.classList.toggle('open',open);
+  if(id==='bible-left')document.getElementById('books-btn').setAttribute('aria-expanded',String(open));
+  const any=document.getElementById('bible-left').classList.contains('open')||document.getElementById('bible-right').classList.contains('open');
+  document.getElementById('sheet-backdrop').classList.toggle('open',any&&smallScreen(900));
+}
+function closePanels(){setPanel('bible-left',false);setPanel('bible-right',false);}
+document.getElementById('books-btn').addEventListener('click',()=>{setPanel('bible-right',false);setPanel('bible-left',!document.getElementById('bible-left').classList.contains('open'));});
+document.getElementById('br-close').addEventListener('click',()=>setPanel('bible-right',false));
+document.getElementById('sheet-backdrop').addEventListener('click',closePanels);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closePanels();});
+window.addEventListener('resize',()=>{if(!smallScreen(900))closePanels();});
+
 function selectBook(id,ch){
   currentBook=ALL_BOOKS.find(b=>b.id===id);if(!currentBook)return;
+  setPanel('bible-left',false);
   if(!available(currentTrans,currentBook))currentTrans='kjv';
   renderBookList();updateTransBar();loadChapter(ch||1);
 }
 function updateChapterNav(){
   document.getElementById('bc-title').textContent=currentBook.name;
+  document.getElementById('books-btn').textContent='☰ '+currentBook.name;
   document.getElementById('ch-nav').style.display='flex';
   const n=chapterCount();
   document.getElementById('ch-select').innerHTML=Array.from({length:n},(_,i)=>`<option value="${i+1}" ${i+1===currentChapter?'selected':''}>CHAPTER ${i+1}</option>`).join('');
@@ -244,6 +302,7 @@ function selectVerse(vn){
   document.querySelectorAll('.verse-block').forEach(v=>v.classList.remove('active'));
   document.getElementById('vb-'+vn)?.classList.add('active');
   document.getElementById('br-ref').textContent=`${currentBook.name} ${currentChapter}:${vn}`;
+  if(smallScreen(900)){setPanel('bible-left',false);setPanel('bible-right',true);}
   renderDetail(vn);
 }
 async function renderDetail(vn){
@@ -277,6 +336,7 @@ async function renderDetail(vn){
   pane.innerHTML=html||`<div class="br-empty"><div class="br-empty-ara">${book.orig}</div><div class="br-empty-text">NO OTHER TEXTS<br>FOR THIS VERSE</div></div>`;
 }
 function clearDetail(){
+  setPanel('bible-right',false);
   document.getElementById('br-ref').textContent='TAP A VERSE';
   document.getElementById('br-scroll').innerHTML='<div class="br-empty"><div class="br-empty-ara">ܡܸܠܬ݂ܵܐ</div><div class="br-empty-text">TAP ANY VERSE<br>TO SEE IT IN THE<br>OTHER TEXTS</div></div>';
 }
@@ -287,6 +347,7 @@ function openFromHash(){
   selectBook(id,parseInt(ch)||1);return true;
 }
 renderBookList();updateTransBar();
+if(!location.hash&&smallScreen(640))setPanel('bible-left',true);
 fetchJSON('data/bible/index.json').then(i=>{INDEX=i;}).catch(()=>{}).then(()=>{openFromHash();});
 window.addEventListener('hashchange',()=>{const [id,ch]=location.hash.slice(1).split('/');if(currentBook&&id===currentBook.id&&parseInt(ch)===currentChapter)return;openFromHash();});
 </script>

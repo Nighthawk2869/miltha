@@ -7,6 +7,26 @@
 function initNav() {
   const nav = document.getElementById('miltha-nav');
   if (!nav) return;
+  // Phone menu: the links are hidden below 768px, so add a button that opens them.
+  const links = nav.querySelector('.nav-links');
+  if (links && !nav.querySelector('.nav-menu-btn')) {
+    links.id = links.id || 'nav-links';
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'nav-menu-btn';
+    btn.setAttribute('aria-controls', links.id);
+    btn.setAttribute('aria-expanded', 'false');
+    btn.textContent = 'MENU';
+    const close = () => { nav.classList.remove('nav-open'); btn.setAttribute('aria-expanded', 'false'); btn.textContent = 'MENU'; };
+    btn.addEventListener('click', () => {
+      const open = nav.classList.toggle('nav-open');
+      btn.setAttribute('aria-expanded', String(open));
+      btn.textContent = open ? 'CLOSE' : 'MENU';
+    });
+    links.addEventListener('click', e => { if (e.target.closest('a')) close(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') close(); });
+    (nav.querySelector('.nav-right') || nav).appendChild(btn);
+  }
   // Set active link based on current page
   const path = window.location.pathname.split('/').pop() || 'index.html';
   document.querySelectorAll('.nav-links a').forEach(a => {
@@ -39,16 +59,6 @@ function showToast(msg, dur = 3000) {
   t.textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), dur);
-}
-
-// ============ WAITLIST ============
-function handleWaitlist(e, successId, formId) {
-  e.preventDefault();
-  const form = formId ? document.getElementById(formId) : e.target;
-  if (form) form.style.display = 'none';
-  const success = document.getElementById(successId);
-  if (success) success.style.display = 'block';
-  showToast('YOU ARE ON THE LIST · ܡܸܠܬ݂ܵܐ');
 }
 
 // ============ INIT ============
