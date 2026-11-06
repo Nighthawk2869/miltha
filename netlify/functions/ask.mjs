@@ -6,6 +6,8 @@
 // Netlify settings (Site configuration → Environment variables):
 //   ANTHROPIC_API_KEY   required — from console.anthropic.com
 //   ANTHROPIC_MODEL     optional — defaults to claude-sonnet-5-5
+// If no key is set, Netlify's AI Gateway may supply ANTHROPIC_API_KEY and ANTHROPIC_BASE_URL itself;
+// requests then go through the gateway and are billed to the Netlify account.
 
 const SYSTEM = `You are MILTHA's Knowledge Engine — an AI theological research assistant for a Christian platform focused on the earliest manuscript traditions of Scripture.
 
@@ -66,7 +68,8 @@ export default async (req) => {
 
   let res;
   try {
-    res = await fetch('https://api.anthropic.com/v1/messages', {
+    const base = (Netlify.env.get('ANTHROPIC_BASE_URL') || 'https://api.anthropic.com').replace(/\/+$/, '');
+    res = await fetch(base + '/v1/messages', {
       method: 'POST',
       headers: {
         'x-api-key': key,
@@ -91,6 +94,7 @@ export default async (req) => {
     console.error('Claude API error', res.status, JSON.stringify(data?.error || data));
     const busy = res.status === 429 || res.status === 529;
     return json(busy ? 503 : 502, {
+      code: res.status,
       error: busy ? 'The Knowledge Engine is busy right now. Please try again in a minute.'
                   : 'The Knowledge Engine had a problem answering. Please try again.',
     });
