@@ -4,8 +4,9 @@
 // passages from MILTHA's own texts that bear on the question (retrieval):
 //   - any Bible verses the question names (KJV text), and where the Church Fathers cite them
 //     (data/fathers-refs, built by tools/build_library.py);
+//   - the best-matching KJV verses for the question's topic (data/search/bible.json), and
 //   - the best-matching passages from the 51 Church Father works in the Library
-//     (data/search/fathers.json, built by tools/build_search.py), ranked with BM25.
+//     (data/search/fathers.json); both built by tools/build_search.py and ranked with BM25.
 // Claude answers from those numbered passages [S1], [S2]... and the page links each one to the Library
 // or the Bible. The function adds the instructions and the secret API key, which never leave the server,
 // and returns {answer, sources}.
@@ -29,7 +30,7 @@ YOUR ONLY SOURCES (strictly these — no exceptions):
 HARD RULES:
 - NEVER cite modern commentators, theologians, or pastors (no Calvin, Luther, MacArthur, Piper, etc.)
 - NEVER offer denominational interpretation or take sides in theological disputes
-- Each question comes with numbered passages from MILTHA's own texts ([S1], [S2]...): Bible verses and passages from the Church Fathers in MILTHA's Library. Base your answer on them first. When you quote or draw on one, put its number right after, like this: "the Word was God" [S1] (one number per bracket, never a range). Use only numbers that were given. Some passages are only loose search matches: leave out any that do not help. Never mention, list or cite a passage you leave out, and never say that a passage is irrelevant.
+- Each question comes with numbered passages from MILTHA's own texts ([S1], [S2]...): Bible verses (named in the question, or found by searching for its topic) and passages from the Church Fathers in MILTHA's Library. Base your answer on them first. When you quote or draw on one, put its number right after, like this: "the Word was God" [S1] (one number per bracket, never a range). Use only numbers that were given. Some passages are only loose search matches: leave out any that do not help. Never mention, list or cite a passage you leave out, and never say that a passage is irrelevant.
 - Quote a Church Father word for word ONLY from the numbered passages. For anything else a Father wrote, describe it without quotation marks and say it is a summary.
 - If the numbered passages do not answer the question, say so plainly, then answer briefly from the sources above as best you can. Never cite a numbered passage for something it does not say.
 - Some passages come where a Father is describing or answering someone else's views (for example Irenaeus on the Gnostics); do not present those views as the Father's own.
@@ -105,11 +106,22 @@ both but by can could did do does doing down during each early earliest few for 
 his how i if in into is it its itself just me more most my no nor not now of off on once only or other our out over own same she should
 so some such than that the their them then there these they this those through to too under until up very was we were what when where
 which while who whom why will with would you your yours tell explain say said says teach taught teaching believe believed think thought
-view views write wrote written mean means meaning church father fathers christian christians early first century centuries ancient
+bible scripture scriptures verse verses testament view views write wrote written mean means meaning church father fathers christian christians early first century centuries ancient
 according regarding concerning anything something give please did does thee thou thy thine ye unto hath doth saith shall shalt upon
 also therefore wherefore yea nay us one many much way whether thing things even though yet let may might must`.split(/\s+/));
-const stem = (w) => w.length > 4 && w.endsWith('ies') ? w.slice(0, -3) + 'y'
-  : w.length > 4 && /[^s]s$/.test(w) ? w.slice(0, -1) : w;
+// A light stemmer, so "forgiveness", "forgiveth" and "forgiven" meet "forgive", and "sinned" meets "sin".
+// The same rules run on the texts and on the question, so odd stems still match each other.
+const SUFFIXES = ['fulness', 'ations', 'ation', 'nesses', 'ness', 'ments', 'ment', 'ings', 'ing', 'edst', 'eth', 'est',
+  'ful', 'ers', 'er', 'ed', 'es', 's', 'ly'];
+export function stem(w) {
+  if (w.length > 4 && w.endsWith('ies')) return w.slice(0, -3) + 'y';
+  for (const x of SUFFIXES) {
+    if (w.endsWith(x) && w.length - x.length >= 3 && !(x === 's' && /(ss|us|is)$/.test(w))) { w = w.slice(0, -x.length); break; }
+  }
+  if (w.length > 3 && w.endsWith('e')) w = w.slice(0, -1);
+  if (w.length > 3 && /([b-df-hj-np-tv-z])\1$/.test(w)) w = w.slice(0, -1);
+  return w;
+}
 export const tokens = (t) => (t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').match(/[a-z]+/g) || [])
   .filter((w) => w.length > 2 && !STOP.has(w)).map(stem);
 
@@ -117,9 +129,8 @@ export const tokens = (t) => (t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/
 const AUTHORS = { ignatius: 'ign-', polycarp: 'polycarp|martyrdom-of-polycarp', clement: '1-clement|clement-', justin: 'justin-',
   irenaeus: 'irenaeus-', tertullian: 'tertullian-', didache: 'didache', diognetus: 'diognetus', barnabas: 'barnabas', hermas: 'hermas' };
 
-let CORPUS = null;   // {rows, df, len, avg, post: Map(term -> [[row, tf]...]), byPara: Map}
-let WORKS = null;
-const bibleCache = new Map(), refsCache = new Map();
+let FATHERS = null, BIBLE = null, WORKS = null;   // search indexes, loaded once per server instance
+const refsCache = new Map();
 
 async function getJSON(origin, path) {
   const r = await fetch(origin + '/' + path);
@@ -127,43 +138,49 @@ async function getJSON(origin, path) {
   return r.json();
 }
 
-async function loadCorpus(origin) {
-  if (CORPUS) return CORPUS;
-  const [rows, works] = await Promise.all([getJSON(origin, 'data/search/fathers.json'), getJSON(origin, 'data/fathers-refs/works.json')]);
-  const post = new Map(), len = new Array(rows.length), byPara = new Map();
+// rows: [[id, ch, n, text], ...] → BM25 index {rows, post: Map(term → [[row, tf]...]), len, avg, byKey}
+function makeIndex(rows) {
+  const post = new Map(), len = new Array(rows.length), byKey = new Map();
   rows.forEach((row, i) => {
     const counts = new Map();
     for (const t of tokens(row[3])) counts.set(t, (counts.get(t) || 0) + 1);
-    len[i] = [...counts.values()].reduce((a, b) => a + b, 0);
+    let n = 0; for (const c of counts.values()) n += c; len[i] = n;
     for (const [t, c] of counts) { let l = post.get(t); if (!l) post.set(t, l = []); l.push([i, c]); }
-    const k = row[0] + '/' + row[1] + '/' + row[2]; const p = byPara.get(k); p ? p.push(i) : byPara.set(k, [i]);
+    const k = row[0] + '/' + row[1] + '/' + row[2]; const p = byKey.get(k); p ? p.push(i) : byKey.set(k, [i]);
   });
-  const avg = len.reduce((a, b) => a + b, 0) / rows.length;
-  WORKS = works;
-  CORPUS = { rows, post, len, avg, byPara };
-  return CORPUS;
+  return { rows, post, len, avg: len.reduce((a, b) => a + b, 0) / rows.length, byKey };
 }
 
-// BM25 over the Library passages; at most 2 passages per work.
-export function search(C, query, n = 5) {
+async function loadFathers(origin) {
+  if (!FATHERS) {
+    const [rows, works] = await Promise.all([getJSON(origin, 'data/search/fathers.json'), getJSON(origin, 'data/fathers-refs/works.json')]);
+    WORKS = works; FATHERS = makeIndex(rows);
+  }
+  return FATHERS;
+}
+async function loadBible(origin) {
+  if (!BIBLE) BIBLE = makeIndex(await getJSON(origin, 'data/search/bible.json'));
+  return BIBLE;
+}
+
+// BM25 ranking. group(row) → key, at most `perGroup` hits per key; boost(row) → score multiplier.
+export function search(I, query, { n = 5, group = (r) => r[0], perGroup = 2, floor = 0.4, boost = null } = {}) {
   const q = [...new Set(tokens(query))];
   if (!q.length) return [];
-  const N = C.rows.length, k1 = 1.2, b = 0.75, score = new Map();
+  const N = I.rows.length, k1 = 1.2, b = 0.75, score = new Map();
   for (const t of q) {
-    const l = C.post.get(t); if (!l || l.length > N * 0.25) continue;   // skip terms in a quarter of all passages
+    const l = I.post.get(t); if (!l || l.length > N * 0.25) continue;   // skip terms found in a quarter of everything
     const idf = Math.log(1 + (N - l.length + 0.5) / (l.length + 0.5));
-    for (const [i, tf] of l) score.set(i, (score.get(i) || 0) + idf * tf * (k1 + 1) / (tf + k1 * (1 - b + b * C.len[i] / C.avg)));
+    for (const [i, tf] of l) score.set(i, (score.get(i) || 0) + idf * tf * (k1 + 1) / (tf + k1 * (1 - b + b * I.len[i] / I.avg)));
   }
-  const ql = query.toLowerCase(), boost = [];
-  for (const [name, pre] of Object.entries(AUTHORS)) if (ql.includes(name)) boost.push(...pre.split('|'));
-  if (boost.length) for (const [i, s] of score) if (boost.some((p) => C.rows[i][0].startsWith(p))) score.set(i, s * 2.5);
-  const out = [], perWork = {}, ranked = [...score].sort((a, b) => b[1] - a[1]);
-  const floor = ranked.length ? ranked[0][1] * 0.4 : 0;    // drop weak matches
+  if (boost) for (const [i, s] of score) score.set(i, s * boost(I.rows[i]));
+  const out = [], seen = {}, ranked = [...score].sort((a, b) => b[1] - a[1]);
+  const min = ranked.length ? ranked[0][1] * floor : 0;    // drop weak matches
   for (const [i, sc] of ranked) {
-    if (sc < floor) break;
-    const w = C.rows[i][0];
-    if ((perWork[w] || 0) >= 2) continue;
-    perWork[w] = (perWork[w] || 0) + 1; out.push(i);
+    if (sc < min) break;
+    const g = group(I.rows[i]);
+    if ((seen[g] || 0) >= perGroup) continue;
+    seen[g] = (seen[g] || 0) + 1; out.push(i);
     if (out.length >= n) break;
   }
   return out;
@@ -171,30 +188,44 @@ export function search(C, query, n = 5) {
 
 const trim = (t, max) => t.length <= max ? t : t.slice(0, t.lastIndexOf(' ', max)) + ' …';
 
-function fatherSource(C, i, note) {
-  const [work, ch, para, text] = C.rows[i];
+function fatherSource(I, i, note) {
+  const [work, ch, para, text] = I.rows[i];
   const [author, title, date] = WORKS[work] || [work, '', ''];
   return { kind: 'father', label: `${author} · ${title}${date ? ' · ' + date : ''}`, href: `library.html#${work}/${ch}/${para}`,
            text: trim(text, 1300), note };
 }
 
+// A verse found by topic, with the verses either side for context.
+function verseSource(B, i) {
+  const [book, ch, v] = B.rows[i];
+  const parts = [];
+  for (let k = v - 1; k <= v + 1; k++) {
+    const j = B.byKey.get(`${book}/${ch}/${k}`)?.[0];
+    if (j !== undefined) parts.push(`${k} ${B.rows[j][3]}`);
+  }
+  return { kind: 'bible', label: `KJV · ${bookLabel(book)} ${ch}:${v}`, href: `study.html#${book}/${ch}/${v}`,
+           text: parts.join(' '), note: 'found by topic; verses around it included for context' };
+}
+
 async function gather(origin, question, history) {
   const sources = [];
   const refs = findRefs(question);
-  let C = null;
-  try { C = await loadCorpus(origin); } catch (e) { console.error('Library search unavailable', e); }
+  let F = null, B = null;
+  [F, B] = await Promise.all([
+    loadFathers(origin).catch((e) => { console.error('Library search unavailable', e); return null; }),
+    loadBible(origin).catch((e) => { console.error('Bible search unavailable', e); return null; }),
+  ]);
 
   for (const r of refs) {
+    if (!B) break;
     try {
-      let book = bibleCache.get(r.book);
-      if (!book) { book = await getJSON(origin, `data/bible/kjv/${r.book}.json`); bibleCache.set(r.book, book); }
-      const verses = (book[r.ch - 1] || []).slice(r.from - 1, r.to).filter(Boolean);
+      const verses = [];
+      for (let v = r.from; v <= r.to; v++) { const j = B.byKey.get(`${r.book}/${r.ch}/${v}`)?.[0]; if (j !== undefined) verses.push(`${v} ${B.rows[j][3]}`); }
       if (!verses.length) continue;
       const ref = `${bookLabel(r.book)} ${r.ch}:${r.from}${r.to > r.from ? '–' + r.to : ''}`;
-      sources.push({ kind: 'bible', label: `KJV · ${ref}`, href: `study.html#${r.book}/${r.ch}/${r.from}`,
-                     text: verses.map((v, k) => `${r.from + k} ${v}`).join(' ') });
+      sources.push({ kind: 'bible', label: `KJV · ${ref}`, href: `study.html#${r.book}/${r.ch}/${r.from}`, text: verses.join(' ') });
       // Where the Fathers cite this verse
-      if (!C) continue;
+      if (!F) continue;
       const key = r.book + '/' + r.ch;
       let cites = refsCache.get(key);
       if (cites === undefined) { cites = await getJSON(origin, `data/fathers-refs/${key}.json`).catch(() => null); refsCache.set(key, cites); }
@@ -202,26 +233,37 @@ async function gather(origin, question, history) {
       for (let v = r.from; v <= r.to && seen.size < 3; v++) {
         for (const [work, ch, para, excerpt] of (cites?.[v] || [])) {
           if (seen.size >= 3 || seen.has(work)) continue;
-          const pieces = C.byPara.get(`${work}/${ch}/${para}`) || [];
+          const pieces = F.byKey.get(`${work}/${ch}/${para}`) || [];
           const tail = excerpt.replace(/^…|…$/g, '').trim().slice(-40);
-          const i = pieces.find((j) => C.rows[j][3].includes(tail)) ?? pieces[0];
+          const i = pieces.find((j) => F.rows[j][3].includes(tail)) ?? pieces[0];
           if (i === undefined) continue;
           seen.add(work);
-          sources.push(fatherSource(C, i, `cites ${ref.replace(/[:–].*/, '')}:${v}`));
+          sources.push(fatherSource(F, i, `cites ${ref.replace(/[:–].*/, '')}:${v}`));
         }
       }
     } catch (e) { console.error('Verse lookup failed', r, e); }
   }
 
-  if (C) {
-    // Follow-up questions ("what did he mean?") borrow the previous question's words.
-    let query = question.replace(BOOK_RE, ' ');
-    if (tokens(question).length < 3 && history.length) query += ' ' + history[history.length - 1].q;
-    const have = new Set(sources.map((s) => s.href));
-    for (const i of search(C, query, refs.length ? 4 : 7)) {
-      if (sources.length >= 9) break;
-      const s = fatherSource(C, i);
-      if (!have.has(s.href)) { have.add(s.href); sources.push(s); }
+  // Follow-up questions ("what did he mean?") borrow the previous question's words.
+  let query = question.replace(BOOK_RE, ' ');
+  if (tokens(query).length < 3 && history.length) query += ' ' + history[history.length - 1].q.replace(BOOK_RE, ' ');
+  const have = new Set(sources.map((s) => s.href));
+  const add = (s) => { if (!have.has(s.href)) { have.add(s.href); sources.push(s); } };
+
+  // Scripture by topic: one verse per chapter, at most two per book.
+  if (B) {
+    const hits = search(B, query, { n: refs.length ? 2 : 4, group: (r) => r[0] + '/' + r[1], perGroup: 1, floor: 0.5 });
+    const perBook = {};
+    for (const i of hits) { const bk = B.rows[i][0]; if ((perBook[bk] = (perBook[bk] || 0) + 1) <= 2) add(verseSource(B, i)); }
+  }
+  // The Church Fathers: at most two passages per work; naming a Father favours his works.
+  if (F) {
+    const ql = query.toLowerCase(), pre = [];
+    for (const [name, p] of Object.entries(AUTHORS)) if (ql.includes(name)) pre.push(...p.split('|'));
+    const boost = pre.length ? (r) => (pre.some((p) => r[0].startsWith(p)) ? 2.5 : 1) : null;
+    for (const i of search(F, query, { n: refs.length ? 4 : 6, boost })) {
+      if (sources.length >= 11) break;
+      add(fatherSource(F, i));
     }
   }
   return sources.map((s, k) => ({ n: k + 1, ...s }));
