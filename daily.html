@@ -7,7 +7,7 @@
 <meta name="description" content="MILTHA — The Word, as it was spoken. Daily Scripture in Aramaic, Hebrew, and Greek.">
 <link rel="stylesheet" href="css/miltha.css">
 <style>
-.daily-hero{padding:72px 5% 52px;text-align:center;border-bottom:1px solid var(--ash);position:relative}
+.daily-hero{padding:72px 5% 52px;text-align:center;border-bottom:1px solid var(--ash);position:relative;overflow:hidden}
 .daily-hero::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);width:600px;height:350px;background:radial-gradient(ellipse,rgba(201,169,110,.055) 0%,transparent 70%);pointer-events:none}
 .daily-date{font-family:'Cinzel',serif;font-size:14px;letter-spacing:.4em;color:var(--flame);opacity:.9;margin-bottom:18px;position:relative;z-index:1}
 .daily-title{font-family:'Cinzel',serif;font-size:clamp(42px,7vw,80px);color:var(--pure);letter-spacing:.12em;margin-bottom:12px;position:relative;z-index:1;text-shadow:0 0 50px rgba(201,169,110,.14)}
@@ -32,6 +32,37 @@
 .verse-nav-btns{display:flex;gap:6px}
 .verse-nav-btn{font-family:'Cinzel',serif;font-size:13px;letter-spacing:.1em;padding:11px 20px;background:var(--parchment);border:1px solid var(--ash);color:var(--cream);opacity:.7;cursor:pointer;transition:all .2s}
 .verse-nav-btn:hover,.verse-nav-btn.active{opacity:1;color:var(--gold);border-color:var(--gold)}
+.card-inner{padding:26px 26px 18px}
+.card-ref{font-size:14px;letter-spacing:.24em}
+.card-verse{font-size:clamp(22px,3vw,30px)}
+.tab-btn{font-size:14px;padding:13px 6px}
+.panel-content{padding:20px 26px 22px}
+.panel-source{font-size:12px;letter-spacing:.24em}
+.panel-script{font-size:clamp(22px,2.6vw,28px);font-style:normal;line-height:1.8}
+.panel-translit{font-size:18px;line-height:1.65}
+.panel-ms{font-size:12px}
+.father-card{padding:22px 24px}
+.father-label{font-size:12px;letter-spacing:.2em}
+.father-quote-text{font-size:20px}
+.father-attr{font-size:12px}
+.daily-body a span:first-child{color:var(--gold)}
+@media(max-width:640px){
+  .daily-body{max-width:100%;padding:32px 16px 72px}
+  .verse-nav-btns{width:100%}
+  .verse-nav-btn{flex:1;padding:11px 6px;font-size:12px}
+  .access-cards{grid-template-columns:1fr!important}
+  .card-inner,.panel-content{padding-left:18px;padding-right:18px}
+  .tab-btn{font-size:12px;padding:11px 2px}
+}
+.card-kjv{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.22em;color:var(--gold);opacity:.6;margin-top:10px}
+.card-links{display:flex;gap:22px;flex-wrap:wrap;padding:16px 22px 20px;border-top:1px solid var(--ash)}
+.card-links a{font-family:'Cinzel',serif;font-size:13px;letter-spacing:.16em;color:var(--gold);opacity:.85;text-decoration:none}
+.card-links a:hover{opacity:1}
+.sec-mini{padding-bottom:14px;margin-bottom:14px;border-bottom:1px solid var(--ash)}
+.sec-mini:last-child{border-bottom:none}
+.sec-mini-author{font-family:'Cinzel',serif;font-size:14px;letter-spacing:.12em;color:var(--gold);margin-bottom:3px}
+.sec-mini-work{font-family:'Cinzel',serif;font-size:12px;color:var(--cream);opacity:.6;margin-bottom:8px}
+.sec-mini-quote{font-size:18px;font-style:italic;color:var(--white);opacity:.85;line-height:1.75;padding-left:12px;border-left:1px solid var(--flame)}
 </style>
 </head>
 <body>
@@ -63,7 +94,7 @@
   <div class="daily-body">
 
     <div class="verse-nav">
-      <div class="verse-nav-label">TODAY'S PASSAGE</div>
+      <div class="verse-nav-label" id="verse-nav-label">TODAY'S PASSAGE</div>
       <div class="verse-nav-btns">
         <button class="verse-nav-btn" onclick="changeVerse(-1)">← YESTERDAY</button>
         <button class="verse-nav-btn active" id="today-btn">TODAY</button>
@@ -75,7 +106,7 @@
     <div id="daily-card"></div>
 
     <!-- Platform Access Cards -->
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:32px 0">
+    <div class="access-cards" style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:32px 0">
       <a href="knowledge.html" style="background:var(--parchment);border:1px solid var(--ash);padding:28px 20px;text-decoration:none;display:flex;flex-direction:column;align-items:center;text-align:center;transition:all .2s ease">
         <span style="font-size:32px;margin-bottom:12px">⊕</span>
         <span style="font-family:'Cinzel',serif;font-size:13px;letter-spacing:.18em;color:var(--gold);margin-bottom:8px;display:block">KNOWLEDGE ENGINE</span>
@@ -285,127 +316,147 @@ const DAILY_VERSES = [
   }
 ];
 
-let currentVerseIndex = 0;
+/* ===== The year of passages =====
+   data/daily/plan.json has 366 days (a leap year; Feb 29 is skipped in other years).
+   Each day's languages come from data/bible; transliterations from data/words.
+   The hand-written entries above (DAILY_VERSES) keep their history and Church Father notes. */
+const $=id=>document.getElementById(id);
+const esc=t=>String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const BOOKS=[...OT_BOOKS.map(b=>({...b,testament:'ot'})),...BIBLE_BOOKS.map(b=>({...b,testament:'nt'}))];
+const jcache={};
+function getJSON(u){if(!jcache[u])jcache[u]=fetch(u).then(r=>{if(!r.ok)throw new Error(r.status);return r.json();}).catch(e=>{delete jcache[u];throw e;});return jcache[u];}
 
-function getDailyIndex() {
-  const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
-  return dayOfYear % DAILY_VERSES.length;
+let dayOffset=0, renderToken=0, PLAN=null, WORDS_INDEX=null;
+
+function dateFor(offset){const d=new Date();d.setHours(12,0,0,0);d.setDate(d.getDate()+offset);return d;}
+function planIndex(d){   // position in a leap year: Jan 1 = 0, Feb 29 = 59, Dec 31 = 365
+  const start=Date.UTC(2024,0,1), day=Date.UTC(2024,d.getMonth(),d.getDate());
+  return Math.round((day-start)/86400000);
+}
+function bookName(b,v1,v2){return b.id==='psalms'?'PSALM':b.name;}
+function refText(b,c,v1,v2){return `${bookName(b)} ${c}:${v1}${v2>v1?'-'+v2:''}`;}
+function handWritten(b,c,v1,v2){
+  const key=refText(b,c,v1,v2).replace(/^PSALM /,'PSALMS ');
+  return DAILY_VERSES.find(v=>v.ref===refText(b,c,v1,v2)||v.ref===key)||null;
+}
+function cleanTranslit(t){return t.replace(/[\/.]/g,'').replace(/-$/,'').toLowerCase();}
+
+async function wordsFor(b,c,v1,v2){
+  // original-language verse numbering (Hebrew numbering differs from the KJV in places)
+  const map=WORDS_INDEX?.[b.id]?.map||{}, out=[];
+  for(let v=v1;v<=v2;v++){
+    const [oc,ov]=(map[c+':'+v]||c+':'+v).split(':');
+    try{const ch=await getJSON(`data/words/${b.id}/${oc}.json`);out.push(...(ch[ov]||[]));}catch(e){}
+  }
+  return out;
+}
+async function verses(t,b,c,v1,v2){
+  try{const d=await getJSON(`data/bible/${t}/${b.id}.json`);const out=[];for(let v=v1;v<=v2;v++)out.push(d[c-1]?.[v-1]||'');return out;}
+  catch(e){return null;}
 }
 
-function renderVerse(v) {
-  document.getElementById('daily-card').innerHTML = `
-    <div class="scripture-card">
+async function buildDay(entry){
+  const [id,c,v1,v2,theme]=entry, b=BOOKS.find(x=>x.id===id), ot=b.testament==='ot';
+  const hw=handWritten(b,c,v1,v2);
+  const [kjv,ara,orig,lxx,words]=await Promise.all([
+    verses('kjv',b,c,v1,v2), verses('ara',b,c,v1,v2), verses(ot?'heb':'gk',b,c,v1,v2),
+    ot?verses('lxx',b,c,v1,v2):null, wordsFor(b,c,v1,v2)]);
+  const translit=words.map(w=>cleanTranslit(w[1])).join(' ');
+  const origText=words.length?words.map(w=>w[0].replace(/\//g,'')).join(' '):(orig||[]).join(' ');
+  const tabs=[];
+  const araText=(ara||[]).filter(Boolean).join(' ');
+  const pesh={id:'ara',label:'ܐ ARAMAIC',source:'PESHITTA · ARAMAIC',rtl:true,script:araText,
+    translit:hw?.ara_translit||'',ms:ot?'PESHITTA OLD TESTAMENT · LEIDEN PESHITTA INSTITUTE EDITION':'PESHITTA · SYRIAC ARAMAIC · c. 2ND–5TH CENTURY AD',
+    empty:'This verse is not in the Peshitta.'};
+  if(ot){
+    tabs.push({id:'heb',label:'א HEBREW',source:'HEBREW · MASORETIC TEXT',rtl:true,script:origText,translit,ms:'LENINGRAD CODEX · c. 1008 AD'});
+    const lx=(lxx||[]).filter(Boolean).join(' ');
+    tabs.push({id:'lxx',label:'Α GREEK',source:'SEPTUAGINT · GREEK OLD TESTAMENT',script:lx,translit:'',ms:'SEPTUAGINT · SWETE EDITION · TRANSLATED c. 3RD–2ND CENTURY BC',
+      empty:b.id==='ecclesiastes'?'Ecclesiastes is not yet available in the Septuagint text MILTHA uses.':'The Septuagint does not contain this verse.'});
+    tabs.push(pesh);
+  }else{
+    tabs.push(pesh);
+    tabs.push({id:'gk',label:'Α GREEK',source:'TEXTUS RECEPTUS · GREEK',script:origText,translit,ms:'TEXTUS RECEPTUS · FIRST PRINTED 1516 AD'});
+    if(hw?.heb)tabs.push({id:'heb',label:'א HEBREW',source:'HEBREW TRANSLATION · DELITZSCH',rtl:true,script:hw.heb,translit:hw.heb_translit,ms:hw.heb_source});
+  }
+  const fatherKey=`${b.id}-${c}`;
+  const father=hw?.father||(PASSAGE_FATHERS[fatherKey]&&{name:PASSAGE_FATHERS[fatherKey].father,source:PASSAGE_FATHERS[fatherKey].source,text:PASSAGE_FATHERS[fatherKey].text,attr:''});
+  return {b,c,v1,v2,ref:refText(b,c,v1,v2),context:theme,kjv:(kjv||[]).join(' '),tabs,hist:hw&&hw.tl?hw:null,father};
+}
+
+function renderDay(v){
+  const tabBtns=v.tabs.map((t,i)=>`<button class="tab-btn ${i===0?'active':''}" data-tab="${t.id}">${t.label}</button>`).join('')
+    +(v.hist?`<button class="tab-btn hist" data-tab="hist">⊕ HISTORY</button>`:'');
+  const panels=v.tabs.map((t,i)=>`<div class="tab-panel ${i===0?'active':''}" id="dtab-${t.id}"><div class="panel-content">
+      <div class="panel-source">${esc(t.source)}</div>
+      ${t.script?`<div class="panel-script ${t.rtl?'rtl':''}" ${t.rtl?'dir="rtl"':''}>${esc(t.script)}</div>${t.translit?`<div class="panel-translit">${esc(t.translit)}</div>`:''}`
+        :`<div class="panel-translit">${esc(t.empty||'Not available for this verse.')}</div>`}
+      <div class="panel-ms">${esc(t.ms||'')}</div></div></div>`).join('');
+  const h=v.hist;
+  const hist=h?`<div class="tab-panel" id="dtab-hist">
+      <div class="hist-subtabs">
+        <button class="hist-sub active" data-hist="tl">TIMELINE</button>
+        <button class="hist-sub" data-hist="arch">ARCHAEOLOGY</button>
+        <button class="hist-sub" data-hist="sec">SOURCES</button>
+      </div>
+      <div class="hist-view active" id="dhv-tl">${h.tl.map(t=>`<div class="tl-mini"><div class="tl-mini-dot ${t.c?'c':''}"></div><div><div class="tl-mini-date ${t.c?'c':''}">${t.date}</div><div class="tl-mini-title">${t.title}</div><div class="tl-mini-detail">${t.detail}</div></div></div>`).join('')}</div>
+      <div class="hist-view" id="dhv-arch">${h.arch.map(a=>`<div class="arch-mini"><div class="arch-mini-name">${a.name}</div><div class="arch-mini-date">${a.date}</div><div class="arch-mini-desc">${a.desc}</div></div>`).join('')}</div>
+      <div class="hist-view" id="dhv-sec">${h.secular.map(x=>`<div class="sec-mini"><div class="sec-mini-author">${x.author}</div><div class="sec-mini-work">${x.work}</div><div class="sec-mini-quote">${x.quote}</div></div>`).join('')}</div>
+    </div>`:'';
+  $('daily-card').innerHTML=`<div class="scripture-card">
       <div class="card-inner">
-        <div class="card-ref">${v.ref} · ${v.context}</div>
-        <div class="card-verse">${v.kjv}</div>
+        <div class="card-ref">${esc(v.ref)} · ${esc(v.context)}</div>
+        <div class="card-verse">"${esc(v.kjv)}"</div>
+        <div class="card-kjv">KING JAMES VERSION</div>
       </div>
-      <div class="tab-row">
-        <button class="tab-btn active" onclick="switchTab('ara',this)">ܐ ARAMAIC</button>
-        <button class="tab-btn" onclick="switchTab('gk',this)">Α GREEK</button>
-        <button class="tab-btn" onclick="switchTab('heb',this)">א HEBREW</button>
-        <button class="tab-btn hist" onclick="switchTab('hist',this)">⊕ HISTORY</button>
-      </div>
-      <div class="tab-panel active" id="dtab-ara">
-        <div class="panel-content">
-          <div class="panel-source">PESHITTA · ARAMAIC — THE LANGUAGE OF JESUS</div>
-          <div class="panel-script rtl">${v.ara}</div>
-          <div class="panel-translit">${v.ara_translit}</div>
-          <div class="panel-ms">${v.ara_source}</div>
-        </div>
-      </div>
-      <div class="tab-panel" id="dtab-gk">
-        <div class="panel-content">
-          <div class="panel-source">TEXTUS RECEPTUS / SEPTUAGINT · GREEK</div>
-          <div class="panel-script">${v.gk}</div>
-          <div class="panel-translit">${v.gk_translit}</div>
-          <div class="panel-ms">${v.gk_source}</div>
-        </div>
-      </div>
-      <div class="tab-panel" id="dtab-heb">
-        <div class="panel-content">
-          <div class="panel-source">HEBREW · MASORETIC / DELITZSCH</div>
-          <div class="panel-script rtl">${v.heb}</div>
-          <div class="panel-translit">${v.heb_translit}</div>
-          <div class="panel-ms">${v.heb_source}</div>
-        </div>
-      </div>
-      <div class="tab-panel" id="dtab-hist">
-        <div class="hist-subtabs">
-          <button class="hist-sub active" onclick="switchHist('tl',this)">TIMELINE</button>
-          <button class="hist-sub" onclick="switchHist('arch',this)">ARCHAEOLOGY</button>
-          <button class="hist-sub" onclick="switchHist('sec',this)">SOURCES</button>
-          <button class="hist-sub" onclick="switchHist('map',this)">MAP</button>
-        </div>
-        <div class="hist-view active" id="dhv-tl">
-          ${v.tl.map(t=>`<div class="tl-mini"><div class="tl-mini-dot ${t.c?'c':''}"></div><div><div class="tl-mini-date ${t.c?'c':''}">${t.date}</div><div class="tl-mini-title">${t.title}</div><div class="tl-mini-detail">${t.detail}</div></div></div>`).join('')}
-        </div>
-        <div class="hist-view" id="dhv-arch">
-          ${v.arch.map(a=>`<div class="arch-mini"><div class="arch-mini-name">${a.name}</div><div class="arch-mini-date">${a.date}</div><div class="arch-mini-desc">${a.desc}</div></div>`).join('')}
-        </div>
-        <div class="hist-view" id="dhv-sec">
-          ${v.secular.map(s=>`<div style="padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid var(--ash)"><div style="font-family:'Cinzel',serif;font-size:9px;letter-spacing:.12em;color:var(--gold);margin-bottom:2px">${s.author}</div><div style="font-family:'Cinzel',serif;font-size:7px;color:var(--cream);opacity:.28;margin-bottom:8px">${s.work}</div><div style="font-size:14px;font-style:italic;color:var(--white);opacity:.72;line-height:1.8;padding-left:10px;border-left:1px solid var(--flame)">${s.quote}</div></div>`).join('')}
-        </div>
-        <div class="hist-view" id="dhv-map">
-          <div class="map-mini">
-            <svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg">
-              <rect width="280" height="200" fill="#0D1A14"/>
-              <ellipse cx="168" cy="52" rx="14" ry="20" fill="#0D2535" stroke="#1A4A6A" stroke-width=".8" opacity=".9"/>
-              <text x="168" y="57" text-anchor="middle" fill="#3A7A9A" font-size="4" font-family="serif" opacity=".7">SEA OF GALILEE</text>
-              <ellipse cx="174" cy="148" rx="11" ry="24" fill="#0D2535" stroke="#1A4A6A" stroke-width=".8" opacity=".9"/>
-              <text x="174" y="152" text-anchor="middle" fill="#3A7A9A" font-size="3.5" font-family="serif" opacity=".7">DEAD SEA</text>
-              <path d="M166,72 Q164,100 166,120 Q168,135 170,126" stroke="#1A4A6A" stroke-width="1.5" fill="none" opacity=".6"/>
-              <text x="110" y="35" text-anchor="middle" fill="#2A2820" font-size="6" font-family="serif" font-style="italic" opacity=".55">GALILEE</text>
-              <text x="108" y="100" text-anchor="middle" fill="#2A2820" font-size="6" font-family="serif" font-style="italic" opacity=".55">SAMARIA</text>
-              <text x="104" y="148" text-anchor="middle" fill="#2A2820" font-size="6" font-family="serif" font-style="italic" opacity=".55">JUDEA</text>
-              <circle cx="134" cy="142" r="5" fill="#E8813A" opacity=".9"/>
-              <text x="142" y="145" fill="#E8813A" font-size="6" font-family="serif" font-weight="bold">JERUSALEM</text>
-              <circle cx="134" cy="60" r="3.5" fill="#C9A96E" opacity=".8"/>
-              <text x="85" y="60" fill="#C9A96E" font-size="5.5" font-family="serif" text-anchor="end">NAZARETH</text>
-              <circle cx="158" cy="44" r="3.5" fill="#C9A96E" opacity=".8"/>
-              <text x="158" y="37" fill="#C9A96E" font-size="5.5" font-family="serif" text-anchor="middle">CAPERNAUM</text>
-              <text x="50" y="190" fill="#C9A96E" font-size="7" font-family="serif" opacity=".15">N↑</text>
-            </svg>
-          </div>
-          <div style="font-family:'Cinzel',serif;font-size:7px;letter-spacing:.2em;color:var(--gold);opacity:.28">FIRST-CENTURY ISRAEL · KEY LOCATIONS</div>
-        </div>
+      <div class="tab-row">${tabBtns}</div>
+      ${panels}${hist}
+      <div class="card-links">
+        <a href="study.html#${v.b.id}/${v.c}/${v.v1}">⊞ STUDY WORD BY WORD</a>
+        <a href="bible.html#${v.b.id}/${v.c}">📖 READ THE WHOLE CHAPTER</a>
       </div>
     </div>`;
-
-  document.getElementById('daily-father').innerHTML = `
-    <div class="father-card">
-      <div class="father-label">CHURCH FATHER · ${v.father.name} · ${v.father.source}</div>
-      <div class="father-quote-text">"${v.father.text}"</div>
-      <div class="father-attr">${v.father.attr}</div>
-    </div>`;
+  $('daily-father').innerHTML=v.father?`<div class="father-card">
+      <div class="father-label">CHURCH FATHER · ${esc(v.father.name)} · ${esc(v.father.source)}</div>
+      <div class="father-quote-text">"${esc(v.father.text)}"</div>
+      ${v.father.attr?`<div class="father-attr">${esc(v.father.attr)}</div>`:''}
+    </div>`:'';
 }
 
-function switchTab(id, btn) {
-  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('dtab-'+id).classList.add('active');
+async function showDay(offset){
+  dayOffset=offset;
+  const d=dateFor(offset), token=++renderToken;
+  $('daily-date').textContent=d.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}).toUpperCase();
+  $('today-btn').classList.toggle('active',offset===0);
+  $('verse-nav-label').textContent=offset===0?"TODAY'S PASSAGE":offset===-1?"YESTERDAY'S PASSAGE":offset===1?"TOMORROW'S PASSAGE":'PASSAGE FOR '+d.toLocaleDateString('en-US',{month:'long',day:'numeric'}).toUpperCase();
+  if(offset===0)history.replaceState(null,'',location.pathname);
+  else history.replaceState(null,'','#'+d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'));
+  try{
+    if(!PLAN)[PLAN,WORDS_INDEX]=await Promise.all([getJSON('data/daily/plan.json'),getJSON('data/words/index.json').catch(()=>null)]);
+    const day=await buildDay(PLAN[planIndex(d)]);
+    if(token!==renderToken)return;
+    renderDay(day);
+  }catch(e){
+    if(token!==renderToken)return;
+    $('daily-card').innerHTML='<div class="scripture-card"><div class="card-inner"><div class="card-verse">The passage could not be loaded. Please check your connection and try again.</div></div></div>';
+  }
 }
+function changeVerse(dir){showDay(dayOffset+dir);}
 
-function switchHist(id, btn) {
-  document.querySelectorAll('.hist-sub').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.hist-view').forEach(v=>v.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('dhv-'+id).classList.add('active');
-}
-
-function changeVerse(dir) {
-  currentVerseIndex = (currentVerseIndex + dir + DAILY_VERSES.length) % DAILY_VERSES.length;
-  renderVerse(DAILY_VERSES[currentVerseIndex]);
-  document.querySelectorAll('.verse-nav-btn').forEach(b=>b.classList.remove('active'));
-}
-
-// Init
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('daily-date').textContent =
-    new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}).toUpperCase();
-  currentVerseIndex = getDailyIndex();
-  renderVerse(DAILY_VERSES[currentVerseIndex]);
-  document.getElementById('today-btn').classList.add('active');
+$('daily-card').addEventListener('click',e=>{
+  const t=e.target.closest('.tab-btn');
+  if(t){document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b===t));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active',p.id==='dtab-'+t.dataset.tab));return;}
+  const h=e.target.closest('.hist-sub');
+  if(h){document.querySelectorAll('.hist-sub').forEach(b=>b.classList.toggle('active',b===h));
+    document.querySelectorAll('.hist-view').forEach(v=>v.classList.toggle('active',v.id==='dhv-'+h.dataset.hist));}
+});
+$('today-btn').addEventListener('click',()=>showDay(0));
+document.addEventListener('DOMContentLoaded',()=>{
+  // #YYYY-MM-DD opens that day's passage
+  const m=location.hash.match(/^#(\d{4})-(\d{2})-(\d{2})$/);
+  if(m){const t=dateFor(0),d=new Date(+m[1],+m[2]-1,+m[3],12);showDay(Math.round((d-t)/86400000));}
+  else showDay(0);
 });
 </script>
 </body>
