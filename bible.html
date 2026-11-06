@@ -69,6 +69,8 @@
 .br-text{font-size:19px;font-style:italic;color:var(--white);line-height:1.75;opacity:.76}
 .br-text.rtl{direction:rtl;font-family:serif}
 .br-source{font-family:'Cinzel',serif;font-size:19px;letter-spacing:.1em;color:var(--blue);opacity:.84;margin-top:4px}
+.br-wbw{display:block;font-family:'Cinzel',serif;font-size:15px;letter-spacing:.12em;line-height:1.5;color:var(--gold);text-decoration:none;padding:9px 11px;border:1px solid rgba(201,169,110,.35);background:var(--golddim);transition:all .15s}
+.br-wbw:hover{border-color:var(--gold);color:var(--pure)}
 .br-empty{text-align:center;padding:36px 13px}
 .br-empty-ara{font-family:serif;font-size:24px;color:var(--gold);opacity:.12;margin-bottom:10px}
 .br-empty-text{font-family:'Cinzel',serif;font-size:19px;letter-spacing:.16em;color:var(--cream);opacity:.18;line-height:1.8}
@@ -251,7 +253,8 @@ async function renderDetail(vn){
   const others=Object.keys(TRANS).filter(t=>t!==currentTrans&&available(t,book));
   const texts=await Promise.all(others.map(t=>loadBook(t,book.id).then(d=>d[ch-1]?.[vn-1]||'').catch(()=>'')));
   if(token!==loadToken||!document.getElementById('vb-'+vn)?.classList.contains('active'))return;
-  let html='',rows='';
+  const orig=book.testament==='ot'?'HEBREW':'GREEK';
+  let html=`<div class="br-section"><div class="br-section-label">WORD BY WORD</div><a class="br-wbw" href="study.html#${book.id}/${ch}/${vn}${currentTrans==='heb'?'/heb':''}">STUDY EVERY ${orig} WORD IN THIS VERSE →</a></div>`,rows='';
   others.forEach((t,i)=>{
     if(!texts[i])return;
     const T=TRANS[t],warn=numberingDiffers(t,ch)||numberingDiffers(currentTrans,ch);
