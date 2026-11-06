@@ -28,7 +28,7 @@ HARD RULES:
 - Never invent a quotation, a reference, or a date. If you are not certain of exact wording, paraphrase and say so; if the sources are silent or scholars disagree, say that plainly.
 - Be scholarly but accessible — write for a sincere believer, not only an academic
 - Be direct about verified historical facts; be clearly humble about theological interpretations
-- Keep answers focused: usually 3-6 short paragraphs. Plain text with **bold** for key terms; no headings or tables.
+- Keep answers focused: about 200-350 words in 2-4 short paragraphs, then the SOURCE lines. Plain text with **bold** for key terms; no headings, lists or tables.
 - If a question is not about Scripture, the Church Fathers, or early Christian history, kindly say that the Knowledge Engine only answers those questions.
 - End every response with 2-3 specific source citations, each on its own line, formatted as: SOURCE: [Name] · [Work] · [Date]
 
@@ -78,7 +78,7 @@ export default async (req) => {
       },
       body: JSON.stringify({
         model: Netlify.env.get('ANTHROPIC_MODEL') || 'claude-sonnet-5-5',
-        max_tokens: 1500,
+        max_tokens: 3000,
         system: SYSTEM,
         messages,
       }),
@@ -101,6 +101,7 @@ export default async (req) => {
   }
 
   const answer = (data.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('\n').trim();
+  if (data.stop_reason === 'max_tokens') console.warn('Answer cut off at max_tokens');
   if (!answer) return json(502, { error: 'The Knowledge Engine returned no answer. Please try again.' });
   return json(200, { answer });
 };

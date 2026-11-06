@@ -182,10 +182,10 @@ async function askKE() {
     } else {
       const answer = data.answer;
       // Split the closing SOURCE lines from the body
-      const m = answer.match(/\n\s*(SOURCES?:[\s\S]+)$/i);
+      const m = answer.match(/\n\s*\**(SOURCES?:\**[\s\S]+)$/i);
       const body = m ? answer.slice(0, m.index) : answer;
       const html = body.split('\n').filter(l => l.trim()).map(l => `<p>${keFormat(l)}</p>`).join('');
-      keShow(question, html, m ? m[1].trim() : '');
+      keShow(question, html, m ? m[1].replace(/\*\*/g, '').trim() : '');
       keHistory.push({ q: question, a: answer });
       renderHistory();
       input.value = '';
