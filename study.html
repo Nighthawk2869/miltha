@@ -6,44 +6,84 @@
 <title>Word by Word — MILTHA</title>
 <link rel="stylesheet" href="css/miltha.css">
 <style>
-.wbw-wrap{max-width:96%;margin:0 auto;padding:48px 4% 96px}
-.passage-bar{display:flex;border:1px solid var(--ash2);margin-bottom:16px}
-.passage-bar input{flex:1;background:var(--parchment);border:none;padding:12px 15px;font-family:'Cormorant Garamond',serif;font-size:23px;color:var(--white);outline:none}
-.passage-bar input::placeholder{color:var(--cream);opacity:.78;font-style:italic}
+.page-hero{overflow:hidden}
+.wbw-wrap{max-width:1100px;margin:0 auto;padding:40px 24px 96px}
+.passage-bar{display:flex;border:1px solid var(--ash2);margin-bottom:12px}
+.passage-bar input{flex:1;min-width:0;background:var(--parchment);border:none;padding:12px 15px;font-family:'Cormorant Garamond',serif;font-size:23px;color:var(--white);outline:none}
+.passage-bar input::placeholder{color:var(--cream);opacity:.6;font-style:italic}
 .passage-bar input:focus{box-shadow:inset 0 0 0 1px var(--gold)}
-.passage-bar button{font-family:'Cinzel',serif;font-size:20px;letter-spacing:.15em;padding:12px 16px;background:var(--stone);border:none;border-left:1px solid var(--ash2);color:var(--gold);opacity:.72;cursor:pointer;transition:all .2s;flex-shrink:0}
+.passage-bar button{font-family:'Cinzel',serif;font-size:16px;letter-spacing:.15em;padding:12px 16px;background:var(--stone);border:none;border-left:1px solid var(--ash2);color:var(--gold);opacity:.8;cursor:pointer;transition:all .2s;flex-shrink:0}
 .passage-bar button:hover{opacity:1;background:var(--ash)}
-.lang-tabs{display:flex;gap:4px;margin-bottom:14px}
-.lang-tab{flex:1;font-family:'Cinzel',serif;font-size:20px;letter-spacing:.1em;padding:8px 4px;background:none;border:1px solid var(--ash2);color:var(--cream);opacity:.80;cursor:pointer;transition:all .2s;text-align:center}
+.verse-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:18px 0 10px;flex-wrap:wrap}
+.wbw-ref-display{font-family:'Cinzel',serif;font-size:18px;letter-spacing:.2em;color:var(--gold);opacity:.9}
+.nav-arrows{display:flex;gap:4px}
+.nav-arrows button{font-family:'Cinzel',serif;font-size:15px;letter-spacing:.12em;padding:7px 12px;background:none;border:1px solid var(--ash2);color:var(--cream);opacity:.85;cursor:pointer;transition:all .15s}
+.nav-arrows button:hover:not(:disabled){border-color:var(--gold);color:var(--gold);opacity:1}
+.nav-arrows button:disabled{opacity:.25;cursor:not-allowed}
+.lang-tabs{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap}
+.lang-tab{flex:1;min-width:150px;font-family:'Cinzel',serif;font-size:16px;letter-spacing:.1em;padding:9px 6px;background:none;border:1px solid var(--ash2);color:var(--cream);opacity:.8;cursor:pointer;transition:all .2s;text-align:center}
 .lang-tab.active{background:var(--golddim);border-color:var(--gold);color:var(--gold);opacity:1}
-.wbw-ref-display{font-family:'Cinzel',serif;font-size:20px;letter-spacing:.26em;color:var(--gold);opacity:.88;margin-bottom:8px}
-.word-row{display:flex;flex-wrap:wrap;gap:5px;padding:16px;background:var(--parchment);border:1px solid var(--ash);margin-bottom:0}
+.word-row{display:flex;flex-wrap:wrap;gap:6px;padding:16px;background:var(--parchment);border:1px solid var(--ash);min-height:90px}
 .word-row.rtl{direction:rtl}
-.word-token{display:flex;flex-direction:column;align-items:center;padding:8px 8px 6px;background:var(--stone);border:1px solid var(--ash);cursor:pointer;transition:all .2s;min-width:70px}
+.word-token{display:flex;flex-direction:column;align-items:center;padding:8px 9px 7px;background:var(--stone);border:1px solid var(--ash);cursor:pointer;transition:all .2s;min-width:64px;font:inherit;color:inherit;text-align:center}
 .word-token:hover,.word-token.active{background:rgba(201,169,110,.1);border-color:var(--gold);transform:translateY(-2px);box-shadow:0 4px 14px rgba(201,169,110,.1)}
-.token-num{font-family:'Cinzel',serif;font-size:19px;color:var(--gold);opacity:.78;margin-bottom:3px}
-.token-orig{font-size:23px;font-style:italic;color:var(--white);margin-bottom:4px;text-align:center;line-height:1.2}
-.token-gloss{font-family:'Cinzel',serif;font-size:19px;color:var(--cream);opacity:.82;text-align:center;line-height:1.3}
-.word-detail{display:none;background:var(--stone);border:1px solid rgba(201,169,110,.28);padding:18px;margin-bottom:12px;animation:slideDown .2s ease}
+.word-token:focus-visible{outline:1px solid var(--gold);outline-offset:2px}
+.word-token.plain{cursor:default}
+.word-token.plain:hover{transform:none;box-shadow:none;border-color:var(--ash);background:var(--stone)}
+.token-num{font-family:'Cinzel',serif;font-size:12px;color:var(--gold);opacity:.7;margin-bottom:3px}
+.token-orig{font-family:'SBL Hebrew','Ezra SIL','Times New Roman',serif;font-size:27px;color:var(--white);line-height:1.3;direction:ltr}
+.rtl .token-orig{direction:rtl}
+.token-orig.syr{font-family:'Estrangelo Edessa','Noto Sans Syriac',serif}
+.token-translit{font-size:16px;font-style:italic;color:var(--gold);opacity:.75;margin-top:2px;direction:ltr}
+.token-gloss{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.04em;color:var(--cream);opacity:.88;line-height:1.3;margin-top:4px;max-width:150px;direction:ltr}
+.token-gloss .implied{opacity:.5}
+.row-note{font-size:17px;font-style:italic;color:var(--cream);opacity:.7;margin-top:8px}
+.word-detail{display:none;background:var(--stone);border:1px solid rgba(201,169,110,.28);padding:20px;margin:12px 0;animation:slideDown .2s ease}
 .word-detail.visible{display:block}
-.wd-orig{font-size:30px;font-style:italic;color:var(--white);margin-bottom:4px;line-height:1.1}
-.wd-translit{font-size:19px;font-style:italic;color:var(--gold);opacity:.58;margin-bottom:12px}
-.wd-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-.wd-item{border-left:1px solid var(--ash);padding-left:10px}
-.wd-label{font-family:'Cinzel',serif;font-size:19px;letter-spacing:.24em;color:var(--gold);opacity:.80;margin-bottom:2px}
-.wd-val{font-size:19px;color:var(--white);opacity:.76;line-height:1.4}
-.wd-meaning{font-size:20px;font-style:italic;color:var(--cream);opacity:.62;line-height:1.75;padding-top:10px;border-top:1px solid var(--ash);margin-bottom:8px}
-.wd-strongs{font-family:'Cinzel',serif;font-size:19px;letter-spacing:.1em;color:var(--blue);opacity:.86}
-.eng-verse{padding:13px 15px;background:var(--black);border:1px solid var(--ash);font-size:17px;font-style:italic;color:var(--white);line-height:1.72;margin-bottom:18px}
-.eng-hl{color:var(--gold);border-bottom:1px solid rgba(201,169,110,.36)}
-.xref-section{margin-top:26px;padding-top:18px;border-top:1px solid var(--ash)}
-.xref-heading{font-family:'Cinzel',serif;font-size:20px;letter-spacing:.24em;color:var(--gold);opacity:.82;margin-bottom:13px}
-.xref-item{display:flex;gap:11px;padding:9px 0;border-bottom:1px solid var(--ash);cursor:pointer;transition:padding .2s}
-.xref-item:hover{padding-left:4px}
+.wd-top{display:flex;align-items:baseline;gap:16px;flex-wrap:wrap;margin-bottom:12px}
+.wd-orig{font-family:'SBL Hebrew','Ezra SIL','Times New Roman',serif;font-size:38px;color:var(--white);line-height:1.1}
+.wd-translit{font-size:21px;font-style:italic;color:var(--gold);opacity:.8}
+.wd-english{font-size:21px;color:var(--cream);opacity:.85}
+.wd-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.wd-item{border-left:1px solid var(--ash2);padding-left:12px}
+.wd-label{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.22em;color:var(--gold);opacity:.85;margin-bottom:4px}
+.wd-val{font-size:19px;color:var(--white);opacity:.88;line-height:1.45}
+.wd-val .lemma{font-family:'SBL Hebrew','Ezra SIL','Times New Roman',serif;font-size:24px}
+.seg-table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:18px}
+.seg-table td{padding:6px 8px;border-bottom:1px solid var(--ash);vertical-align:top}
+.seg-table tr.root td{color:var(--gold)}
+.seg-table .seg-heb{font-family:'SBL Hebrew','Ezra SIL','Times New Roman',serif;font-size:24px;direction:rtl;white-space:nowrap}
+.seg-table .seg-meta{font-size:15px;opacity:.75}
+.wd-def{font-size:18px;color:var(--cream);opacity:.85;line-height:1.7;padding-top:12px;border-top:1px solid var(--ash);max-height:220px;overflow:hidden;position:relative}
+.wd-def.open{max-height:none}
+.wd-def:not(.open)::after{content:'';position:absolute;left:0;right:0;bottom:0;height:60px;background:linear-gradient(transparent,var(--stone))}
+.wd-def a{color:var(--gold);cursor:pointer;text-decoration:none;border-bottom:1px dotted rgba(201,169,110,.5)}
+.wd-def a:hover{border-bottom-style:solid}
+.def-toggle{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.18em;color:var(--gold);background:none;border:none;cursor:pointer;padding:8px 0;opacity:.85}
+.def-toggle:hover{opacity:1}
+.wd-note{background:rgba(232,129,58,.07);border:1px solid rgba(232,129,58,.25);border-left:2px solid var(--flame);padding:10px 13px;margin:12px 0 0;font-size:17px;font-style:italic;color:var(--cream);line-height:1.6}
+.wd-note-label{font-family:'Cinzel',serif;font-size:11px;font-style:normal;letter-spacing:.22em;color:var(--flame);margin-bottom:4px}
+.wd-miltha{background:var(--parchment);border-left:2px solid var(--gold);padding:12px 14px;margin-top:14px}
+.wd-miltha p{font-size:19px;font-style:italic;color:var(--cream);line-height:1.7;opacity:.9}
+.xref-item{display:flex;gap:11px;padding:8px 0;border-bottom:1px solid var(--ash)}
 .xref-item:last-child{border-bottom:none}
-.xref-ref{font-family:'Cinzel',serif;font-size:20px;letter-spacing:.08em;color:var(--gold);opacity:.6;white-space:nowrap;margin-top:3px;min-width:80px}
-.xref-text{font-size:20px;font-style:italic;color:var(--cream);opacity:.88;line-height:1.58}
-.ms-warning{background:rgba(232,129,58,.06);border:1px solid rgba(232,129,58,.2);border-left:2px solid var(--flame);padding:10px 13px;margin-bottom:14px;font-family:'Cinzel',serif;font-size:20px;letter-spacing:.1em;color:var(--flame);opacity:.75;line-height:1.7}
+.xref-ref{font-family:'Cinzel',serif;font-size:13px;letter-spacing:.08em;color:var(--gold);opacity:.75;white-space:nowrap;margin-top:4px;min-width:96px}
+.xref-text{font-size:18px;font-style:italic;color:var(--cream);opacity:.88;line-height:1.55}
+.wd-links{display:flex;gap:18px;flex-wrap:wrap;margin-top:14px}
+.wd-links a{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.18em;color:var(--gold);opacity:.8;text-decoration:none}
+.wd-links a:hover{opacity:1}
+.eng-label{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.22em;color:var(--gold);opacity:.8;margin:18px 0 6px}
+.eng-verse{padding:13px 15px;background:var(--black);border:1px solid var(--ash);font-size:21px;font-style:italic;color:var(--white);line-height:1.7}
+.status{padding:30px 16px;text-align:center;font-family:'Cinzel',serif;font-size:14px;letter-spacing:.2em;color:var(--cream);opacity:.6;width:100%}
+.how-to{font-size:17px;font-style:italic;color:var(--cream);opacity:.7;margin:4px 0 0}
+.source-note{margin-top:34px;padding-top:16px;border-top:1px solid var(--ash);font-size:15px;color:var(--cream);opacity:.7;line-height:1.6}
+.source-note a{color:var(--gold)}
+@media(max-width:640px){
+  .wbw-wrap{padding:28px 16px 80px}
+  .wd-grid{grid-template-columns:1fr}
+  .token-orig{font-size:23px}
+  .lang-tab{min-width:0}
+}
 </style>
 </head>
 <body>
@@ -59,59 +99,48 @@
     <li><a href="library.html">LIBRARY</a></li>
     <li><a href="community.html">COMMUNITY</a></li>
   </ul>
-  <div class="nav-right"><a href="contribute.html" class="nav-btn nav-contribute">✦ CONTRIBUTE</a>
-    
-    
-  </div>
+  <div class="nav-right"><a href="contribute.html" class="nav-btn nav-contribute">✦ CONTRIBUTE</a></div>
 </nav>
 
 <div class="page-content">
   <div class="page-hero">
     <div class="section-label flame" style="text-align:center">STUDY TOOL</div>
     <div class="page-title">WORD BY WORD</div>
-    <div class="page-subtitle">Every word in the original language — tapped open, fully explained.</div>
+    <div class="page-subtitle">Every verse of the Bible in the language it was written — every word tapped open, fully explained.</div>
   </div>
 
   <div class="wbw-wrap">
-    <div class="passage-bar">
-      <input type="text" id="passage-input" placeholder="John 1:1, Romans 8:28, Ephesians 2:8..." value="John 1:1">
-      <button onclick="loadPassage()">SEARCH</button>
-    </div>
+    <form class="passage-bar" id="passage-form">
+      <input type="text" id="passage-input" placeholder="Genesis 1:1, Psalm 23:1, John 3:16, Romans 8:28…" value="John 1:1" aria-label="Bible reference">
+      <button type="submit">STUDY</button>
+    </form>
+    <div class="how-to">Type any verse. Tap a word to see its dictionary form, grammar, and meaning.</div>
 
-    <div class="lang-tabs">
-      <button class="lang-tab active" onclick="setLang('ara',this)">ܐ ARAMAIC</button>
-      <button class="lang-tab" onclick="setLang('gk',this)">Α GREEK</button>
-      <button class="lang-tab" onclick="setLang('heb',this)">א HEBREW</button>
-    </div>
-
-    <div id="ms-warning" class="ms-warning" style="display:none"></div>
-
-    <div class="wbw-ref-display" id="wbw-ref">JOHN 1:1 · PESHITTA · ARAMAIC — THE LANGUAGE OF JESUS</div>
-    <div class="word-row" id="word-row"></div>
-
-    <div class="word-detail" id="word-detail">
-      <div class="wd-orig" id="wd-orig"></div>
-      <div class="wd-translit" id="wd-translit"></div>
-      <div class="wd-grid">
-        <div class="wd-item"><div class="wd-label">PART OF SPEECH</div><div class="wd-val" id="wd-pos"></div></div>
-        <div class="wd-item"><div class="wd-label">ROOT</div><div class="wd-val" id="wd-root"></div></div>
-        <div class="wd-item"><div class="wd-label">LITERAL</div><div class="wd-val" id="wd-literal"></div></div>
-        <div class="wd-item"><div class="wd-label">ENGLISH</div><div class="wd-val" id="wd-english"></div></div>
+    <div class="verse-nav">
+      <div class="wbw-ref-display" id="wbw-ref"></div>
+      <div class="nav-arrows">
+        <button id="prev-btn" type="button" aria-label="Previous verse">← PREV</button>
+        <button id="next-btn" type="button" aria-label="Next verse">NEXT →</button>
       </div>
-      <div class="wd-meaning" id="wd-meaning"></div>
-      <div class="wd-strongs" id="wd-strongs"></div>
     </div>
 
-    <div class="eng-verse" id="eng-verse">"In the beginning was the Word, and the Word was with God, and the Word was God."</div>
+    <div class="lang-tabs" id="lang-tabs"></div>
+    <div class="word-row" id="word-row"><div class="status">LOADING…</div></div>
+    <div class="row-note" id="row-note"></div>
 
-    <div class="xref-section" id="xref-section" style="display:none">
-      <div class="xref-heading">CROSS REFERENCES — <span id="xref-label"></span></div>
-      <div id="xref-list"></div>
-    </div>
+    <div class="word-detail" id="word-detail" aria-live="polite"></div>
 
-    <div class="action-links-row" style="margin-top:28px">
+    <div class="eng-label">KING JAMES VERSION</div>
+    <div class="eng-verse" id="eng-verse"></div>
+
+    <div class="action-links-row" style="margin-top:24px">
       <a class="action-link" href="knowledge.html">⊕ ASK THE KNOWLEDGE ENGINE</a>
-      <a class="action-link" href="bible.html">📖 READ IN THE BIBLE</a>
+      <a class="action-link" id="read-link" href="bible.html">📖 READ THE WHOLE CHAPTER</a>
+    </div>
+
+    <div class="source-note">
+      Hebrew and Greek words, grammar and dictionary entries: <a href="https://STEPBible.github.io/STEPBible-Data" target="_blank" rel="noopener">STEPBible.org</a>, based on work at Tyndale House, Cambridge (CC BY 4.0).
+      The Old Testament follows the Leningrad Codex; the New Testament follows the Textus Receptus, the Greek text behind the King James Version, with other manuscript readings noted on each word.
     </div>
   </div>
 </div>
@@ -127,86 +156,290 @@
 </footer>
 
 <script src="js/miltha.js"></script>
+<script src="js/bible-data.js"></script>
 <script src="js/wbw-data.js"></script>
 <script>
-let currentLang = 'ara';
-let activeToken = null;
-
-function setLang(lang, btn) {
-  currentLang = lang;
-  activeToken = null;
-  document.querySelectorAll('.lang-tab').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  document.getElementById('word-detail').classList.remove('visible');
-  document.getElementById('xref-section').style.display = 'none';
-  renderWords();
+/* Word by Word — data/words/<book>/<chapter>.json (original-language verse numbering),
+   data/lexicon/<H|G><n>.json (dictionary), data/words/grammar-<heb|gk>.json (grammar codes). */
+const BOOKS=[...OT_BOOKS.map(b=>({...b,testament:'ot'})),...BIBLE_BOOKS.map(b=>({...b,testament:'nt'}))];
+const $=id=>document.getElementById(id);
+const esc=t=>String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const cache={};
+function getJSON(url){
+  if(!cache[url])cache[url]=fetch(url).then(r=>{if(!r.ok)throw new Error(r.status);return r.json();}).catch(e=>{delete cache[url];throw e;});
+  return cache[url];
 }
 
-function loadPassage() {
-  showToast('SHOWING JOHN 1:1 · MORE PASSAGES COMING SOON');
-  renderWords();
+/* ---------- references ---------- */
+const ALIASES={gen:'genesis',ge:'genesis',gn:'genesis',ex:'exodus',exo:'exodus',exod:'exodus',lev:'leviticus',lv:'leviticus',num:'numbers',nm:'numbers',deut:'deuteronomy',dt:'deuteronomy',deu:'deuteronomy',
+ josh:'joshua',jos:'joshua',judg:'judges',jdg:'judges',jg:'judges',ru:'ruth',rut:'ruth',ezr:'ezra',neh:'nehemiah',est:'esther',esth:'esther',jb:'job',
+ ps:'psalms',psa:'psalms',psalm:'psalms',pss:'psalms',prov:'proverbs',pr:'proverbs',pro:'proverbs',prv:'proverbs',eccl:'ecclesiastes',ecc:'ecclesiastes',eccles:'ecclesiastes',qoh:'ecclesiastes',
+ song:'song',sos:'song',sng:'song',songofsongs:'song',songofsolomon:'song',canticles:'song',isa:'isaiah',is:'isaiah',jer:'jeremiah',lam:'lamentations',ezek:'ezekiel',eze:'ezekiel',ezk:'ezekiel',
+ dan:'daniel',dn:'daniel',hos:'hosea',joe:'joel',jl:'joel',am:'amos',amo:'amos',obad:'obadiah',ob:'obadiah',jon:'jonah',jnh:'jonah',mic:'micah',nah:'nahum',hab:'habakkuk',zeph:'zephaniah',zep:'zephaniah',
+ hag:'haggai',zech:'zechariah',zec:'zechariah',mal:'malachi',mt:'matthew',matt:'matthew',mat:'matthew',mk:'mark',mrk:'mark',mar:'mark',lk:'luke',luk:'luke',jn:'john',jhn:'john',joh:'john',
+ ac:'acts',act:'acts',rom:'romans',ro:'romans',gal:'galatians',eph:'ephesians',phil:'philippians',php:'philippians',col:'colossians',tit:'titus',phlm:'philemon',phm:'philemon',philem:'philemon',
+ heb:'hebrews',jas:'james',jam:'james',jud:'jude',jude:'jude',rev:'revelation',re:'revelation',revelations:'revelation',apocalypse:'revelation'};
+const NUMBERED={sam:'samuel',sa:'samuel',sm:'samuel',kgs:'kings',ki:'kings',kin:'kings',kings:'kings',chr:'chronicles',ch:'chronicles',chron:'chronicles',
+ cor:'corinthians',co:'corinthians',thess:'thessalonians',th:'thessalonians',thes:'thessalonians',tim:'timothy',ti:'timothy',pet:'peter',pe:'peter',pt:'peter',jn:'john',jhn:'john',joh:'john',jo:'john'};
+function findBook(raw){
+  let s=raw.toLowerCase().replace(/[^a-z0-9]/g,'').replace(/^(iii|ii|i)(?=[a-z])/,m=>({i:'1',ii:'2',iii:'3'}[m]));
+  if(!s)return null;
+  let hit=BOOKS.find(b=>b.id===s);if(hit)return hit;
+  if(ALIASES[s])return BOOKS.find(b=>b.id===ALIASES[s]);
+  const m=s.match(/^([123])([a-z]+)$/);
+  if(m){const base=NUMBERED[m[2]]||m[2];hit=BOOKS.find(b=>b.id===m[1]+base)||BOOKS.find(b=>b.id.startsWith(m[1]+base));if(hit)return hit;}
+  const pre=BOOKS.filter(b=>b.id.startsWith(s)&&!/^\d/.test(b.id));
+  return pre.length===1?pre[0]:null;
+}
+function parseRef(q){
+  const m=q.trim().match(/^(.+?)\s*(\d+)(?:\s*[:.]\s*(\d+))?\s*$/);
+  if(!m)return null;
+  const book=findBook(m[1]);if(!book)return null;
+  return {book,ch:+m[2],v:m[3]===undefined?1:+m[3]};
 }
 
-function renderWords() {
-  const d = WBW_DATA[currentLang];
-  if (!d) return;
-  document.getElementById('wbw-ref').textContent = d.ref;
-  document.getElementById('eng-verse').innerHTML = d.verse;
-  const row = document.getElementById('word-row');
-  row.innerHTML = '';
-  row.className = 'word-row' + (d.rtl ? ' rtl' : '');
-  const msWarn = document.getElementById('ms-warning');
-  if (d.ms_note) { msWarn.textContent = d.ms_note; msWarn.style.display = 'block'; }
-  else msWarn.style.display = 'none';
-  d.words.forEach((w, i) => {
-    const t = document.createElement('div');
-    t.className = 'word-token';
-    t.innerHTML = `<div class="token-num">${i+1}</div><div class="token-orig">${w.orig}</div><div class="token-gloss">${w.gloss.replace(/\n/g,'<br>')}</div>`;
-    t.addEventListener('click', () => selectWord(i, t, w));
-    row.appendChild(t);
-  });
-}
+/* ---------- state ---------- */
+let INDEX=null,KJV_INDEX=null,cur=null,tab='orig',verseWords=[],activeIdx=-1,loadToken=0;
 
-function selectWord(i, el, w) {
-  if (activeToken === el) {
-    el.classList.remove('active');
-    document.getElementById('word-detail').classList.remove('visible');
-    document.getElementById('xref-section').style.display = 'none';
-    activeToken = null;
-    document.getElementById('eng-verse').innerHTML = WBW_DATA[currentLang].verse;
+function origRef(book,ch,v){             // English (KJV) ch:v -> original-language ch:v
+  const m=INDEX?.[book.id]?.map?.[ch+':'+v];
+  return m?m.split(':').map(Number):[ch,v];
+}
+function engRefFromOrig(book,ch,v){
+  const map=INDEX?.[book.id]?.map;if(!map)return [ch,v];
+  for(const k in map)if(map[k]===ch+':'+v)return k.split(':').map(Number);
+  return [ch,v];
+}
+function versesIn(book,ch){return KJV_INDEX?.[book.id]?.kjv?.[ch-1]||0;}
+function hasTitle(book,ch){return !!INDEX?.[book.id]?.map?.[ch+':0'];}
+function step(dir){
+  if(!cur)return null;
+  let {book,ch,v}=cur,first=hasTitle(book,ch)?0:1;
+  v+=dir;
+  if(v<first){
+    ch--;if(ch<1){const bi=BOOKS.indexOf(book)-1;if(bi<0)return null;book=BOOKS[bi];ch=KJV_INDEX?.[book.id]?.kjv?.length||1;}
+    v=versesIn(book,ch);
+  }else if(v>versesIn(book,ch)){
+    ch++;
+    if(ch>(KJV_INDEX?.[book.id]?.kjv?.length||0)){const bi=BOOKS.indexOf(book)+1;if(bi>=BOOKS.length)return null;book=BOOKS[bi];ch=1;}
+    v=hasTitle(book,ch)?0:1;
+  }
+  return {book,ch,v};
+}
+function refLabel(r){return `${r.book.name} ${r.ch}${r.v===0?' (TITLE)':':'+r.v}`;}
+
+/* ---------- loading ---------- */
+async function go(r,push=true){
+  if(!r)return;
+  const n=KJV_INDEX?.[r.book.id]?.kjv;
+  if(n){r.ch=Math.min(Math.max(1,r.ch),n.length);r.v=Math.min(Math.max(hasTitle(r.book,r.ch)?0:1,r.v),n[r.ch-1]);}
+  cur=r;activeIdx=-1;
+  const token=++loadToken;
+  $('passage-input').value=refLabel(r).replace(/^(\S)(\S*)/,(a,b,c)=>b+c.toLowerCase()).replace(/ \(TITLE\)$/,':0');
+  if(push)history.replaceState(null,'','#'+r.book.id+'/'+r.ch+'/'+r.v);
+  $('prev-btn').disabled=!step(-1);$('next-btn').disabled=!step(1);
+  $('read-link').href=`bible.html#${r.book.id}/${r.ch}`;
+  $('word-detail').classList.remove('visible');
+  $('word-row').innerHTML='<div class="status">LOADING…</div>';$('row-note').textContent='';
+  const lang=r.book.testament==='ot'?'heb':'gk';
+  const [oc,ov]=origRef(r.book,r.ch,r.v);
+  try{
+    const [chap,kjv]=await Promise.all([
+      getJSON(`data/words/${r.book.id}/${oc}.json`),
+      getJSON(`data/bible/kjv/${r.book.id}.json`),
+      getJSON(`data/words/grammar-${lang}.json`)]);
+    if(token!==loadToken)return;
+    verseWords=chap[ov]||[];
+    $('eng-verse').textContent=r.v===0?'(Psalm title — not numbered as a verse in the KJV.)':(kjv[r.ch-1]?.[r.v-1]||'');
+  }catch(e){
+    if(token!==loadToken)return;
+    verseWords=[];
+    $('word-row').innerHTML='<div class="status">THIS VERSE COULD NOT BE LOADED.<br>CHECK YOUR CONNECTION AND TRY AGAIN.</div>';
     return;
   }
-  document.querySelectorAll('.word-token').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  activeToken = el;
-  document.getElementById('wd-orig').textContent = w.orig;
-  document.getElementById('wd-translit').textContent = w.translit;
-  document.getElementById('wd-pos').textContent = w.pos;
-  document.getElementById('wd-root').textContent = w.root;
-  document.getElementById('wd-literal').textContent = w.literal;
-  document.getElementById('wd-english').textContent = w.english;
-  document.getElementById('wd-meaning').textContent = w.meaning;
-  document.getElementById('wd-strongs').textContent = w.strongs;
-  document.getElementById('word-detail').classList.add('visible');
-  document.getElementById('eng-verse').innerHTML = WBW_DATA[currentLang].verse.replace(
-    new RegExp('('+w.english.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','i'),
-    '<span class="eng-hl">$1</span>'
-  );
-  if (w.xrefs?.length > 0) {
-    document.getElementById('xref-label').textContent = w.orig + ' — ' + w.english.toUpperCase();
-    document.getElementById('xref-list').innerHTML = w.xrefs.map(x=>`
-      <div class="xref-item">
-        <div class="xref-ref">${x.ref}</div>
-        <div class="xref-text">${x.text}</div>
-      </div>`).join('');
-    document.getElementById('xref-section').style.display = 'block';
-  } else {
-    document.getElementById('xref-section').style.display = 'none';
+  const curated=r.book.id==='john'&&r.ch===1&&r.v===1;
+  const tabs=[{id:'orig',label:lang==='heb'?(isAramaic(verseWords)?'ܐ BIBLICAL ARAMAIC':'א HEBREW'):'Α GREEK'}];
+  if(lang==='gk')tabs.push({id:'ara',label:'ܐ ARAMAIC PESHITTA'});
+  if(curated)tabs.push({id:'heb-nt',label:'א HEBREW (DELITZSCH)'});
+  if(!tabs.find(t=>t.id===tab))tab='orig';
+  $('lang-tabs').innerHTML=tabs.map(t=>`<button type="button" class="lang-tab ${t.id===tab?'active':''}" data-tab="${t.id}">${t.label}</button>`).join('');
+  render();
+}
+function isAramaic(ws){return ws.length&&ws.filter(w=>w[4][0]==='A').length>ws.length/2;}
+
+/* ---------- rendering ---------- */
+function cleanTranslit(t){return t.replace(/[\/.]/g,'').replace(/-$/,'').toLowerCase();}
+function glossHTML(g){
+  return esc(g.replace(/\s*\/\s*/g,' ').replace(/[,.;:·¶]+$/,'').trim()).replace(/&lt;(.*?)&gt;/g,'<span class="implied">$1</span>').replace(/\[(.*?)\]/g,'<span class="implied">$1</span>');
+}
+function setRef(text){$('wbw-ref').textContent=text;}
+async function render(){
+  const r=cur,lang=r.book.testament==='ot'?'heb':'gk',row=$('word-row');
+  $('word-detail').classList.remove('visible');activeIdx=-1;
+  row.className='word-row';$('row-note').textContent='';
+  if(tab==='orig'){
+    const aram=lang==='heb'&&isAramaic(verseWords);
+    setRef(`${refLabel(r)} · ${lang==='heb'?(aram?'ARAMAIC · ':'HEBREW · ')+'LENINGRAD CODEX':'GREEK · TEXTUS RECEPTUS'}`);
+    if(lang==='heb')row.classList.add('rtl');
+    if(!verseWords.length){row.innerHTML='<div class="status">NO ORIGINAL-LANGUAGE WORDS FOR THIS VERSE</div>';return;}
+    row.innerHTML=verseWords.map((w,i)=>`<button type="button" class="word-token" data-i="${i}" aria-label="Word ${i+1}: ${esc(w[1])}">
+      <span class="token-num">${i+1}</span>
+      <span class="token-orig">${esc(w[0].replace(/\//g,'').replace(/[,.;·:¶]+$/,''))}</span>
+      <span class="token-translit">${esc(cleanTranslit(w[1]))}</span>
+      <span class="token-gloss">${glossHTML(w[2])||'&nbsp;'}</span></button>`).join('');
+    const [oc,ov]=origRef(r.book,r.ch,r.v);
+    if(oc!==r.ch||ov!==r.v)$('row-note').textContent=`In the ${lang==='heb'?'Hebrew':'Greek'} Bible this is numbered ${oc}:${ov}.`;
+  }else if(tab==='ara'){
+    setRef(`${refLabel(r)} · ARAMAIC · SYRIAC PESHITTA`);
+    row.classList.add('rtl');
+    const cw=WBW_DATA.ara;
+    if(r.book.id==='john'&&r.ch===1&&r.v===1){
+      row.className='word-row';
+      row.innerHTML=cw.words.map((w,i)=>`<button type="button" class="word-token" data-c="ara" data-i="${i}"><span class="token-num">${i+1}</span><span class="token-orig syr">${esc(w.orig)}</span><span class="token-translit">${esc(w.translit)}</span><span class="token-gloss">${esc(w.gloss).replace(/\n/g,' ')}</span></button>`).join('');
+      return;
+    }
+    let text='';
+    try{text=(await getJSON(`data/bible/ara/${r.book.id}.json`))[r.ch-1]?.[r.v-1]||'';}catch(e){}
+    if(r!==cur||tab!=='ara')return;
+    row.innerHTML=text?text.split(/\s+/).map((w,i)=>`<span class="word-token plain"><span class="token-num">${i+1}</span><span class="token-orig syr">${esc(w)}</span></span>`).join(''):'<div class="status">NOT PRESENT IN THE PESHITTA</div>';
+    $('row-note').textContent='Word-by-word grammar for the Aramaic Peshitta is not available yet. The Greek tab has every word fully explained.';
+  }else if(tab==='heb-nt'){
+    const cw=WBW_DATA.heb;
+    setRef(cw.ref);row.classList.add('rtl');
+    row.innerHTML=cw.words.map((w,i)=>`<button type="button" class="word-token" data-c="heb" data-i="${i}"><span class="token-num">${i+1}</span><span class="token-orig">${esc(w.orig)}</span><span class="token-translit">${esc(w.translit)}</span><span class="token-gloss">${esc(w.gloss).replace(/\n/g,' ')}</span></button>`).join('');
+    $('row-note').textContent='A Hebrew translation of the New Testament (Franz Delitzsch, 1877), not an original text — shown here for comparison.';
   }
-  setTimeout(() => document.getElementById('word-detail').scrollIntoView({behavior:'smooth',block:'nearest'}), 80);
 }
 
-document.addEventListener('DOMContentLoaded', renderWords);
+/* ---------- word detail ---------- */
+function lexFile(s){const m=s.match(/^([GH])0*(\d+)/);return m?`data/lexicon/${m[1]}${Math.floor(+m[2]/100)}.json`:null;}
+async function lexEntry(s){
+  const f=lexFile(s);if(!f)return null;
+  try{return (await getJSON(f))[s]||null;}catch(e){return null;}
+}
+function strongLabel(s){const m=s.match(/^([GH])0*(\d+)/);return m?m[1]+m[2]:s;}
+function grammarFor(code,lang,table){
+  if(lang==='gk')return table[code]||code;
+  const parts=code.split('/'),pre=parts[0][0];
+  return parts.map((p,i)=>table[i===0?p:pre+p]||p);
+}
+function noteHTML(n){
+  if(!n)return '';
+  const t=n.replace(/^K=\s*/,'The written text (Ketiv) reads ').replace(/\bL=\s*/,'Leningrad spelling: ');
+  return `<div class="wd-note"><div class="wd-note-label">MANUSCRIPT NOTE</div>${esc(t)}</div>`;
+}
+function curatedFor(strong){
+  if(!(cur.book.id==='john'&&cur.ch===1&&cur.v===1))return null;
+  const n=strongLabel(strong).slice(1);
+  return WBW_DATA.gk.words.find(w=>(w.strongs.match(/G(\d+)/)||[])[1]===n)||null;
+}
+function curatedHTML(w,title){
+  if(!w)return '';
+  const x=(w.xrefs||[]).map(x=>`<div class="xref-item"><div class="xref-ref">${esc(x.ref)}</div><div class="xref-text">${esc(x.text)}</div></div>`).join('');
+  return `<div class="wd-miltha"><div class="wd-label">${title}</div><p>${esc(w.meaning)}</p>${x?`<div class="wd-label" style="margin-top:12px">CROSS REFERENCES</div>${x}`:''}</div>`;
+}
+async function showWord(i){
+  const w=verseWords[i],lang=cur.book.testament==='ot'?'heb':'gk',d=$('word-detail'),token=loadToken;
+  const table=await getJSON(`data/words/grammar-${lang}.json`).catch(()=>({}));
+  let html=`<div class="wd-top"><span class="wd-orig" ${lang==='heb'?'dir="rtl"':''}>${esc(w[0].replace(/\//g,'').replace(/[,.;·:¶]+$/,''))}</span><span class="wd-translit">${esc(cleanTranslit(w[1]))}</span><span class="wd-english">“${glossHTML(w[2])}”</span></div>`;
+  let rootStrong;
+  if(lang==='gk'){
+    rootStrong=w[3];
+    html+=`<div class="wd-grid"><div class="wd-item"><div class="wd-label">GRAMMAR</div><div class="wd-val">${esc(grammarFor(w[4],lang,table))}</div></div><div class="wd-item" id="wd-dict"></div></div>`;
+  }else{
+    const segs=w[0].split('/'),tr=w[1].split('/'),en=w[2].split('/'),st=w[3].split('/'),gr=grammarFor(w[4],lang,table);
+    rootStrong=(w[3].match(/\{([^}]+)\}/)||[])[1]||st[0];
+    const lex=await Promise.all(st.map(s=>lexEntry(s.replace(/[{}+]/g,''))));
+    if(segs.length>1){
+      html+=`<div class="wd-label">PARTS OF THE WORD</div><table class="seg-table">`+segs.map((s,k)=>{
+        const isRoot=/\{/.test(st[k]||'');const L=lex[k];
+        return `<tr class="${isRoot?'root':''}"><td class="seg-heb">${esc(s)}</td><td>${glossHTML(en[k]||L?.[2]||'')}<div class="seg-meta">${isRoot?'ROOT · ':''}${esc(Array.isArray(gr)?gr[k]||'':gr)}</div></td><td class="seg-meta">${esc(cleanTranslit(tr[k]||''))}</td></tr>`;
+      }).join('')+`</table>`;
+    }
+    const ri=st.findIndex(s=>/\{/.test(s));
+    html+=`<div class="wd-grid"><div class="wd-item"><div class="wd-label">GRAMMAR</div><div class="wd-val">${esc(Array.isArray(gr)?gr[ri<0?0:ri]:gr)}</div></div><div class="wd-item" id="wd-dict"></div></div>`;
+  }
+  rootStrong=rootStrong.replace(/[{}+]/g,'');
+  html+=`<div id="wd-def-wrap"></div>${noteHTML(w[5])}${curatedHTML(curatedFor(rootStrong),'MILTHA NOTE')}
+    <div class="wd-links"><a href="https://www.stepbible.org/?q=strong=${encodeURIComponent(strongLabel(rootStrong))}" target="_blank" rel="noopener">FIND EVERY USE OF THIS WORD ↗</a></div>`;
+  if(token!==loadToken||activeIdx!==i)return;
+  d.innerHTML=html;d.classList.add('visible');
+  const e=await lexEntry(rootStrong);
+  if(token!==loadToken||activeIdx!==i)return;
+  $('wd-dict').innerHTML=e?`<div class="wd-label">DICTIONARY FORM · STRONG'S ${esc(strongLabel(rootStrong))}</div><div class="wd-val"><span class="lemma">${esc(e[0])}</span> <em>${esc(cleanTranslit(e[1]))}</em> — ${esc(e[2])}</div>`
+    :`<div class="wd-label">STRONG'S ${esc(strongLabel(rootStrong))}</div>`;
+  if(e?.[3]){
+    $('wd-def-wrap').innerHTML=`<div class="wd-label" style="margin-top:4px">DICTIONARY ENTRY</div><div class="wd-def" id="wd-def">${e[3]}</div><button type="button" class="def-toggle" id="def-toggle">SHOW FULL ENTRY ↓</button>`;
+    const def=$('wd-def');
+    if(def.scrollHeight<=def.clientHeight+4){def.classList.add('open');$('def-toggle').remove();}
+  }
+  setTimeout(()=>d.scrollIntoView({behavior:'smooth',block:'nearest'}),60);
+}
+function showCurated(lang,i){
+  const w=WBW_DATA[lang].words[i],d=$('word-detail');
+  d.innerHTML=`<div class="wd-top"><span class="wd-orig">${esc(w.orig)}</span><span class="wd-translit">${esc(w.translit)}</span><span class="wd-english">“${esc(w.english)}”</span></div>
+    <div class="wd-grid"><div class="wd-item"><div class="wd-label">PART OF SPEECH</div><div class="wd-val">${esc(w.pos)}</div></div>
+    <div class="wd-item"><div class="wd-label">ROOT</div><div class="wd-val">${esc(w.root)}</div></div>
+    <div class="wd-item"><div class="wd-label">LITERAL</div><div class="wd-val">${esc(w.literal)}</div></div>
+    <div class="wd-item"><div class="wd-label">REFERENCE</div><div class="wd-val">${esc(w.strongs)}</div></div></div>
+    ${curatedHTML(w,'MILTHA NOTE')}`;
+  d.classList.add('visible');
+  setTimeout(()=>d.scrollIntoView({behavior:'smooth',block:'nearest'}),60);
+}
+
+/* ---------- events ---------- */
+const STEP_BOOKS={Gen:'genesis',Exo:'exodus',Lev:'leviticus',Num:'numbers',Deu:'deuteronomy',Jos:'joshua',Jdg:'judges',Rut:'ruth','1Sa':'1samuel','2Sa':'2samuel','1Ki':'1kings','2Ki':'2kings','1Ch':'1chronicles','2Ch':'2chronicles',Ezr:'ezra',Neh:'nehemiah',Est:'esther',Job:'job',Psa:'psalms',Pro:'proverbs',Ecc:'ecclesiastes',Sng:'song',Isa:'isaiah',Jer:'jeremiah',Lam:'lamentations',Ezk:'ezekiel',Dan:'daniel',Hos:'hosea',Jol:'joel',Amo:'amos',Oba:'obadiah',Jon:'jonah',Mic:'micah',Nam:'nahum',Hab:'habakkuk',Zep:'zephaniah',Hag:'haggai',Zec:'zechariah',Mal:'malachi',
+ Mat:'matthew',Mrk:'mark',Luk:'luke',Jhn:'john',Act:'acts',Rom:'romans','1Co':'1corinthians','2Co':'2corinthians',Gal:'galatians',Eph:'ephesians',Php:'philippians',Col:'colossians','1Th':'1thessalonians','2Th':'2thessalonians','1Ti':'1timothy','2Ti':'2timothy',Tit:'titus',Phm:'philemon',Heb:'hebrews',Jas:'james','1Pe':'1peter','2Pe':'2peter','1Jn':'1john','2Jn':'2john','3Jn':'3john',Jud:'jude',Rev:'revelation'};
+$('word-row').addEventListener('click',e=>{
+  const t=e.target.closest('.word-token:not(.plain)');if(!t)return;
+  const i=+t.dataset.i;
+  document.querySelectorAll('.word-token').forEach(x=>x.classList.toggle('active',x===t&&activeIdx!==i));
+  if(activeIdx===i&&!t.dataset.c){activeIdx=-1;$('word-detail').classList.remove('visible');return;}
+  activeIdx=i;
+  if(t.dataset.c)showCurated(t.dataset.c,i);else showWord(i);
+});
+$('word-detail').addEventListener('click',e=>{
+  if(e.target.id==='def-toggle'){const d=$('wd-def');d.classList.toggle('open');e.target.textContent=d.classList.contains('open')?'SHOW LESS ↑':'SHOW FULL ENTRY ↓';return;}
+  const a=e.target.closest('a[data-ref]');if(!a)return;
+  e.preventDefault();
+  const m=a.dataset.ref.match(/^(\w{3})\.(\d+)(?:\.(\d+))?/);
+  const id=m&&STEP_BOOKS[m[1]];const book=id&&BOOKS.find(b=>b.id===id);
+  if(book){tab='orig';go({book,ch:+m[2],v:+(m[3]||1)});window.scrollTo({top:0,behavior:'smooth'});}
+});
+$('lang-tabs').addEventListener('click',e=>{
+  const b=e.target.closest('.lang-tab');if(!b)return;
+  tab=b.dataset.tab;
+  document.querySelectorAll('.lang-tab').forEach(x=>x.classList.toggle('active',x===b));
+  render();
+});
+$('passage-form').addEventListener('submit',e=>{
+  e.preventDefault();
+  const r=parseRef($('passage-input').value);
+  if(!r){showToast('TRY A REFERENCE LIKE “JOHN 3:16” OR “PSALM 23:1”');return;}
+  if(!KJV_INDEX?.[r.book.id]?.kjv?.[r.ch-1]&&r.v!==0){showToast(`${r.book.name} HAS ${KJV_INDEX?.[r.book.id]?.kjv?.length||'NO'} CHAPTERS`);return;}
+  go(r);
+});
+$('prev-btn').addEventListener('click',()=>go(step(-1)));
+$('next-btn').addEventListener('click',()=>go(step(1)));
+document.addEventListener('keydown',e=>{
+  if(e.target.closest('input,textarea'))return;
+  if(e.key==='ArrowLeft'&&!$('prev-btn').disabled)go(step(-1));
+  if(e.key==='ArrowRight'&&!$('next-btn').disabled)go(step(1));
+});
+
+function fromHash(){
+  // #book/ch/v  (English numbering)   or   #book/ch/v/heb  (Hebrew Bible numbering, from the reader)
+  const [id,ch,v,num]=decodeURIComponent(location.hash.slice(1)).split('/');
+  const book=BOOKS.find(b=>b.id===id);if(!book)return null;
+  let c=parseInt(ch)||1,vv=v===undefined?1:(parseInt(v)||0);
+  if(num==='heb')[c,vv]=engRefFromOrig(book,c,vv);
+  return {book,ch:c,v:vv};
+}
+Promise.all([getJSON('data/words/index.json'),getJSON('data/bible/index.json')])
+  .then(([w,k])=>{INDEX=w;KJV_INDEX=k;})
+  .catch(()=>{})
+  .then(()=>go(fromHash()||parseRef('John 1:1')));
+window.addEventListener('hashchange',()=>{const r=fromHash();if(r&&!(cur&&r.book===cur.book&&r.ch===cur.ch&&r.v===cur.v))go(r,false);});
 </script>
 </body>
 </html>
