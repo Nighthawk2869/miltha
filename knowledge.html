@@ -134,30 +134,25 @@
 <script src="js/miltha.js"></script>
 <script>
 
-const KE_SYSTEM = `You are MILTHA's Knowledge Engine — an AI theological research assistant for a Christian platform focused on the earliest manuscript traditions of Scripture.
-
-YOUR ONLY SOURCES (strictly these — no exceptions):
-- Aramaic Peshitta (the language Jesus spoke, c. 2nd century AD)
-- Hebrew Masoretic Text and Septuagint (LXX, c. 250 BC)
-- Greek Textus Receptus and critical texts (Sinaiticus, Vaticanus, P52, etc.)
-- Church Fathers ONLY: Ignatius of Antioch (c.35-108 AD), Polycarp of Smyrna (c.69-155 AD), Justin Martyr (c.100-165 AD), Irenaeus of Lyon (c.130-202 AD), Tertullian (c.155-220 AD), Clement of Alexandria (c.150-215 AD)
-- Archaeological: Pilate Stone, Pool of Siloam, Ossuary of Caiaphas, Dead Sea Scrolls, Rylands P52, Sea of Galilee Boat, Erastus Inscription
-- Secular historians: Tacitus, Josephus, Pliny the Younger, Thallus, Lucian of Samosata
-
-HARD RULES:
-- NEVER cite modern commentators, theologians, or pastors (no Calvin, Luther, MacArthur, Piper, etc.)
-- NEVER offer denominational interpretation or take sides in theological disputes
-- ALWAYS cite your source precisely (e.g., "PESHITTA · John 1:1" or "IGNATIUS · Epistle to the Ephesians, c.107 AD")
-- When quoting the Peshitta, include the key Aramaic term and its transliteration
-- Note transparently where KJV differs from earliest manuscripts (Comma Johanneum, Mark 16:9-20, John 7:53-8:11, etc.)
-- Be scholarly but accessible — write for a sincere believer, not only an academic
-- Be direct about verified historical facts; be clearly humble about theological interpretations
-- End every response with 2-3 specific source citations formatted as: SOURCE: [Name] · [Work] · [Date]
-
-PLATFORM CONTEXT:
-MILTHA uses KJV 1611 as primary English with Young's Literal Translation (1862) as secondary. The Peshitta is MILTHA's anchor translation — MILTHA (ܡܸܠܺܬ݂ܵܐ) is the Aramaic word for "The Word" from John 1:1 in the Peshitta.`;
-
+// Questions go to /api/ask (netlify/functions/ask.mjs), which holds the API key and the
+// Knowledge Engine's instructions on the server.
 let keHistory = [];
+
+function keEsc(t) {
+  return String(t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+}
+function keFormat(line) {
+  return keEsc(line)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|[\s(])\*(?!\s)(.+?)\*(?=[\s).,;:!?]|$)/g, '$1<em>$2</em>');
+}
+function keShow(question, html, citations) {
+  document.getElementById('ke-loading').style.display = 'none';
+  document.getElementById('ke-response-wrap').style.display = 'block';
+  document.getElementById('ke-response-question').textContent = question;
+  document.getElementById('ke-response-text').innerHTML = html;
+  document.getElementById('ke-citation').textContent = citations || '';
+}
 
 async function askKE() {
   const input = document.getElementById('ke-input');
@@ -171,55 +166,35 @@ async function askKE() {
   document.getElementById('ke-response-wrap').style.display = 'none';
   document.getElementById('ke-loading').style.display = 'block';
 
-  const messages = [];
-  keHistory.forEach(h => {
-    messages.push({ role: 'user', content: h.q });
-    messages.push({ role: 'assistant', content: h.a });
-  });
-  messages.push({ role: 'user', content: question });
-
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('/api/ask', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        system: KE_SYSTEM,
-        messages
-      })
+      body: JSON.stringify({ question, history: keHistory.slice(-4) })
     });
+    const data = await response.json().catch(() => ({}));
 
-    const data = await response.json();
-    const answer = data.content?.[0]?.text || 'The Knowledge Engine encountered an error. Please try again.';
-
-    // Split citations from body
-    const citationMatch = answer.match(/\n(SOURCE[S]?:[\s\S]+)$/i);
-    const citations = citationMatch ? citationMatch[1] : '';
-    const body = citationMatch ? answer.slice(0, citationMatch.index) : answer;
-
-    document.getElementById('ke-loading').style.display = 'none';
-    document.getElementById('ke-response-wrap').style.display = 'block';
-    document.getElementById('ke-response-question').textContent = question;
-    document.getElementById('ke-response-text').innerHTML = body
-      .split('\n').filter(l => l.trim())
-      .map(l => `<p>${l.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\*(.*?)\*/g,'<em>$1</em>').replace(/_(.*?)_/g,'<em>$1</em>')}</p>`)
-      .join('');
-    document.getElementById('ke-citation').textContent = citations;
-
-    keHistory.push({ q: question, a: answer });
-    renderHistory();
-    input.value = '';
-    document.getElementById('ke-response-wrap').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
+    if (!response.ok || !data.answer) {
+      let msg = data.error || 'The Knowledge Engine had a problem answering. Please try again.';
+      if (data.error === 'not_configured') msg = 'The Knowledge Engine is being set up and will be answering questions soon.';
+      if (response.status === 429) msg = 'You have asked several questions in a short time. Please wait a minute and try again.';
+      keShow(question, `<p>${keEsc(msg)}</p>`);
+    } else {
+      const answer = data.answer;
+      // Split the closing SOURCE lines from the body
+      const m = answer.match(/\n\s*(SOURCES?:[\s\S]+)$/i);
+      const body = m ? answer.slice(0, m.index) : answer;
+      const html = body.split('\n').filter(l => l.trim()).map(l => `<p>${keFormat(l)}</p>`).join('');
+      keShow(question, html, m ? m[1].trim() : '');
+      keHistory.push({ q: question, a: answer });
+      renderHistory();
+      input.value = '';
+    }
   } catch (err) {
-    document.getElementById('ke-loading').style.display = 'none';
-    document.getElementById('ke-response-wrap').style.display = 'block';
-    document.getElementById('ke-response-question').textContent = question;
-    document.getElementById('ke-response-text').innerHTML = '<p>The Knowledge Engine is connecting. Please ensure you are online and try again.</p>';
-    document.getElementById('ke-citation').textContent = '';
+    keShow(question, '<p>The Knowledge Engine could not be reached. Please check that you are online and try again.</p>');
   }
 
+  document.getElementById('ke-response-wrap').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   btn.disabled = false;
   btn.textContent = 'ASK ↵';
 }
@@ -232,11 +207,14 @@ function setSug(el) {
 function renderHistory() {
   if (keHistory.length === 0) return;
   document.getElementById('ke-history').style.display = 'block';
-  document.getElementById('ke-history-list').innerHTML = keHistory.slice().reverse().slice(0,5)
-    .map(h => `<div class="ke-hist-item" onclick="reaskKE('${h.q.replace(/'/g,"\\'").replace(/\n/g,' ')}')">
-      <span class="ke-hist-q">${h.q.replace(/\n/g,' ').slice(0,80)}${h.q.length>80?'...':''}</span>
+  const recent = keHistory.slice().reverse().slice(0, 5);
+  document.getElementById('ke-history-list').innerHTML = recent
+    .map((h, i) => `<div class="ke-hist-item" data-i="${i}">
+      <span class="ke-hist-q">${keEsc(h.q.replace(/\n/g,' ').slice(0,80))}${h.q.length>80?'...':''}</span>
       <span class="ke-hist-arrow">→</span>
     </div>`).join('');
+  document.querySelectorAll('#ke-history-list .ke-hist-item').forEach(el =>
+    el.addEventListener('click', () => reaskKE(recent[+el.dataset.i].q)));
 }
 
 function reaskKE(q) {
