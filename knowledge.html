@@ -31,6 +31,16 @@
 .ke-response-text strong{color:var(--gold);font-weight:600}
 .ke-response-text em{font-style:italic;color:var(--white);opacity:.9}
 .ke-citation{font-family:'Cinzel',serif;font-size:19px;letter-spacing:.18em;color:var(--blue);opacity:.86;margin-top:14px;padding-top:11px;border-top:1px solid var(--ash);line-height:1.8}
+.ke-cite{display:inline-block;font-family:'Cinzel',serif;font-size:.62em;line-height:1;vertical-align:super;color:var(--gold);border:1px solid rgba(201,169,110,.45);border-radius:3px;padding:2px 5px;margin-left:3px;text-decoration:none}
+.ke-cite:hover{background:var(--golddim)}
+.ke-sources{margin-top:16px;padding-top:12px;border-top:1px solid var(--ash)}
+.ke-sources:empty{display:none}
+.ke-sources-label{font-family:'Cinzel',serif;font-size:17px;letter-spacing:.26em;color:var(--gold);opacity:.8;margin-bottom:8px}
+.ke-source{display:flex;align-items:baseline;gap:12px;padding:9px 4px;border-bottom:1px solid var(--ash);text-decoration:none;color:var(--cream);font-family:'Cinzel',serif;font-size:18px;letter-spacing:.06em;line-height:1.5}
+.ke-source:hover{background:var(--golddim)}
+.ke-source em{opacity:.6}
+.ke-source-n{color:var(--gold);min-width:1.6em;flex-shrink:0}
+.ke-source-go{margin-left:auto;color:var(--gold);opacity:.75;font-size:15px;letter-spacing:.18em;flex-shrink:0}
 .ke-history{margin-top:18px}
 .ke-history-label{font-family:'Cinzel',serif;font-size:19px;letter-spacing:.26em;color:var(--gold);opacity:.78;margin-bottom:9px}
 .ke-hist-item{padding:11px 14px;border:1px solid var(--ash);margin-bottom:3px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:space-between;gap:10px}
@@ -95,7 +105,7 @@
 
     <div class="ke-loading" id="ke-loading">
       <div class="loading-dots"><span></span><span></span><span></span></div>
-      <div class="ke-loading-text">SEARCHING THE MANUSCRIPTS...</div>
+      <div class="ke-loading-text">SEARCHING THE SCRIPTURES AND THE FATHERS...</div>
     </div>
 
     <div class="ke-response-wrap" id="ke-response-wrap">
@@ -103,6 +113,7 @@
         <div class="ke-response-label">KNOWLEDGE ENGINE · MANUSCRIPT SOURCES ONLY · NO MODERN COMMENTARY</div>
         <div class="ke-response-question" id="ke-response-question"></div>
         <div class="ke-response-text" id="ke-response-text"></div>
+        <div class="ke-sources" id="ke-sources"></div>
         <div class="ke-citation" id="ke-citation"></div>
       </div>
       <div class="action-links-row">
@@ -146,11 +157,30 @@ function keFormat(line) {
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/(^|[\s(])\*(?!\s)(.+?)\*(?=[\s).,;:!?]|$)/g, '$1<em>$2</em>');
 }
-function keShow(question, html, citations) {
+// Links back to MILTHA's own pages only
+const KE_SAFE = /^(library|study|bible)\.html#[a-z0-9\-\/]+$/;
+function keCite(html, sources) {
+  const byN = Object.fromEntries((sources || []).map(s => [s.n, s]));
+  html = html.replace(/\[S(\d+)\s*[–-]\s*S?(\d+)\]/g, (m, a, b) =>
+    Array.from({ length: Math.max(0, Math.min(+b - +a, 9)) + 1 }, (_, k) => `[S${+a + k}]`).join(''));
+  return html.replace(/\s?\[S(\d+)\]/g, (m, n) => {
+    const s = byN[n];
+    if (!s || !KE_SAFE.test(s.href)) return '';
+    return `<a class="ke-cite" href="${s.href}" title="${keEsc(s.label)}">${n}</a>`;
+  });
+}
+function keSources(sources) {
+  const list = (sources || []).filter(s => KE_SAFE.test(s.href));
+  if (!list.length) return '';
+  return '<div class="ke-sources-label">PASSAGES FROM MILTHA\'S TEXTS</div>' + list.map(s =>
+    `<a class="ke-source" href="${s.href}"><span class="ke-source-n">${s.n}</span><span>${keEsc(s.label)}${s.note ? ' <em>· ' + keEsc(s.note) + '</em>' : ''}</span><span class="ke-source-go">${s.kind === 'bible' ? 'STUDY →' : 'READ →'}</span></a>`).join('');
+}
+function keShow(question, html, citations, sources) {
   document.getElementById('ke-loading').style.display = 'none';
   document.getElementById('ke-response-wrap').style.display = 'block';
   document.getElementById('ke-response-question').textContent = question;
   document.getElementById('ke-response-text').innerHTML = html;
+  document.getElementById('ke-sources').innerHTML = keSources(sources);
   document.getElementById('ke-citation').textContent = citations || '';
 }
 
@@ -184,8 +214,8 @@ async function askKE() {
       // Split the closing SOURCE lines from the body
       const m = answer.match(/\n\s*\**(SOURCES?:\**[\s\S]+)$/i);
       const body = m ? answer.slice(0, m.index) : answer;
-      const html = body.split('\n').filter(l => l.trim()).map(l => `<p>${keFormat(l)}</p>`).join('');
-      keShow(question, html, m ? m[1].replace(/\*\*/g, '').trim() : '');
+      const html = body.split('\n').filter(l => l.trim()).map(l => `<p>${keCite(keFormat(l), data.sources)}</p>`).join('');
+      keShow(question, html, m ? m[1].replace(/\*\*/g, '').trim() : '', data.sources);
       keHistory.push({ q: question, a: answer });
       renderHistory();
       input.value = '';
