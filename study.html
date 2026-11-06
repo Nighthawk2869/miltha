@@ -76,6 +76,14 @@
 .eng-verse{padding:13px 15px;background:var(--black);border:1px solid var(--ash);font-size:21px;font-style:italic;color:var(--white);line-height:1.7}
 .status{padding:30px 16px;text-align:center;font-family:'Cinzel',serif;font-size:14px;letter-spacing:.2em;color:var(--cream);opacity:.6;width:100%}
 .how-to{font-size:17px;font-style:italic;color:var(--cream);opacity:.7;margin:4px 0 0}
+.fr-item{display:block;text-decoration:none;background:var(--parchment);border:1px solid var(--ash);border-left:2px solid var(--blue);padding:12px 15px;margin-bottom:6px;transition:border-color .15s}
+.fr-item:hover{border-left-color:var(--gold)}
+.fr-item.fr-more{display:none}
+.fr-open .fr-item.fr-more{display:block}
+.fr-who{font-family:'Cinzel',serif;font-size:13px;letter-spacing:.1em;color:var(--gold);opacity:.9;margin-bottom:5px}
+.fr-text{font-size:19px;font-style:italic;color:var(--cream);opacity:.9;line-height:1.6}
+.fr-show{font-family:'Cinzel',serif;font-size:13px;letter-spacing:.14em;color:var(--gold);background:none;border:1px solid var(--ash2);padding:9px 14px;cursor:pointer;margin-top:4px}
+.fr-show:hover{border-color:var(--gold)}
 .source-note{margin-top:34px;padding-top:16px;border-top:1px solid var(--ash);font-size:15px;color:var(--cream);opacity:.7;line-height:1.6}
 .source-note a{color:var(--gold)}
 @media(max-width:640px){
@@ -132,6 +140,7 @@
 
     <div class="eng-label">KING JAMES VERSION</div>
     <div class="eng-verse" id="eng-verse"></div>
+    <div id="fathers-on"></div>
 
     <div class="action-links-row" style="margin-top:24px">
       <a class="action-link" href="knowledge.html">⊕ ASK THE KNOWLEDGE ENGINE</a>
@@ -252,6 +261,7 @@ async function go(r,push=true){
     if(token!==loadToken)return;
     verseWords=chap[ov]||[];
     $('eng-verse').textContent=r.v===0?'(Psalm title — not numbered as a verse in the KJV.)':(kjv[r.ch-1]?.[r.v-1]||'');
+    showFathers(r,token);
   }catch(e){
     if(token!==loadToken)return;
     verseWords=[];
@@ -266,6 +276,20 @@ async function go(r,push=true){
   if(!tabs.find(t=>t.id===tab))tab='orig';
   $('lang-tabs').innerHTML=tabs.map(t=>`<button type="button" class="lang-tab ${t.id===tab?'active':''}" data-tab="${t.id}">${t.label}</button>`).join('');
   render();
+}
+/* Church Fathers who quote or discuss this verse (data/fathers-refs, KJV numbering) */
+async function showFathers(r,token){
+  $('fathers-on').innerHTML='';
+  let refs={},works={};
+  try{[refs,works]=await Promise.all([getJSON(`data/fathers-refs/${r.book.id}/${r.ch}.json`),getJSON('data/fathers-refs/works.json')]);}catch(e){return;}
+  if(token!==loadToken)return;
+  const items=refs[r.v]||[];if(!items.length)return;
+  const item=(x,i)=>{const w=works[x[0]]||['',''];
+    return `<a class="fr-item${i>=4?' fr-more':''}" href="library.html#${x[0]}/${x[1]}/${x[2]}"><div class="fr-who">${esc(w[0])} · ${esc(w[1])}</div><div class="fr-text">${esc(x[3])}</div></a>`;};
+  $('fathers-on').innerHTML=`<div class="eng-label">CHURCH FATHERS ON THIS VERSE · ${items.length}</div>
+    <div class="fr-list">${items.map(item).join('')}</div>
+    ${items.length>4?`<button type="button" class="fr-show" onclick="this.previousElementSibling.classList.add('fr-open');this.remove()">SHOW ALL ${items.length} PASSAGES</button>`:''}
+    <div class="how-to" style="margin-top:8px">Where the early Fathers quote or allude to this verse — sometimes while answering others' views, so read each in context.</div>`;
 }
 function isAramaic(ws){return ws.length&&ws.filter(w=>w[4][0]==='A').length>ws.length/2;}
 

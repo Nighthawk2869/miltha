@@ -71,6 +71,15 @@
 .br-source{font-family:'Cinzel',serif;font-size:19px;letter-spacing:.1em;color:var(--blue);opacity:.84;margin-top:4px}
 .text-credit{margin:34px 0 0;padding-top:14px;border-top:1px solid var(--ash);font-size:15px;line-height:1.6;color:var(--cream);opacity:.7}
 .text-credit a{color:var(--gold)}
+.fr-item{display:block;text-decoration:none;background:var(--parchment);border-left:2px solid var(--blue);padding:9px 11px;margin-bottom:6px;transition:border-color .15s}
+.fr-item:hover{border-left-color:var(--gold)}
+.fr-item.fr-more{display:none}
+.fr-open .fr-item.fr-more{display:block}
+.fr-who{font-family:'Cinzel',serif;font-size:13px;letter-spacing:.08em;color:var(--blue);opacity:.95;margin-bottom:4px;filter:brightness(1.6)}
+.fr-text{font-size:17px;font-style:italic;color:var(--cream);opacity:.9;line-height:1.55}
+.fr-show{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.14em;color:var(--gold);background:none;border:1px solid var(--ash2);padding:7px 10px;cursor:pointer;margin:2px 0 8px}
+.fr-show:hover{border-color:var(--gold)}
+.fr-note{font-size:14px;color:var(--cream);opacity:.55;line-height:1.5}
 .br-wbw{display:block;font-family:'Cinzel',serif;font-size:15px;letter-spacing:.12em;line-height:1.5;color:var(--gold);text-decoration:none;padding:9px 11px;border:1px solid rgba(201,169,110,.35);background:var(--golddim);transition:all .15s}
 .br-wbw:hover{border-color:var(--gold);color:var(--pure)}
 .br-empty{text-align:center;padding:36px 13px}
@@ -315,12 +324,36 @@ function selectVerse(vn){
   if(smallScreen(900)){setPanel('bible-left',false);setPanel('bible-right',true);}
   renderDetail(vn);
 }
+/* Where the Church Fathers quote or discuss a verse: data/fathers-refs (KJV numbering) */
+async function fathersOn(book,ch,vn){
+  try{
+    let c=ch,v=vn;
+    if(currentTrans==='heb'&&book.testament==='ot'){   // the Hebrew text is numbered in the Hebrew way
+      const map=(await fetchJSON('data/words/index.json'))[book.id]?.map||{};
+      const k=Object.keys(map).find(e=>map[e]===ch+':'+vn);if(k)[c,v]=k.split(':').map(Number);
+    }
+    const [refs,works]=await Promise.all([fetchJSON(`data/fathers-refs/${book.id}/${c}.json`),fetchJSON('data/fathers-refs/works.json')]);
+    return {items:refs[v]||[],works,ref:`${book.name} ${c}:${v}`};
+  }catch(e){return {items:[],works:{}};}
+}
+function fathersSection(f){
+  const item=(x,hidden)=>{const w=f.works[x[0]]||['',''];
+    return `<a class="fr-item${hidden?' fr-more':''}" href="library.html#${x[0]}/${x[1]}/${x[2]}"><div class="fr-who">${esc(w[0])} · ${esc(w[1])}</div><div class="fr-text">${esc(x[3])}</div></a>`;};
+  const n=f.items.length;
+  return `<div class="br-section"><div class="br-section-label">CHURCH FATHERS ON THIS VERSE · ${n}</div>
+    ${f.items.map((x,i)=>item(x,i>=3)).join('')}
+    ${n>3?`<button type="button" class="fr-show" onclick="this.parentNode.classList.add('fr-open');this.remove()">SHOW ALL ${n} PASSAGES</button>`:''}
+    <div class="fr-note">Passages where the early Fathers quote or allude to this verse — sometimes while answering others&#39; views, so read each in context. Tap one to open it in the Library.</div></div>`;
+}
+
 async function renderDetail(vn){
   const book=currentBook,ch=currentChapter,key=`${book.id}-${ch}-${vn}`,token=loadToken;
   const pane=document.getElementById('br-scroll');
   pane.innerHTML='<div class="br-empty"><div class="br-empty-text">LOADING…</div></div>';
   const others=Object.keys(TRANS).filter(t=>t!==currentTrans&&available(t,book));
-  const texts=await Promise.all(others.map(t=>loadBook(t,book.id).then(d=>d[ch-1]?.[vn-1]||'').catch(()=>'')));
+  const [texts,fathers]=await Promise.all([
+    Promise.all(others.map(t=>loadBook(t,book.id).then(d=>d[ch-1]?.[vn-1]||'').catch(()=>''))),
+    fathersOn(book,ch,vn)]);
   if(token!==loadToken||!document.getElementById('vb-'+vn)?.classList.contains('active'))return;
   const orig=book.testament==='ot'?'HEBREW':'GREEK';
   let html=`<div class="br-section"><div class="br-section-label">WORD BY WORD</div><a class="br-wbw" href="study.html#${book.id}/${ch}/${vn}${currentTrans==='heb'?'/heb':''}">STUDY EVERY ${orig} WORD IN THIS VERSE →</a></div>`,rows='';
@@ -329,6 +362,7 @@ async function renderDetail(vn){
     const T=TRANS[t],warn=numberingDiffers(t,ch)||numberingDiffers(currentTrans,ch);
     rows+=`<div style="margin-bottom:14px"><div class="br-source" style="margin:0 0 4px">${T.label}</div><div class="br-text ${T.rtl?'rtl':''}">${esc(texts[i])}</div>${forBook(T.source,book)?`<div class="br-source">${forBook(T.source,book)}</div>`:''}${warn&&(T.only||TRANS[currentTrans].only)?`<div class="br-source" style="color:var(--flame)">VERSE NUMBERING DIFFERS IN THIS CHAPTER — THIS LINE MAY BE A VERSE OFF</div>`:''}</div>`;
   });
+  if(fathers.items.length)html+=fathersSection(fathers);
   if(rows)html+=`<div class="br-section"><div class="br-section-label">OTHER TEXTS</div>${rows}</div>`;
   const loc=VERSE_LOCATIONS[key];
   if(loc){
