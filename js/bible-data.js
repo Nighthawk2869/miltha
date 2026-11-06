@@ -109,11 +109,11 @@ const VERSE_LOCATIONS = {
 const PASSAGE_FATHERS = {
   'john-1':{father:'IGNATIUS OF ANTIOCH',source:'EPISTLE TO THE EPHESIANS · c. 107 AD',text:'There is one Physician who is possessed both of flesh and spirit...God existing in flesh; true life in death...even Jesus Christ our Lord.'},
   'john-3':{father:'IRENAEUS OF LYON',source:'AGAINST HERESIES · c. 180 AD',text:'He became what we are that He might bring us to be even what He is Himself.'},
-  'john-14':{father:'TERTULLIAN',source:'AGAINST PRAXEAS · c. 213 AD',text:'We define that there are two, the Father and the Son, and three with the Holy Spirit...which brings about unity in trinity.'},
+  'john-14':{father:'TERTULLIAN',source:'AGAINST PRAXEAS 2 · c. 213 AD',text:'The mystery of the dispensation is still guarded, which distributes the Unity into a Trinity, placing in their order the three Persons — the Father, the Son, and the Holy Ghost.'},
   'romans-8':{father:'POLYCARP OF SMYRNA',source:'EPISTLE TO THE PHILIPPIANS · c. 110 AD',text:'Knowing then that God is not mocked, we ought to walk worthy of His commandment and glory.'},
   'ephesians-2':{father:'JUSTIN MARTYR',source:'FIRST APOLOGY · c. 155 AD',text:'We who formerly used to murder one another do not only now refrain from making war...willingly die confessing Christ.'},
-  'philippians-4':{father:'CLEMENT OF ALEXANDRIA',source:'STROMATA · c. 198 AD',text:'Prayer is the greatest of the high roads that lead to God.'},
-  'hebrews-11':{father:'CLEMENT OF ALEXANDRIA',source:'STROMATA · c. 198 AD',text:'Faith is the foundation of all things. Without it the life of men is unstable and tottering.'},
+  'philippians-4':{father:'CLEMENT OF ALEXANDRIA',source:'STROMATA VII.7 · c. 198 AD',text:'Prayer is, then, to speak more boldly, converse with God. Though whispering, consequently, and not opening the lips, we speak in silence, yet we cry inwardly.'},
+  'hebrews-11':{father:'CLEMENT OF ALEXANDRIA',source:'STROMATA II.2 · c. 198 AD',text:'But faith, which the Greeks disparage, deeming it futile and barbarous, is a voluntary preconception, the assent of piety — \'the subject of things hoped for, the evidence of things not seen,\' according to the divine apostle.'},
   'revelation-1':{father:'IRENAEUS OF LYON',source:'AGAINST HERESIES · BOOK V · c. 180 AD',text:'John saw the Revelation not long ago, almost in our time, at the end of the reign of Domitian.'},
   'matthew-5':{father:'JUSTIN MARTYR',source:'FIRST APOLOGY · c. 155 AD',text:'His words were short and concise, for He was no sophist, but His word was the power of God.'},
   'colossians-1':{father:'IGNATIUS OF ANTIOCH',source:'EPISTLE TO THE SMYRNAEANS · c. 107 AD',text:'Jesus Christ...of the family of David according to the flesh, but Son of God by the Divine will and power.'}
