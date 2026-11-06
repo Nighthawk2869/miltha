@@ -29,7 +29,7 @@ YOUR ONLY SOURCES (strictly these — no exceptions):
 HARD RULES:
 - NEVER cite modern commentators, theologians, or pastors (no Calvin, Luther, MacArthur, Piper, etc.)
 - NEVER offer denominational interpretation or take sides in theological disputes
-- Each question comes with numbered passages from MILTHA's own texts ([S1], [S2]...): Bible verses and passages from the Church Fathers in MILTHA's Library. Base your answer on them first. When you quote or draw on one, put its number right after, like this: "the Word was God" [S1]. Use only numbers that were given.
+- Each question comes with numbered passages from MILTHA's own texts ([S1], [S2]...): Bible verses and passages from the Church Fathers in MILTHA's Library. Base your answer on them first. When you quote or draw on one, put its number right after, like this: "the Word was God" [S1] (one number per bracket, never a range). Use only numbers that were given. Some passages are only loose search matches: leave out any that do not help, without mentioning them.
 - Quote a Church Father word for word ONLY from the numbered passages. For anything else a Father wrote, describe it without quotation marks and say it is a summary.
 - If the numbered passages do not answer the question, say so plainly, then answer briefly from the sources above as best you can. Never cite a numbered passage for something it does not say.
 - Some passages come where a Father is describing or answering someone else's views (for example Irenaeus on the Gnostics); do not present those views as the Father's own.
@@ -157,8 +157,10 @@ export function search(C, query, n = 5) {
   const ql = query.toLowerCase(), boost = [];
   for (const [name, pre] of Object.entries(AUTHORS)) if (ql.includes(name)) boost.push(...pre.split('|'));
   if (boost.length) for (const [i, s] of score) if (boost.some((p) => C.rows[i][0].startsWith(p))) score.set(i, s * 2.5);
-  const out = [], perWork = {};
-  for (const [i] of [...score].sort((a, b) => b[1] - a[1])) {
+  const out = [], perWork = {}, ranked = [...score].sort((a, b) => b[1] - a[1]);
+  const floor = ranked.length ? ranked[0][1] * 0.4 : 0;    // drop weak matches
+  for (const [i, sc] of ranked) {
+    if (sc < floor) break;
     const w = C.rows[i][0];
     if ((perWork[w] || 0) >= 2) continue;
     perWork[w] = (perWork[w] || 0) + 1; out.push(i);
@@ -213,11 +215,11 @@ async function gather(origin, question, history) {
 
   if (C) {
     // Follow-up questions ("what did he mean?") borrow the previous question's words.
-    let query = question;
+    let query = question.replace(BOOK_RE, ' ');
     if (tokens(question).length < 3 && history.length) query += ' ' + history[history.length - 1].q;
     const have = new Set(sources.map((s) => s.href));
-    for (const i of search(C, query, 8)) {
-      if (sources.length >= 8) break;
+    for (const i of search(C, query, refs.length ? 4 : 7)) {
+      if (sources.length >= 9) break;
       const s = fatherSource(C, i);
       if (!have.has(s.href)) { have.add(s.href); sources.push(s); }
     }
@@ -298,7 +300,9 @@ export default async (req) => {
   const answer = (data.content || []).filter((b) => b.type === 'text').map((b) => b.text).join('\n').trim();
   if (data.stop_reason === 'max_tokens') console.warn('Answer cut off at max_tokens');
   if (!answer) return json(502, { error: 'The Knowledge Engine returned no answer. Please try again.' });
-  const used = new Set([...answer.matchAll(/\[S(\d+)\]/g)].map((m) => +m[1]));
+  const used = new Set();
+  for (const m of answer.matchAll(/\[S(\d+)(?:\s*[–-]\s*S?(\d+))?\]/g))
+    for (let k = +m[1]; k <= Math.min(+(m[2] || m[1]), +m[1] + 9); k++) used.add(k);
   return json(200, { answer, sources: sources.filter((s) => used.has(s.n)).map(({ n, kind, label, href, note }) => ({ n, kind, label, href, note })) });
 };
 

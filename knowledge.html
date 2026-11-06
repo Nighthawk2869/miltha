@@ -161,6 +161,8 @@ function keFormat(line) {
 const KE_SAFE = /^(library|study|bible)\.html#[a-z0-9\-\/]+$/;
 function keCite(html, sources) {
   const byN = Object.fromEntries((sources || []).map(s => [s.n, s]));
+  html = html.replace(/\[S(\d+)\s*[–-]\s*S?(\d+)\]/g, (m, a, b) =>
+    Array.from({ length: Math.max(0, Math.min(+b - +a, 9)) + 1 }, (_, k) => `[S${+a + k}]`).join(''));
   return html.replace(/\s?\[S(\d+)\]/g, (m, n) => {
     const s = byN[n];
     if (!s || !KE_SAFE.test(s.href)) return '';
