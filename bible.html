@@ -69,6 +69,8 @@
 .br-text{font-size:19px;font-style:italic;color:var(--white);line-height:1.75;opacity:.76}
 .br-text.rtl{direction:rtl;font-family:serif}
 .br-source{font-family:'Cinzel',serif;font-size:19px;letter-spacing:.1em;color:var(--blue);opacity:.84;margin-top:4px}
+.text-credit{margin:34px 0 0;padding-top:14px;border-top:1px solid var(--ash);font-size:15px;line-height:1.6;color:var(--cream);opacity:.7}
+.text-credit a{color:var(--gold)}
 .br-wbw{display:block;font-family:'Cinzel',serif;font-size:15px;letter-spacing:.12em;line-height:1.5;color:var(--gold);text-decoration:none;padding:9px 11px;border:1px solid rgba(201,169,110,.35);background:var(--golddim);transition:all .15s}
 .br-wbw:hover{border-color:var(--gold);color:var(--pure)}
 .br-empty{text-align:center;padding:36px 13px}
@@ -163,6 +165,7 @@
       <button class="trans-btn" data-trans="heb" onclick="setTrans('heb')">א HEBREW</button>
       <button class="trans-btn" data-trans="ara" onclick="setTrans('ara')">ܐ ARAMAIC</button>
       <button class="trans-btn" data-trans="gk" onclick="setTrans('gk')">Α GREEK</button>
+      <button class="trans-btn" data-trans="lxx" onclick="setTrans('lxx')">Α SEPTUAGINT</button>
     </div>
     <div class="bc-scroll" id="bc-scroll">
       <div class="no-data"><div class="no-data-ara">ܡܸܠܬ݂ܵܐ</div><div class="no-data-text">SELECT A BOOK TO BEGIN READING</div></div>
@@ -192,14 +195,19 @@ const TRANS={
   kjv:{label:'KING JAMES VERSION',cls:'verse-text'},
   ylt:{label:"YOUNG'S LITERAL TRANSLATION · 1898",cls:'verse-text ylt'},
   heb:{label:'HEBREW · MASORETIC TEXT',cls:'verse-text ara',rtl:true,source:'WESTMINSTER LENINGRAD CODEX',only:'ot'},
-  ara:{label:'PESHITTA · ARAMAIC',cls:'verse-text ara',rtl:true,source:'SYRIAC PESHITTA',only:'nt'},
-  gk:{label:'TEXTUS RECEPTUS · GREEK',cls:'verse-text gk',source:'TEXTUS RECEPTUS · THE GREEK BEHIND THE KJV',only:'nt'}
+  ara:{label:'PESHITTA · ARAMAIC',cls:'verse-text ara',rtl:true,source:{nt:'SYRIAC PESHITTA',ot:'PESHITTA · LEIDEN PESHITTA INSTITUTE EDITION'},
+       credit:{ot:'Peshitta Old Testament: the Leiden Peshitta Institute edition, digitised by the Eep Talstra Centre for Bible and Computer (ETCBC), VU Amsterdam — <a href="https://github.com/ETCBC/peshitta" target="_blank" rel="noopener">ETCBC/peshitta</a>, licensed CC BY-NC 4.0.'}},
+  gk:{label:'TEXTUS RECEPTUS · GREEK',cls:'verse-text gk',source:'TEXTUS RECEPTUS · THE GREEK BEHIND THE KJV',only:'nt',
+       credit:{nt:'Greek text: Textus Receptus words from <a href="https://STEPBible.github.io/STEPBible-Data" target="_blank" rel="noopener">STEPBible.org</a> (Tyndale House, Cambridge), CC BY 4.0.'}},
+  lxx:{label:'SEPTUAGINT · GREEK OLD TESTAMENT',cls:'verse-text gk',source:'SEPTUAGINT · SWETE EDITION',only:'ot',missing:['ecclesiastes'],
+       credit:{ot:'Septuagint: H. B. Swete, <i>The Old Testament in Greek</i> (1909–1930), transcribed by the Open Greek and Latin project — <a href="https://github.com/nathans/lxx-swete" target="_blank" rel="noopener">lxx-swete</a>, CC BY-SA 4.0. Numbered to match the KJV using STEPBible\'s versification data (CC BY 4.0). The transcription was made from page scans and still contains some misread letters.'}}
 };
 let currentBook=null,currentChapter=1,currentTrans='kjv',filteredBooks=[...ALL_BOOKS],INDEX=null,loadToken=0;
 const cache={};
 
 function esc(t){return String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
-function available(t,book){const o=TRANS[t].only;return !o||o===book.testament;}
+function available(t,book){const T=TRANS[t];return (!T.only||T.only===book.testament)&&!(T.missing||[]).includes(book.id);}
+function forBook(v,book){return v&&typeof v==='object'?v[book.testament]:v;}
 function fetchJSON(url){return fetch(url).then(r=>{if(!r.ok)throw new Error(r.status);return r.json();});}
 function loadBook(t,id){
   const k=t+'/'+id;
@@ -291,6 +299,8 @@ async function loadChapter(ch){
     html+=`<div class="verse-block ${hasLoc?'has-loc':''}" id="vb-${vn}" onclick="selectVerse(${vn})"><span class="verse-num">${vn}</span><span class="${t.cls}"${t.rtl?' dir="rtl"':''}>${text?esc(text):'<em style="opacity:.5">— not present in this text —</em>'}</span></div>`;
     if(msNote)html+=`<div class="ms-note"><div class="ms-note-label">MANUSCRIPT NOTE</div>${msNote}</div>`;
   });
+  const credit=forBook(t.credit,currentBook);
+  if(credit)html+=`<div class="text-credit">${credit}</div>`;
   scroll.innerHTML=html;scroll.scrollTop=0;
 }
 function setTrans(t){
@@ -317,7 +327,7 @@ async function renderDetail(vn){
   others.forEach((t,i)=>{
     if(!texts[i])return;
     const T=TRANS[t],warn=numberingDiffers(t,ch)||numberingDiffers(currentTrans,ch);
-    rows+=`<div style="margin-bottom:14px"><div class="br-source" style="margin:0 0 4px">${T.label}</div><div class="br-text ${T.rtl?'rtl':''}">${esc(texts[i])}</div>${T.source?`<div class="br-source">${T.source}</div>`:''}${warn&&(T.only||TRANS[currentTrans].only)?`<div class="br-source" style="color:var(--flame)">VERSE NUMBERING DIFFERS IN THIS CHAPTER — THIS LINE MAY BE A VERSE OFF</div>`:''}</div>`;
+    rows+=`<div style="margin-bottom:14px"><div class="br-source" style="margin:0 0 4px">${T.label}</div><div class="br-text ${T.rtl?'rtl':''}">${esc(texts[i])}</div>${forBook(T.source,book)?`<div class="br-source">${forBook(T.source,book)}</div>`:''}${warn&&(T.only||TRANS[currentTrans].only)?`<div class="br-source" style="color:var(--flame)">VERSE NUMBERING DIFFERS IN THIS CHAPTER — THIS LINE MAY BE A VERSE OFF</div>`:''}</div>`;
   });
   if(rows)html+=`<div class="br-section"><div class="br-section-label">OTHER TEXTS</div>${rows}</div>`;
   const loc=VERSE_LOCATIONS[key];
