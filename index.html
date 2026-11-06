@@ -24,6 +24,21 @@ nav.scrolled{background:rgba(10,10,15,.98);border-bottom:1px solid var(--ash);ba
 .nav-brand span{display:block;font-size:11px;color:var(--gold);letter-spacing:.15em;margin-top:5px;opacity:1}
 .nav-enter{font-family:'Cinzel',serif;font-size:13px;letter-spacing:.2em;color:var(--gold);border:1px solid var(--gold);padding:11px 24px;text-decoration:none;transition:all .2s ease;background:none}
 .nav-enter:hover{background:var(--golddim)}
+.nav-right{display:flex;align-items:center;gap:10px}
+.nav-links{display:flex;align-items:center;gap:2px;list-style:none}
+.nav-links a{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.14em;color:var(--cream);opacity:.8;text-decoration:none;padding:8px 10px;border:1px solid transparent;transition:all .2s}
+.nav-links a:hover{opacity:1;color:var(--gold);border-color:rgba(212,170,106,.25);background:var(--golddim)}
+.nav-menu-btn{display:none;font-family:'Cinzel',serif;font-size:12px;letter-spacing:.18em;padding:10px 14px;background:none;border:1px solid var(--ash2);color:var(--cream);cursor:pointer}
+.nav-menu-btn:hover,nav.nav-open .nav-menu-btn{border-color:var(--gold);color:var(--gold)}
+@media(max-width:1024px){
+  .nav-links{display:none}
+  .nav-menu-btn{display:inline-block}
+  nav.nav-open{background:var(--black);border-bottom:1px solid var(--ash)}
+  nav.nav-open .nav-links{display:flex;flex-direction:column;align-items:stretch;gap:0;position:absolute;top:100%;left:0;right:0;background:var(--black);border-bottom:1px solid var(--ash);padding:8px 12px 14px;max-height:calc(100vh - 70px);overflow-y:auto}
+  nav.nav-open .nav-links a{display:block;font-size:14px;padding:14px 10px;border:none;border-bottom:1px solid var(--ash)}
+  nav.nav-open .nav-links li{width:100%}
+  nav.nav-open .nav-links li:last-child a{border-bottom:none}
+}
 
 /* HERO */
 .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 5% 100px;position:relative;z-index:1;overflow:hidden}
@@ -197,7 +212,19 @@ footer{padding:52px 5%;border-top:1px solid var(--ash);display:flex;align-items:
 <!-- NAV -->
 <nav id="site-nav">
   <a href="/" class="nav-brand">MILTHA <span>ܡܸܠܺܬ݂ܵܐ · THE WORD</span></a>
-  <a href="contribute.html" class="nav-enter">✦ CONTRIBUTE</a>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="daily.html">DAILY WORD</a></li>
+    <li><a href="knowledge.html">KNOWLEDGE ENGINE</a></li>
+    <li><a href="bible.html">BIBLE</a></li>
+    <li><a href="study.html">WORD BY WORD</a></li>
+    <li><a href="history.html">HISTORY</a></li>
+    <li><a href="library.html">LIBRARY</a></li>
+    <li><a href="community.html">COMMUNITY</a></li>
+  </ul>
+  <div class="nav-right">
+    <a href="contribute.html" class="nav-enter">✦ CONTRIBUTE</a>
+    <button type="button" class="nav-menu-btn" id="nav-menu-btn" aria-controls="nav-links" aria-expanded="false">MENU</button>
+  </div>
 </nav>
 
 <!-- ===== HERO: THE DECLARATION ===== -->
@@ -452,6 +479,15 @@ footer{padding:52px 5%;border-top:1px solid var(--ash);display:flex;align-items:
 window.addEventListener('scroll', () => {
   document.getElementById('site-nav').classList.toggle('scrolled', window.scrollY > 40);
 });
+
+// Phone and tablet menu
+(() => {
+  const nav = document.getElementById('site-nav'), btn = document.getElementById('nav-menu-btn');
+  const set = open => { nav.classList.toggle('nav-open', open); btn.setAttribute('aria-expanded', String(open)); btn.textContent = open ? 'CLOSE' : 'MENU'; };
+  btn.addEventListener('click', () => set(!nav.classList.contains('nav-open')));
+  document.getElementById('nav-links').addEventListener('click', e => { if (e.target.closest('a')) set(false); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') set(false); });
+})();
 
 // Scroll reveal
 if ('IntersectionObserver' in window) {
