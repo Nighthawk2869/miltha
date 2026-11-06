@@ -67,9 +67,14 @@ const KEY_PASSAGES = {
 
 // Manuscript notes — verses where KJV differs from earliest manuscripts
 const MS_NOTES = {
-  'john-7-53': 'MANUSCRIPT NOTE: This passage (John 7:53–8:11, the woman caught in adultery) does not appear in the Peshitta or the earliest Greek manuscripts (Papyrus 66, P75, Codex Sinaiticus, Codex Vaticanus). It is an early oral tradition not part of John\'s original composition.',
-  'john-5-4': 'MANUSCRIPT NOTE: The troubling of the water by an angel (v.4) is absent from the Peshitta and the earliest Greek manuscripts. It appears to be a scribal addition explaining the statement in v.7.',
-  '1john-5-7': 'MANUSCRIPT NOTE: The phrase "in heaven: the Father, the Word, and the Holy Ghost" (the Comma Johanneum) is absent from the Peshitta and from all Greek manuscripts before the 16th century. It was not in John\'s original letter. It first appears in a Latin translation. The earliest Greek MS containing it dates to 1520 AD.',
+  'john-7-53': 'MANUSCRIPT NOTE: This passage (John 7:53–8:11, the woman caught in adultery) is absent from the earliest Greek manuscripts (Papyrus 66, P75, Codex Sinaiticus, Codex Vaticanus) and from early Peshitta manuscripts. Printed Peshitta editions, like the Syriac text shown here, add it from later Syriac sources. Most scholars regard it as an early tradition that was not part of John\'s original composition.',
+  'john-5-4': 'MANUSCRIPT NOTE: The troubling of the water by an angel (v.4) is absent from the earliest Greek manuscripts (P66, P75, Codex Sinaiticus, Codex Vaticanus), though the Peshitta includes it. It appears to be a scribal addition explaining the statement in v.7.',
+  '1john-5-7': 'MANUSCRIPT NOTE: The phrase "in heaven: the Father, the Word, and the Holy Ghost" (the Comma Johanneum) is absent from the Peshitta and from almost every Greek manuscript; it is found in only a handful of late ones, the earliest from about the 14th century. It first appears in Latin writings and translations, and entered the printed Greek text in Erasmus\'s third edition (1522). Scholars widely conclude it was not in John\'s original letter.',
+  '2peter-1-1': 'MANUSCRIPT NOTE: 2 Peter is not part of the original Peshitta canon, which has 22 New Testament books. The Syriac text shown here comes from a later Syriac translation included in printed Peshitta editions.',
+  '2john-1-1': 'MANUSCRIPT NOTE: 2 John is not part of the original Peshitta canon, which has 22 New Testament books. The Syriac text shown here comes from a later Syriac translation included in printed Peshitta editions.',
+  '3john-1-1': 'MANUSCRIPT NOTE: 3 John is not part of the original Peshitta canon, which has 22 New Testament books. The Syriac text shown here comes from a later Syriac translation included in printed Peshitta editions.',
+  'jude-1-1': 'MANUSCRIPT NOTE: Jude is not part of the original Peshitta canon, which has 22 New Testament books. The Syriac text shown here comes from a later Syriac translation included in printed Peshitta editions.',
+  'revelation-1-1': 'MANUSCRIPT NOTE: Revelation is not part of the original Peshitta canon, which has 22 New Testament books. The Syriac text shown here comes from a later Syriac translation included in printed Peshitta editions.',
   'mark-16-9': 'MANUSCRIPT NOTE: Mark 16:9–20 (the "Long Ending") is absent from Codex Sinaiticus and Codex Vaticanus — the oldest complete New Testament manuscripts. Eusebius and Jerome acknowledge its absence in the best manuscripts of their time. The Peshitta includes it. Evidence suggests it is a later addition.'
 };
 
@@ -79,10 +84,10 @@ const VERSE_LOCATIONS = {
   'john-2-1':{name:'CANA OF GALILEE',lat:32.74,lng:35.34,note:'Site of the first miracle — water into wine (John 2:1-11)'},
   'john-3-1':{name:'JERUSALEM',lat:31.78,lng:35.24,note:'Where Nicodemus came to Jesus by night'},
   'john-4-5':{name:'SYCHAR, SAMARIA',lat:32.21,lng:35.27,note:'The woman at the well — Jacob\'s Well'},
-  'john-5-2':{name:'POOL OF BETHESDA',lat:31.78,lng:35.23,note:'Five porticoes confirmed by excavation — City of David, Jerusalem'},
+  'john-5-2':{name:'POOL OF BETHESDA',lat:31.78,lng:35.23,note:'Excavated beside St Anne\'s Church in the Old City — two pools whose layout many see as fitting John\'s five porticoes'},
   'john-6-1':{name:'SEA OF GALILEE',lat:32.82,lng:35.58,note:'Feeding of the five thousand — northeast shore'},
-  'john-6-59':{name:'CAPERNAUM',lat:32.88,lng:35.57,note:'The Bread of Life discourse — first-century synagogue excavated here'},
-  'john-9-7':{name:'POOL OF SILOAM',lat:31.77,lng:35.23,note:'Excavated 2004 — confirmed exactly as described in John 9'},
+  'john-6-59':{name:'CAPERNAUM',lat:32.88,lng:35.57,note:'The Bread of Life discourse — first-century synagogue foundations lie beneath the later synagogue'},
+  'john-9-7':{name:'POOL OF SILOAM',lat:31.77,lng:35.23,note:'Second Temple pool excavated in 2004 in the City of David'},
   'john-11-1':{name:'BETHANY',lat:31.77,lng:35.26,note:'Village of Mary, Martha, and Lazarus — 2 miles from Jerusalem'},
   'john-18-1':{name:'GARDEN OF GETHSEMANE',lat:31.78,lng:35.24,note:'At the foot of the Mount of Olives — where Jesus was arrested'},
   'john-19-17':{name:'GOLGOTHA',lat:31.78,lng:35.23,note:'The Place of the Skull — site of the crucifixion'},
