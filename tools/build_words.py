@@ -16,6 +16,8 @@ Output (all JSON, UTF-8):
   data/words/index.json              {"<book>": {"lang": "heb"|"gk", "chapters": n, "map": {"eng ch:v": "orig ch:v"}}}
   data/words/grammar-heb.json, grammar-gk.json   {code: plain-English explanation}
   data/lexicon/<H|G><nn>.json        {strongs: [lemma, translit, gloss, definition-html]}  nn = number // 100
+  data/bible/gk/<book>.json          the reader's Greek text, rebuilt from the TR words (accented).
+                                     Run tools/build_bible.py first: it writes the unaccented text this aligns to.
 
 Changes made to the STEPBible data (as its licence asks us to note):
   * Greek: words not in the Textus Receptus are left out; where the TR spells or words a form differently,
@@ -94,6 +96,13 @@ def tr_shift(eds):
         if m: return 0 if not m.group(1) else (-1 if m.group(1) == '«' else 1) * int(m.group(2))
     return None
 
+def clean_gk(form, strong=''):
+    # Drop the critical editions' [[ ]] brackets and STEPBible's paragraph/layout marks (¶ ¬).
+    form = re.sub(r'[\[\]¶¬]', '', form)
+    if strong.startswith('G1722') and form.startswith('ἕν'):   # "in" mis-breathed as "one" (1 John 5:7)
+        form = 'ἐν' + form[2:]
+    return form
+
 pending = defaultdict(list)    # (book, ch, v) -> [(word, shift, alt ref)] ; reordered to TR order at the end
 stats = defaultdict(int)
 for m, c in lines('Translators Amalgamated OT+NT/TAGNT*.txt'):
@@ -117,7 +126,7 @@ for m, c in lines('Translators Amalgamated OT+NT/TAGNT*.txt'):
             # Not in the TR according to STEPBible. Keep it as a candidate: it is used only if the reader's own
             # TR text has it at this point (e.g. Rev 5:11 "and the number of them was...", which the KJV has).
             used_strongs.add(strong)
-            w = [form, translit, eng, strong, gram, f'Not in every printed edition of the Textus Receptus ({re.sub(r"[«»]\d+", "", eds).replace("+", ", ")})']
+            w = [clean_gk(form, strong), translit, eng, strong, gram, f'Not in every printed edition of the Textus Receptus ({re.sub(r"[«»]\d+", "", eds).replace("+", ", ")})']
             pending[(b, ch, v)].append((w, 0, alt, True))
             stats['not in TR'] += 1; continue
         note = f'Other manuscripts ({re.sub(r"[«»]\d+", "", eds).replace("+", ", ")}): {form.strip(",.;·")} ({translit}) "{eng.strip(",.;:")}"'
@@ -128,7 +137,7 @@ for m, c in lines('Translators Amalgamated OT+NT/TAGNT*.txt'):
         stats['TR variant used'] += 1
         for k, (f_, t_, (st, gr)) in enumerate(zip(forms, translits, tags)):
             used_strongs.add(st)
-            w = [f_, t_, tr.group(3) if k == 0 else '', st, gr]
+            w = [clean_gk(f_, st), t_, tr.group(3) if k == 0 else '', st, gr]
             if k == 0: w.append(note)
             pending[(b, ch, v)].append((w, shift if k == 0 else 0, alt, False))
         continue
@@ -140,7 +149,7 @@ for m, c in lines('Translators Amalgamated OT+NT/TAGNT*.txt'):
             note = 'Other manuscripts: ' + re.sub(r'\s*¦\s*', '; ', meaning_var)
         stats['TR'] += 1
     used_strongs.add(strong)
-    w = [form, translit, eng, strong, gram]
+    w = [clean_gk(form, strong), translit, eng, strong, gram]
     if note: w.append(note)
     pending[(b, ch, v)].append((w, shift, alt, False))
 
@@ -198,6 +207,22 @@ for b in IDS:
     if vmap[b]: index[b]['map'] = vmap[b]
 with open(os.path.join(OUT_W, 'index.json'), 'w', encoding='utf-8') as f:
     json.dump(index, f, separators=(',', ':'))
+
+# ---------------- accented Greek for the reader ----------------
+# The reader's Greek (data/bible/gk) is rebuilt from these TR words, so it is accented and punctuated.
+# Verse counts stay those of the reader's existing text; a verse with no words keeps its old text.
+gk_dir = os.path.join(ROOT, 'data', 'bible', 'gk')
+for b in IDS[39:]:
+    path = os.path.join(gk_dir, b + '.json')
+    old_text = json.load(open(path, encoding='utf-8'))
+    new_text = []
+    for ci, verses in enumerate(old_text, 1):
+        wv = words[b].get(str(ci), {})
+        new_text.append([' '.join(w[0] for w in wv[str(vi)]) if wv.get(str(vi)) else t
+                         for vi, t in enumerate(verses, 1)])
+    with open(path, 'w', encoding='utf-8') as f:
+        json.dump(new_text, f, ensure_ascii=False, separators=(',', ':'))
+print('reader Greek rebuilt for', len(IDS[39:]), 'books')
 
 # ---------------- grammar explanations ----------------
 def tidy_gram(s):
