@@ -140,6 +140,7 @@
 
     <div class="source-note">
       Hebrew and Greek words, grammar and dictionary entries: <a href="https://STEPBible.github.io/STEPBible-Data" target="_blank" rel="noopener">STEPBible.org</a>, based on work at Tyndale House, Cambridge (CC BY 4.0).
+      Septuagint: Swete's edition as transcribed by the Open Greek and Latin project (<a href="https://github.com/nathans/lxx-swete" target="_blank" rel="noopener">CC BY-SA 4.0</a>). Peshitta Old Testament: Leiden Peshitta Institute edition, digitised by the ETCBC (<a href="https://github.com/ETCBC/peshitta" target="_blank" rel="noopener">CC BY-NC 4.0</a>).
       The Old Testament follows the Leningrad Codex; the New Testament follows the Textus Receptus, the Greek text behind the King James Version, with other manuscript readings noted on each word.
     </div>
   </div>
@@ -259,7 +260,8 @@ async function go(r,push=true){
   }
   const curated=r.book.id==='john'&&r.ch===1&&r.v===1;
   const tabs=[{id:'orig',label:lang==='heb'?(isAramaic(verseWords)?'ܐ BIBLICAL ARAMAIC':'א HEBREW'):'Α GREEK'}];
-  if(lang==='gk')tabs.push({id:'ara',label:'ܐ ARAMAIC PESHITTA'});
+  tabs.push({id:'ara',label:'ܐ ARAMAIC PESHITTA'});
+  if(lang==='heb'&&r.book.id!=='ecclesiastes')tabs.push({id:'lxx',label:'Α GREEK SEPTUAGINT'});
   if(curated)tabs.push({id:'heb-nt',label:'א HEBREW (DELITZSCH)'});
   if(!tabs.find(t=>t.id===tab))tab='orig';
   $('lang-tabs').innerHTML=tabs.map(t=>`<button type="button" class="lang-tab ${t.id===tab?'active':''}" data-tab="${t.id}">${t.label}</button>`).join('');
@@ -290,7 +292,7 @@ async function render(){
     const [oc,ov]=origRef(r.book,r.ch,r.v);
     if(oc!==r.ch||ov!==r.v)$('row-note').textContent=`In the ${lang==='heb'?'Hebrew':'Greek'} Bible this is numbered ${oc}:${ov}.`;
   }else if(tab==='ara'){
-    setRef(`${refLabel(r)} · ARAMAIC · SYRIAC PESHITTA`);
+    setRef(`${refLabel(r)} · ARAMAIC · SYRIAC PESHITTA${r.book.testament==='ot'?' (OLD TESTAMENT)':''}`);
     row.classList.add('rtl');
     const cw=WBW_DATA.ara;
     if(r.book.id==='john'&&r.ch===1&&r.v===1){
@@ -302,7 +304,14 @@ async function render(){
     try{text=(await getJSON(`data/bible/ara/${r.book.id}.json`))[r.ch-1]?.[r.v-1]||'';}catch(e){}
     if(r!==cur||tab!=='ara')return;
     row.innerHTML=text?text.split(/\s+/).map((w,i)=>`<span class="word-token plain"><span class="token-num">${i+1}</span><span class="token-orig syr">${esc(w)}</span></span>`).join(''):'<div class="status">NOT PRESENT IN THE PESHITTA</div>';
-    $('row-note').textContent='Word-by-word grammar for the Aramaic Peshitta is not available yet. The Greek tab has every word fully explained.';
+    $('row-note').textContent=`Word-by-word grammar for the Aramaic Peshitta is not available yet. The ${r.book.testament==='ot'?'Hebrew':'Greek'} tab has every word fully explained.`;
+  }else if(tab==='lxx'){
+    setRef(`${refLabel(r)} · GREEK · SEPTUAGINT (SWETE)`);
+    let text='';
+    try{text=(await getJSON(`data/bible/lxx/${r.book.id}.json`))[r.ch-1]?.[r.v-1]||'';}catch(e){}
+    if(r!==cur||tab!=='lxx')return;
+    row.innerHTML=text?text.split(/\s+/).map((w,i)=>`<span class="word-token plain"><span class="token-num">${i+1}</span><span class="token-orig">${esc(w)}</span></span>`).join(''):'<div class="status">NOT PRESENT IN THE SEPTUAGINT</div>';
+    $('row-note').textContent='The Greek translation of the Old Testament made before Christ and often quoted in the New Testament. Word-by-word grammar for it is not available yet; the Hebrew tab has every word fully explained.';
   }else if(tab==='heb-nt'){
     const cw=WBW_DATA.heb;
     setRef(cw.ref);row.classList.add('rtl');

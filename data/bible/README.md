@@ -9,7 +9,11 @@ github.com/scrollmapper/bible_databases (MIT licence; underlying texts are publi
 | `ylt` | Young's Literal Translation (1898) | 66 |
 | `heb` | Hebrew, Westminster Leningrad Codex | 39 (OT) |
 | `gk`  | Greek Textus Receptus, accented — rebuilt by `tools/build_words.py` from STEPBible's TAGNT (CC BY 4.0), following the TR as the KJV translated it | 27 (NT) |
-| `ara` | Syriac Peshitta, unpointed | 27 (NT) |
+| `ara` | Syriac Peshitta, unpointed. New Testament from scrollmapper; Old Testament from the Leiden Peshitta Institute edition via github.com/ETCBC/peshitta (**CC BY-NC 4.0**), built by `tools/build_peshitta_ot.py` | 66 |
+| `lxx` | Septuagint (Greek Old Testament), Swete's edition via github.com/nathans/lxx-swete (**CC BY-SA 4.0** — these files carry the same licence), renumbered to the KJV with STEPBible's TVTMS (CC BY 4.0) by `tools/build_lxx.py`. Ecclesiastes was never transcribed. | 38 (OT) |
 
-Each file is an array of chapters; each chapter is an array of verse strings.
+Each file is an array of chapters; each chapter is an array of verse strings. `lxx` and the Old Testament
+`ara` files use the KJV's chapters and verses, with "" where that text has nothing for a KJV verse.
+
+Build order: `build_bible.py`, then `build_words.py`, then `build_lxx.py` and `build_peshitta_ot.py`.
 `index.json` holds verse counts per chapter for each text.
