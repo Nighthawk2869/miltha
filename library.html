@@ -37,7 +37,43 @@
 .lib-empty{text-align:center;padding:60px 20px}
 .lib-empty-ara{font-family:serif;font-size:28px;color:var(--gold);opacity:.13;margin-bottom:12px}
 .lib-empty-txt{font-family:'Cinzel',serif;font-size:21px;letter-spacing:.18em;color:var(--cream);opacity:.75;line-height:1.8}
-@media(max-width:768px){.lib-layout{grid-template-columns:1fr}.lib-left{border-right:none;border-bottom:1px solid var(--ash);max-height:200px;overflow-y:auto}}
+.lfb-count{font-family:'Cinzel',serif;font-size:13px;letter-spacing:.14em;color:var(--cream);opacity:.6}
+.lib-section-label{font-family:'Cinzel',serif;font-size:14px;letter-spacing:.28em;color:var(--gold);opacity:.85;margin:26px 0 12px}
+.work-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px}
+.work-card{display:block;text-align:left;background:var(--parchment);border:1px solid var(--ash);padding:16px 18px;cursor:pointer;color:inherit;font:inherit;transition:all .18s}
+.work-card:hover{border-color:var(--gold);background:rgba(201,169,110,.05)}
+.wc-title{font-size:22px;color:var(--white);line-height:1.3;margin-bottom:6px}
+.wc-meta{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.12em;color:var(--gold);opacity:.8}
+.reader-back{font-family:'Cinzel',serif;font-size:13px;letter-spacing:.16em;color:var(--gold);background:none;border:none;cursor:pointer;padding:0;margin-bottom:16px;opacity:.85}
+.reader-back:hover{opacity:1}
+.reader-title{font-family:'Cinzel',serif;font-size:clamp(22px,3vw,32px);letter-spacing:.06em;color:var(--pure);line-height:1.3;margin-bottom:6px}
+.reader-meta{font-family:'Cinzel',serif;font-size:13px;letter-spacing:.14em;color:var(--gold);opacity:.85;margin-bottom:18px}
+.reader-nav{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:22px;padding-bottom:16px;border-bottom:1px solid var(--ash)}
+.reader-nav select{flex:1;min-width:0;max-width:100%;background:var(--stone);border:1px solid var(--ash2);color:var(--gold);font-family:'Cormorant Garamond',serif;font-size:19px;padding:8px 10px}
+.reader-nav button{font-family:'Cinzel',serif;font-size:14px;padding:9px 14px;background:none;border:1px solid var(--ash2);color:var(--cream);cursor:pointer}
+.reader-nav button:hover:not(:disabled){border-color:var(--gold);color:var(--gold)}
+.reader-nav button:disabled{opacity:.25;cursor:default}
+.chapter-title{font-family:'Cinzel',serif;font-size:18px;letter-spacing:.08em;color:var(--gold);line-height:1.5;margin-bottom:18px}
+.chapter-text p{font-size:22px;line-height:1.85;color:var(--white);opacity:.92;margin-bottom:18px}
+.chapter-text p.hit{background:rgba(201,169,110,.12);outline:1px solid rgba(201,169,110,.35);outline-offset:6px}
+.chapter-text mark,.search-hit mark{background:rgba(201,169,110,.35);color:var(--pure);padding:0 2px}
+.reader-source{margin-top:30px;padding-top:14px;border-top:1px solid var(--ash);font-size:15px;color:var(--cream);opacity:.7;line-height:1.6}
+.reader-source a{color:var(--gold)}
+.search-status{font-family:'Cinzel',serif;font-size:13px;letter-spacing:.14em;color:var(--gold);opacity:.85;margin-bottom:14px}
+.search-hit{display:block;width:100%;text-align:left;background:var(--parchment);border:1px solid var(--ash);padding:14px 16px;margin-bottom:5px;cursor:pointer;color:inherit;font:inherit}
+.search-hit:hover{border-color:var(--gold)}
+.sh-where{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.12em;color:var(--gold);opacity:.85;margin-bottom:6px}
+.sh-text{font-size:19px;line-height:1.6;color:var(--cream);opacity:.9}
+.lib-search-all{display:block;width:100%;margin-top:8px;font-family:'Cinzel',serif;font-size:12px;letter-spacing:.14em;padding:9px 6px;background:none;border:1px solid var(--ash2);color:var(--gold);cursor:pointer}
+.lib-search-all:hover{border-color:var(--gold)}
+.lib-intro{font-size:20px;line-height:1.75;color:var(--cream);opacity:.9}
+@media(max-width:768px){
+  .lib-layout{grid-template-columns:1fr}
+  .lib-left{border-right:none;border-bottom:1px solid var(--ash);max-height:260px;overflow-y:auto}
+  .lib-main{padding:22px 16px}
+  .lfb-name{font-size:18px}.lfb-dates{font-size:14px}
+  .chapter-text p{font-size:20px}
+}
 </style>
 </head>
 <body>
@@ -67,15 +103,16 @@
     <div class="lib-layout">
       <div class="lib-left">
         <div class="lib-search-wrap">
-          <input class="lib-search" type="text" placeholder="Search fathers..." oninput="filterFathers(this.value)">
+          <form id="lib-search-form"><input class="lib-search" id="lib-search" type="search" placeholder="Search the Fathers…" aria-label="Search the Church Fathers' writings"></form>
+          <button type="button" class="lib-search-all" id="lib-search-all">SEARCH ALL WRITINGS</button>
         </div>
-        <div class="lib-era-label">ANTE-NICENE FATHERS</div>
+        <div class="lib-era-label">THE EARLIEST WRITINGS · TO c. AD 220</div>
         <div id="lib-father-list"></div>
       </div>
       <div class="lib-main" id="lib-main">
         <div class="lib-empty">
           <div class="lib-empty-ara">ܡܸܠܬ݂ܵܐ</div>
-          <div class="lib-empty-txt">SELECT A CHURCH FATHER<br>TO READ THEIR WRITINGS</div>
+          <div class="lib-empty-txt">LOADING THE LIBRARY…</div>
         </div>
       </div>
     </div>
@@ -122,50 +159,162 @@ const FATHERS=[
   ]}
 ];
 
-let filteredFathers=[...FATHERS],activeFatherIndex=null;
+/* The full texts are in data/library (built by tools/build_library.py). */
+const FATHER_IDS={'IGNATIUS OF ANTIOCH':'ignatius','POLYCARP OF SMYRNA':'polycarp','JUSTIN MARTYR':'justin','IRENAEUS OF LYON':'irenaeus','TERTULLIAN':'tertullian','CLEMENT OF ALEXANDRIA':'clement-of-alexandria'};
+const $=id=>document.getElementById(id);
+const esc=t=>String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const cache={};
+function getJSON(u){if(!cache[u])cache[u]=fetch(u).then(r=>{if(!r.ok)throw new Error(r.status);return r.json();}).catch(e=>{delete cache[u];throw e;});return cache[u];}
+let AUTHORS=[], WORKS={}, activeAuthor=null, filter='', searchToken=0, openWork=null, openCh=1;
 
-function renderFatherList(){
-  document.getElementById('lib-father-list').innerHTML=filteredFathers.map(f=>{
-    const idx=FATHERS.indexOf(f);
-    return `<div class="lib-father-btn ${activeFatherIndex===idx?'active':''}" onclick="openFather(${idx})">
-      <div class="lfb-name">${f.name}</div>
-      <div class="lfb-dates">${f.dates}</div>
-      <div class="lfb-preview">${f.connection}</div>
-    </div>`;
-  }).join('');
+function fatherInfo(a){return FATHERS.find(f=>FATHER_IDS[f.name]===a.id)||null;}
+function readingTime(words){const m=Math.round(words/230);return m<60?`${Math.max(1,m)} MIN`:`${Math.round(m/6)/10} HR`;}
+
+function renderList(){
+  const q=filter.trim().toLowerCase();
+  const list=AUTHORS.filter(a=>!q||a.name.toLowerCase().includes(q)||a.works.some(w=>w.title.toLowerCase().includes(q)));
+  $('lib-father-list').innerHTML=list.map(a=>`<div class="lib-father-btn ${activeAuthor===a.id?'active':''}" data-author="${a.id}" role="button" tabindex="0">
+      <div class="lfb-name">${esc(a.name)}</div>
+      <div class="lfb-dates">${esc(a.dates)}</div>
+      <div class="lfb-count">${a.works.length} ${a.works.length===1?'WORK':'WORKS'}</div>
+    </div>`).join('')||'<div class="lib-era-label">NO MATCHES — TRY “SEARCH ALL WRITINGS”</div>';
 }
 
-function filterFathers(q){
-  filteredFathers=FATHERS.filter(f=>f.name.toLowerCase().includes(q.toLowerCase())||f.bio.toLowerCase().includes(q.toLowerCase()));
-  renderFatherList();
+function showHome(){
+  activeAuthor=null;renderList();
+  const total=AUTHORS.reduce((n,a)=>n+a.works.length,0);
+  $('lib-main').innerHTML=`<div class="lib-fd-header"><div class="lib-fd-name">THE WRITINGS OF THE EARLY CHURCH</div>
+      <div class="lib-fd-dates">${total} WORKS · FROM c. AD 96 TO c. AD 220</div>
+      <div class="lib-fd-bio">The complete surviving writings of the earliest Christian teachers after the Apostles — in their own words, without modern commentary. Choose a writer to begin, or search every work at once.</div></div>
+    <div class="lib-section-label">WHERE TO BEGIN</div>
+    <div class="work-list">${['1-clement','didache','ign-romans','polycarp-philippians','martyrdom-of-polycarp','diognetus'].map(id=>workCard(WORKS[id])).join('')}</div>`;
+}
+function workCard(w){
+  if(!w)return '';
+  return `<button type="button" class="work-card" data-work="${w.id}"><div class="wc-title">${esc(w.title)}</div>
+    <div class="wc-meta">${esc(authorOf(w).name)} · ${esc(w.date.toUpperCase())} · ${w.chapters.length} ${w.chapters.length===1?'SECTION':'CHAPTERS'} · ${readingTime(w.words)}</div></button>`;
+}
+function authorOf(w){return AUTHORS.find(a=>a.id===w.author);}
+
+function showAuthor(id){
+  const a=AUTHORS.find(x=>x.id===id);if(!a)return showHome();
+  activeAuthor=id;renderList();
+  const f=fatherInfo(a);
+  history.replaceState(null,'','#'+id);
+  $('lib-main').innerHTML=`<div class="lib-fd-header">
+      <div class="lib-fd-name">${esc(a.name)}</div>
+      <div class="lib-fd-dates">${esc(a.dates)}${f?' · '+esc(f.connection):''}</div>
+      <div class="lib-fd-bio">${esc(f?f.bio:a.note)}</div></div>
+    <div class="lib-section-label">WRITINGS · READ IN FULL</div>
+    <div class="work-list">${a.works.map(workCard).join('')}</div>
+    ${f&&f.quotes.length?`<div class="lib-section-label">SELECTED QUOTES</div>${f.quotes.map((q,qi)=>`
+      <div class="lib-quote"><div class="lq-source">${esc(q.source)}</div><div class="lq-text">"${esc(q.text)}"</div>
+      ${q.greek?`<div class="lq-greek" id="gk-${qi}">${esc(q.greek)}</div><button type="button" class="lq-toggle" data-greek="${qi}">SHOW ORIGINAL GREEK ↓</button>`:''}</div>`).join('')}`:''}`;
+  $('lib-main').scrollTop=0;
 }
 
-function openFather(i){
-  activeFatherIndex=i;
-  const f=FATHERS[i];
-  document.getElementById('lib-main').innerHTML=`
-    <div class="lib-fd-header">
-      <div class="lib-fd-name">${f.name}</div>
-      <div class="lib-fd-dates">${f.dates} · ${f.connection}</div>
-      <div class="lib-fd-bio">${f.bio}</div>
+async function showWork(id,ch=1,hitText=''){
+  const meta=WORKS[id];if(!meta)return showHome();
+  activeAuthor=meta.author;renderList();
+  $('lib-main').innerHTML='<div class="lib-empty"><div class="lib-empty-txt">OPENING…</div></div>';
+  let w;
+  try{w=await getJSON(`data/library/${id}.json`);}
+  catch(e){$('lib-main').innerHTML='<div class="lib-empty"><div class="lib-empty-txt">THIS WORK COULD NOT BE LOADED.<br>CHECK YOUR CONNECTION AND TRY AGAIN.</div></div>';return;}
+  ch=Math.min(Math.max(1,ch),w.chapters.length);
+  history.replaceState(null,'','#'+id+'/'+ch);
+  const c=w.chapters[ch-1], a=authorOf(meta);
+  const words=hitText?hitText.toLowerCase().split('|').filter(Boolean):[];
+  const paras=c.p.map(p=>{
+    const hit=words.length&&words.every(x=>p.toLowerCase().replace(/\s+/g,' ').includes(x));
+    let h=esc(p);
+    if(hit)words.forEach(x=>{h=h.replace(new RegExp('('+x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark>$1</mark>');});
+    return `<p class="${hit?'hit':''}">${h}</p>`;}).join('');
+  $('lib-main').innerHTML=`<button type="button" class="reader-back" data-author="${a.id}">← ${esc(a.name)}</button>
+    <div class="reader-title">${esc(w.title)}</div>
+    <div class="reader-meta">${esc(a.name)} · ${esc(w.date.toUpperCase())}</div>
+    <div class="reader-nav">
+      <button type="button" data-step="-1" ${ch<=1?'disabled':''} aria-label="Previous chapter">←</button>
+      <select id="chapter-select" aria-label="Chapter">${w.chapters.map((x,i)=>`<option value="${i+1}" ${i+1===ch?'selected':''}>${esc(x.t)}</option>`).join('')}</select>
+      <button type="button" data-step="1" ${ch>=w.chapters.length?'disabled':''} aria-label="Next chapter">→</button>
     </div>
-    ${f.quotes.map((q,qi)=>`
-      <div class="lib-quote">
-        <div class="lq-source">${q.source}</div>
-        <div class="lq-text">"${q.text}"</div>
-        ${q.greek?`<div class="lq-greek" id="gk-${i}-${qi}">${q.greek}</div><button class="lq-toggle" onclick="toggleGreek(${i},${qi})">SHOW ORIGINAL GREEK ↓</button>`:''}
-      </div>`).join('')}`;
-  renderFatherList();
+    <div class="chapter-title">${esc(c.t)}</div>
+    <div class="chapter-text">${paras}</div>
+    <div class="reader-nav" style="border:none;margin-top:10px">
+      <button type="button" data-step="-1" ${ch<=1?'disabled':''}>← PREVIOUS</button>
+      <span style="flex:1"></span>
+      <button type="button" data-step="1" ${ch>=w.chapters.length?'disabled':''}>NEXT →</button>
+    </div>
+    <div class="reader-source">Translation: ${esc(w.source)}. Only the author's own words are shown; the editors' introductions and notes are left out.</div>`;
+  openWork=id;openCh=ch;
+  const first=$('lib-main').querySelector('p.hit');
+  if(first)setTimeout(()=>first.scrollIntoView({block:'center',behavior:'smooth'}),60);
+  else{$('lib-main').scrollTop=0;if(window.innerWidth<=768)$('lib-main').scrollIntoView({block:'start'});}
 }
 
-function toggleGreek(fi,qi){
-  const el=document.getElementById(`gk-${fi}-${qi}`);
-  const btn=el.nextElementSibling;
-  el.classList.toggle('visible');
-  btn.textContent=el.classList.contains('visible')?'HIDE ORIGINAL GREEK ↑':'SHOW ORIGINAL GREEK ↓';
+async function searchAll(q){
+  q=q.trim();if(q.length<3){showToast('TYPE AT LEAST 3 LETTERS TO SEARCH');return;}
+  const token=++searchToken, phrase=q.toLowerCase().replace(/\s+/g,' ');
+  let words=[phrase], mode='phrase';
+  activeAuthor=null;renderList();
+  $('lib-main').innerHTML=`<div class="search-status" id="search-status">SEARCHING EVERY WORK FOR “${esc(q.toUpperCase())}”…</div><div id="search-results"></div>`;
+  const ids=Object.keys(WORKS);let found=0,done=0;const LIMIT=150;
+  for(let pass=0;pass<2;pass++){
+  if(pass===1){
+    if(found||!phrase.includes(' '))break;
+    mode='words';words=phrase.split(' ').filter(x=>x.length>2&&!['the','and','that','for','with','his','who','was','not','but','are','unto'].includes(x));
+    if(!words.length)break;done=0;
+  }
+  for(const id of ids){
+    let w;try{w=await getJSON(`data/library/${id}.json`);}catch(e){continue;}
+    if(token!==searchToken)return;
+    done++;
+    let html='';
+    w.chapters.forEach((c,ci)=>c.p.forEach(p=>{
+      if(found>=LIMIT)return;
+      const low=p.toLowerCase().replace(/\s+/g,' ');
+      if(!words.every(x=>low.includes(x)))return;
+      found++;
+      const at=low.indexOf(words[0]),start=Math.max(0,at-120);
+      let snip=(start>0?'…':'')+p.slice(start,start+300)+(start+300<p.length?'…':'');
+      let h=esc(snip);words.forEach(x=>{h=h.replace(new RegExp('('+x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark>$1</mark>');});
+      html+=`<button type="button" class="search-hit" data-work="${id}" data-ch="${ci+1}" data-q="${esc(words.join('|'))}"><div class="sh-where">${esc(authorOf(WORKS[id]).name)} · ${esc(w.title)} · ${esc(c.t)}</div><div class="sh-text">${h}</div></button>`;
+    }));
+    if(html)$('search-results').insertAdjacentHTML('beforeend',html);
+    $('search-status').textContent=`${found>=LIMIT?'FIRST '+LIMIT:found} ${found===1?'PASSAGE':'PASSAGES'} FOR “${q.toUpperCase()}” · SEARCHED ${done} OF ${ids.length} WORKS${done<ids.length?'…':''}`;
+    if(found>=LIMIT)break;
+  }
+  }
+  if(token===searchToken&&found&&mode==='words')$('search-status').textContent+=' · NO EXACT PHRASE FOUND, SHOWING PASSAGES WITH ALL THESE WORDS';
+  if(token===searchToken&&!found)$('search-results').innerHTML='<div class="lib-intro">No passage contains all of those words. Try fewer or different words.</div>';
 }
 
-renderFatherList();
+$('lib-father-list').addEventListener('click',e=>{const b=e.target.closest('[data-author]');if(b)showAuthor(b.dataset.author);});
+$('lib-father-list').addEventListener('keydown',e=>{if(e.key==='Enter'){const b=e.target.closest('[data-author]');if(b)showAuthor(b.dataset.author);}});
+$('lib-main').addEventListener('click',e=>{
+  const g=e.target.closest('[data-greek]');
+  if(g){const el=$('gk-'+g.dataset.greek);el.classList.toggle('visible');g.textContent=el.classList.contains('visible')?'HIDE ORIGINAL GREEK ↑':'SHOW ORIGINAL GREEK ↓';return;}
+  const hit=e.target.closest('.search-hit');
+  if(hit){showWork(hit.dataset.work,+hit.dataset.ch,hit.dataset.q);return;}
+  const s=e.target.closest('[data-step]');if(s&&openWork){showWork(openWork,openCh+ +s.dataset.step);return;}
+  const w=e.target.closest('.work-card');if(w){showWork(w.dataset.work,1);return;}
+  const a=e.target.closest('[data-author]');if(a){showAuthor(a.dataset.author);return;}
+});
+$('lib-main').addEventListener('change',e=>{if(e.target.id==='chapter-select'&&openWork)showWork(openWork,+e.target.value);});
+$('lib-search').addEventListener('input',e=>{filter=e.target.value;renderList();});
+$('lib-search-form').addEventListener('submit',e=>{e.preventDefault();searchAll($('lib-search').value);});
+$('lib-search-all').addEventListener('click',()=>searchAll($('lib-search').value));
+
+function route(){
+  const [id,ch]=decodeURIComponent(location.hash.slice(1)).split('/');
+  if(WORKS[id])showWork(id,parseInt(ch)||1);
+  else if(AUTHORS.some(a=>a.id===id))showAuthor(id);
+  else showHome();
+}
+window.addEventListener('hashchange',()=>{if(AUTHORS.length)route();});
+getJSON('data/library/index.json').then(idx=>{
+  AUTHORS=idx;idx.forEach(a=>a.works.forEach(w=>{WORKS[w.id]=w;}));
+  renderList();route();
+}).catch(()=>{$('lib-main').innerHTML='<div class="lib-empty"><div class="lib-empty-txt">THE LIBRARY COULD NOT BE LOADED.<br>CHECK YOUR CONNECTION AND TRY AGAIN.</div></div>';});
 </script>
 </body>
 </html>
