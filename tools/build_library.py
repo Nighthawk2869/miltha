@@ -15,6 +15,9 @@ Only the Fathers' own words are kept: the editors' introductions, notes, footnot
 Output:
   data/library/index.json        authors -> works -> chapter titles (for the table of contents)
   data/library/<work-id>.json    {"id", "title", "author", "date", "source", "chapters": [{"t": title, "p": [para, ...]}]}
+  data/fathers-refs/<book>/<ch>.json  {"<verse>": [[work id, chapter no., paragraph no., excerpt], ...]}
+                                 — where the Fathers quote or allude to each verse, from the Bible references
+                                 the 1885 editors marked (Lightfoot's edition marks none, so it is not indexed).
 """
 import html, json, os, re, sys
 from lxml import etree
@@ -97,24 +100,44 @@ def fix_text(t):
     return t
 
 
-def text_of(p):
-    """Paragraph text without footnotes, index markers or page breaks."""
-    for bad in p.xpath('.//note|.//index|.//pb'):
-        tail = bad.tail
-        parent = bad.getparent()
-        prev = bad.getprevious()
-        if tail:
-            if prev is not None:
-                prev.tail = (prev.tail or '') + tail
-            else:
-                parent.text = (parent.text or '') + tail
-        parent.remove(bad)
-    t = ''.join(p.itertext())
-    t = re.sub(r'\s+', ' ', t).strip()
-    t = re.sub(r'\s+([,.;:?!])', r'\1', t)
+def text_of(p, refs=None):
+    """Paragraph text without footnotes, index markers or page breaks.
+    If `refs` is a list, the Bible references marked in the paragraph (in its notes or inline)
+    are appended to it as (character position in the returned text, OSIS reference)."""
+    parts, marks = [], []
+
+    def walk(e, top=False):
+        tag = e.tag if isinstance(e.tag, str) else ''
+        if tag == 'note':
+            for sr in e.iter('scripRef'):
+                if sr.get('osisRef'):
+                    marks.append((''.join(parts), sr.get('osisRef')))
+        elif tag in ('index', 'pb') or not tag:
+            pass
+        else:
+            if e.text:
+                parts.append(e.text)
+            for c in e:
+                walk(c)
+            if tag == 'scripRef' and e.get('osisRef'):
+                marks.append((''.join(parts), e.get('osisRef')))
+        if not top and e.tail:
+            parts.append(e.tail)
+
+    walk(p, top=True)
+
+    def clean(t, final):
+        t = re.sub(r'\s+', ' ', t)
+        t = t.strip() if final else t.lstrip()
+        return re.sub(r'\s+([,.;:?!])', r'\1', t)
+    t = clean(''.join(parts), True)
     if re.match(r'^\[Translated by', t):           # translator credit, not the Father's words
         return ''
-    return fix_text(t)
+    t = fix_text(t)
+    if refs is not None:
+        for prefix, osis in marks:
+            refs.append((min(len(fix_text(clean(prefix, False))), len(t)), osis))
+    return t
 
 
 def parse(path):
@@ -131,13 +154,18 @@ def leaf_chapters(div, prefix=''):
     """Chapters = the deepest divs that hold paragraphs; part titles (e.g. 'Book III') are prefixed."""
     chapters = []
     kids = [k for k in div if isinstance(k.tag, str) and re.match(r'div\d', k.tag)]
-    own_paras = [text_of(p) for p in div if isinstance(p.tag, str) and p.tag == 'p']
-    own_paras = [p for p in own_paras if p]
+    own_paras, own_refs = [], []
+    for p in div:
+        if isinstance(p.tag, str) and p.tag == 'p':
+            r = []
+            t = text_of(p, r)
+            if t:
+                own_paras.append(t); own_refs.append(r)
     title = clean_title(div.get('title', ''))
     if own_paras and not kids:
-        return [{'t': (prefix + ' · ' if prefix else '') + title, 'p': own_paras}]
+        return [{'t': (prefix + ' · ' if prefix else '') + title, 'p': own_paras, '_r': own_refs}]
     if own_paras:
-        chapters.append({'t': (prefix + ' · ' if prefix else '') + title, 'p': own_paras})
+        chapters.append({'t': (prefix + ' · ' if prefix else '') + title, 'p': own_paras, '_r': own_refs})
     for k in kids:
         kt = clean_title(k.get('title', ''))
         if SKIP_TITLE.search(kt):
@@ -174,13 +202,81 @@ def lightfoot_work(raw, div_title):
     return [c for c in chapters if c['p']]
 
 
+OSIS = {'Gen': 'genesis', 'Exod': 'exodus', 'Lev': 'leviticus', 'Num': 'numbers', 'Deut': 'deuteronomy',
+        'Josh': 'joshua', 'Judg': 'judges', 'Ruth': 'ruth', '1Sam': '1samuel', '2Sam': '2samuel', '1Kgs': '1kings',
+        '2Kgs': '2kings', '1Chr': '1chronicles', '2Chr': '2chronicles', 'Ezra': 'ezra', 'Neh': 'nehemiah',
+        'Esth': 'esther', 'Job': 'job', 'Ps': 'psalms', 'Prov': 'proverbs', 'Eccl': 'ecclesiastes', 'Song': 'song',
+        'Isa': 'isaiah', 'Jer': 'jeremiah', 'Lam': 'lamentations', 'Ezek': 'ezekiel', 'Dan': 'daniel', 'Hos': 'hosea',
+        'Joel': 'joel', 'Amos': 'amos', 'Obad': 'obadiah', 'Jonah': 'jonah', 'Mic': 'micah', 'Nah': 'nahum',
+        'Hab': 'habakkuk', 'Zeph': 'zephaniah', 'Hag': 'haggai', 'Zech': 'zechariah', 'Mal': 'malachi',
+        'Matt': 'matthew', 'Mark': 'mark', 'Luke': 'luke', 'John': 'john', 'Acts': 'acts', 'Rom': 'romans',
+        '1Cor': '1corinthians', '2Cor': '2corinthians', 'Gal': 'galatians', 'Eph': 'ephesians', 'Phil': 'philippians',
+        'Col': 'colossians', '1Thess': '1thessalonians', '2Thess': '2thessalonians', '1Tim': '1timothy',
+        '2Tim': '2timothy', 'Titus': 'titus', 'Phlm': 'philemon', 'Heb': 'hebrews', 'Jas': 'james', '1Pet': '1peter',
+        '2Pet': '2peter', '1John': '1john', '2John': '2john', '3John': '3john', 'Jude': 'jude', 'Rev': 'revelation'}
+
+
+def osis_verses(osis):
+    """'Bible:Matt.5.3' -> [('matthew', 5, 3)]; short ranges give each verse, long ranges just the first."""
+    m = re.match(r'^Bible:(\w+)\.(\d+)\.(\d+)(?:-(?:\w+)\.(\d+)\.(\d+))?$', osis)
+    if not m or m.group(1) not in OSIS:
+        return []
+    b, c, v = OSIS[m.group(1)], int(m.group(2)), int(m.group(3))
+    if m.group(4) and int(m.group(4)) == c and 0 < int(m.group(5)) - v <= 3:
+        return [(b, c, x) for x in range(v, int(m.group(5)) + 1)]
+    return [(b, c, v)]
+
+
+def excerpt(text, anchor, size=260):
+    """The words leading up to a reference mark (the quotation it annotates), at word boundaries."""
+    end = anchor if anchor > 40 else min(len(text), size)
+    start = max(0, end - size)
+    if start:
+        sp = text.find(' ', start)
+        start = sp + 1 if 0 <= sp < end else start
+    cut = text[start:end].strip()
+    if end < len(text):
+        cut = re.sub(r'[\s,;:]+$', '', cut)
+    return ('…' if start else '') + cut + ('…' if end < len(text) else '')
+
+
+def write_verse_refs(verse_refs, works):
+    """data/fathers-refs/<book>/<chapter>.json: {"<verse>": [[work id, chapter, paragraph, excerpt], ...]}"""
+    out = os.path.join(OUT, '..', 'fathers-refs')
+    order = {w['id']: i for i, w in enumerate(works)}
+    total = 0
+    for book, chapters in verse_refs.items():
+        os.makedirs(os.path.join(out, book), exist_ok=True)
+        for ch, verses in chapters.items():
+            data = {}
+            for v in sorted(verses):
+                items = sorted(verses[v], key=lambda x: (order[x[0]], x[1], x[2]))
+                data[str(v)] = [list(x) for x in items]
+                total += len(items)
+            with open(os.path.join(out, book, f'{ch}.json'), 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, separators=(',', ':'))
+    names = {a['id']: a['name'] for a in AUTHORS}
+    with open(os.path.join(out, 'works.json'), 'w', encoding='utf-8') as f:   # labels for the reader
+        json.dump({w['id']: [names[w['author']], w['title'], w['date']] for w in works}, f,
+                  ensure_ascii=False, separators=(',', ':'))
+    print('verse references', total, 'in', sum(len(c) for c in verse_refs.values()), 'chapters')
+
+
 def main():
     os.makedirs(OUT, exist_ok=True)
     vols = {v: parse(os.path.join(ANF, v + '.xml')) for v in ('anf01', 'anf02', 'anf03', 'anf04')}
     lf = open(LIGHTFOOT, encoding='utf-8').read()
     works = []
 
+    verse_refs = {}
+
     def save(wid, author, title, date, source, chapters):
+        for ci, c in enumerate(chapters, 1):
+            for pi, rs in enumerate(c.pop('_r', []), 1):
+                for anchor, osis in rs:
+                    for book, ch, v in osis_verses(osis):
+                        verse_refs.setdefault(book, {}).setdefault(ch, {}).setdefault(v, set()).add(
+                            (wid, ci, pi, excerpt(c['p'][pi - 1], anchor)))
         doc = {'id': wid, 'title': title, 'author': author, 'date': date, 'source': source, 'chapters': chapters}
         with open(os.path.join(OUT, wid + '.json'), 'w', encoding='utf-8') as f:
             json.dump(doc, f, ensure_ascii=False, separators=(',', ':'))
@@ -218,6 +314,7 @@ def main():
     with open(os.path.join(OUT, 'index.json'), 'w', encoding='utf-8') as f:
         json.dump(index, f, ensure_ascii=False, separators=(',', ':'))
     print('works', len(works), 'words', sum(w['words'] for w in works))
+    write_verse_refs(verse_refs, works)
 
 
 main()

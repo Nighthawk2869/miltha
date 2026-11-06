@@ -213,7 +213,7 @@ function showAuthor(id){
   $('lib-main').scrollTop=0;
 }
 
-async function showWork(id,ch=1,hitText=''){
+async function showWork(id,ch=1,hitText='',para=0){
   const meta=WORKS[id];if(!meta)return showHome();
   activeAuthor=meta.author;renderList();
   $('lib-main').innerHTML='<div class="lib-empty"><div class="lib-empty-txt">OPENING…</div></div>';
@@ -224,8 +224,8 @@ async function showWork(id,ch=1,hitText=''){
   history.replaceState(null,'','#'+id+'/'+ch);
   const c=w.chapters[ch-1], a=authorOf(meta);
   const words=hitText?hitText.toLowerCase().split('|').filter(Boolean):[];
-  const paras=c.p.map(p=>{
-    const hit=words.length&&words.every(x=>p.toLowerCase().replace(/\s+/g,' ').includes(x));
+  const paras=c.p.map((p,pi)=>{
+    const hit=(words.length&&words.every(x=>p.toLowerCase().replace(/\s+/g,' ').includes(x)))||(para&&pi+1===para);
     let h=esc(p);
     if(hit)words.forEach(x=>{h=h.replace(new RegExp('('+x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','gi'),'<mark>$1</mark>');});
     return `<p class="${hit?'hit':''}">${h}</p>`;}).join('');
@@ -305,8 +305,8 @@ $('lib-search-form').addEventListener('submit',e=>{e.preventDefault();searchAll(
 $('lib-search-all').addEventListener('click',()=>searchAll($('lib-search').value));
 
 function route(){
-  const [id,ch]=decodeURIComponent(location.hash.slice(1)).split('/');
-  if(WORKS[id])showWork(id,parseInt(ch)||1);
+  const [id,ch,para]=decodeURIComponent(location.hash.slice(1)).split('/');
+  if(WORKS[id])showWork(id,parseInt(ch)||1,'',parseInt(para)||0);
   else if(AUTHORS.some(a=>a.id===id))showAuthor(id);
   else showHome();
 }
