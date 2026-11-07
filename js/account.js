@@ -28,6 +28,8 @@
 
   function friendly(d, status) {
     const m = String(d.error_description || d.msg || d.error || '').toLowerCase();
+    // Identity answers 404 "User not found" for a used or replaced email link; a 404 with no message means Identity is off.
+    if (status === 404 && (m.includes('not found') || m.includes('user'))) return 'That link has expired or was replaced by a newer email. Please use the most recent email from MILTHA, or sign in.';
     if (status === 404) return 'Accounts are being switched on and will open very soon.';
     if (status === 429) return 'Too many attempts. Please wait a few minutes and try again.';
     if (m.includes('not confirmed')) return 'Please confirm your email first: open the message we sent you and click the link.';
