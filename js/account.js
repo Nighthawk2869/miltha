@@ -32,7 +32,7 @@
     if (status === 429) return 'Too many attempts. Please wait a few minutes and try again.';
     if (m.includes('not confirmed')) return 'Please confirm your email first: open the message we sent you and click the link.';
     if (m.includes('invalid') && (m.includes('password') || m.includes('grant') || m.includes('login'))) return 'That email and password do not match.';
-    if (m.includes('already') && (m.includes('registered') || m.includes('exists'))) return 'That email already has an account. Please sign in.';
+    if (m.includes('already') && (m.includes('registered') || m.includes('exists'))) return 'That email already has an account. Please sign in — or, if you were invited, open the invitation email and use its link.';
     if (m.includes('signup') && m.includes('disabled')) return 'New sign-ups are closed at the moment.';
     if (m.includes('expired') || (m.includes('invalid') && m.includes('token'))) return 'That link has expired or was already used. Please request a new one.';
     if (m.includes('password')) return d.error_description || d.msg || 'Please choose a longer password.';
@@ -163,10 +163,13 @@
             small: 'We will email you a link to confirm your address. Your email is never shown to others; your notes are private to you.' },
     forgot: { title: 'RESET PASSWORD', sub: 'Enter your email and we will send you a link to choose a new password.', fields: [['email', 'EMAIL', 'email', 'email']],
               go: 'SEND LINK', links: [['signin', 'BACK TO SIGN IN']] },
+    invite: { title: 'ACCEPT YOUR INVITATION', sub: 'Welcome to MILTHA. Choose your name and a password to finish setting up your account.',
+              fields: [['name', 'YOUR NAME (SHOWN ON YOUR POSTS)', 'text', 'name'], ['password', 'PASSWORD (AT LEAST 8 CHARACTERS)', 'password', 'new-password']],
+              go: 'CREATE MY ACCOUNT', links: [] },
     newpw: { title: 'NEW PASSWORD', sub: 'Choose a new password for your account.', fields: [['password', 'NEW PASSWORD (AT LEAST 8 CHARACTERS)', 'password', 'new-password']],
              go: 'SAVE PASSWORD', links: [] },
   };
-  let overlay, lastFocus;
+  let overlay, lastFocus, inviteToken = null;
   function openWindow(mode, message, kind) {
     const v = VIEWS[mode] || VIEWS.signin;
     if (!overlay) {
@@ -202,7 +205,7 @@
     const email = val('email'), password = f.elements.password ? f.elements.password.value : '';
     if (f.elements.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return say('Please enter your email address.', 'err');
     if (f.elements.password && password.length < 8) return say('Please use a password of at least 8 characters.', 'err');
-    if (mode === 'join' && !val('name')) return say('Please enter your name.', 'err');
+    if ((mode === 'join' || mode === 'invite') && !val('name')) return say('Please enter your name.', 'err');
     go.disabled = true; say('');
     try {
       if (mode === 'signin') { const u = await Account.signIn(email, password); closeWindow(); toast('WELCOME BACK, ' + u.name.toUpperCase()); }
@@ -210,6 +213,12 @@
         say('Thank you! We have sent a confirmation link to ' + email + '. Open it to finish joining (check your spam folder if it does not arrive in a few minutes).', 'ok'); return; }
       else if (mode === 'forgot') { await Account.recover(email); say('If that email has an account, a link to choose a new password is on its way.', 'ok'); go.style.display = 'none'; return; }
       else if (mode === 'newpw') { await Account.update({ password }); closeWindow(); toast('YOUR NEW PASSWORD IS SAVED'); }
+      else if (mode === 'invite') {
+        // Netlify Identity accepts an invitation by verifying its token together with the new password.
+        await id('/verify', post({ type: 'signup', token: inviteToken, password })).then(start);
+        await Account.update({ data: { full_name: val('name').slice(0, 40) } });
+        inviteToken = null; closeWindow(); toast('WELCOME TO MILTHA, ' + user().name.toUpperCase());
+      }
     } catch (e) { say(e.message, 'err'); }
     go.disabled = false;
   }
@@ -217,11 +226,12 @@
   // ---------- links from Netlify's emails ----------
   async function handleEmailLink() {
     const h = location.hash.slice(1);
-    if (!/(^|&)(confirmation_token|recovery_token|email_change_token|error)=/.test(h)) return;
+    if (!/(^|&)(confirmation_token|recovery_token|invite_token|email_change_token|error)=/.test(h)) return;
     const p = new URLSearchParams(h);
     history.replaceState(null, '', location.pathname + location.search);
     try {
       if (p.get('confirmation_token')) { const u = await Account.verify('signup', p.get('confirmation_token')); toast('WELCOME TO MILTHA, ' + u.name.toUpperCase()); }
+      else if (p.get('invite_token')) { inviteToken = p.get('invite_token'); openWindow('invite'); }
       else if (p.get('recovery_token')) { await Account.verify('recovery', p.get('recovery_token')); openWindow('newpw'); }
       else if (p.get('email_change_token')) { await Account.update({ email_change_token: p.get('email_change_token') }); toast('YOUR EMAIL ADDRESS IS UPDATED'); }
       else if (p.get('error')) openWindow('signin', friendly({ error_description: p.get('error_description') || p.get('error') }, 400), 'err');
