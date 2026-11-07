@@ -29,6 +29,7 @@
 .ke-response-text p{margin-bottom:13px}
 .ke-response-text p:last-child{margin-bottom:0}
 .ke-response-text strong{color:var(--gold);font-weight:600}
+.ke-truth{margin-top:18px;padding:12px 16px;border-left:2px solid var(--gold);background:rgba(201,169,110,.06);font-size:20px;font-style:italic;line-height:1.6;color:var(--white);opacity:.9}
 .ke-response-text em{font-style:italic;color:var(--white);opacity:.9}
 .ke-citation{font-family:'Cinzel',serif;font-size:19px;letter-spacing:.18em;color:var(--blue);opacity:.86;margin-top:14px;padding-top:11px;border-top:1px solid var(--ash);line-height:1.8}
 .ke-cite{display:inline-block;font-family:'Cinzel',serif;font-size:.62em;line-height:1;vertical-align:super;color:var(--gold);border:1px solid rgba(201,169,110,.45);border-radius:3px;padding:2px 5px;margin-left:3px;text-decoration:none}
@@ -113,6 +114,7 @@
         <div class="ke-response-label">KNOWLEDGE ENGINE · MANUSCRIPT SOURCES ONLY · NO MODERN COMMENTARY</div>
         <div class="ke-response-question" id="ke-response-question"></div>
         <div class="ke-response-text" id="ke-response-text"></div>
+        <div class="ke-truth" id="ke-truth" hidden>None of these AI responses are 100% verifiable truth. The Word of God is the root and base of our guiding truth and the answers to our questions.</div>
         <div class="ke-sources" id="ke-sources"></div>
         <div class="ke-citation" id="ke-citation"></div>
       </div>
@@ -181,6 +183,8 @@ function keShow(question, html, citations, sources) {
   document.getElementById('ke-response-wrap').style.display = 'block';
   document.getElementById('ke-response-question').textContent = question;
   document.getElementById('ke-response-text').innerHTML = html;
+  // Shown under every answer (not under error messages)
+  document.getElementById('ke-truth').hidden = !sources;
   document.getElementById('ke-sources').innerHTML = keSources(sources);
   document.getElementById('ke-citation').textContent = citations || '';
 }
