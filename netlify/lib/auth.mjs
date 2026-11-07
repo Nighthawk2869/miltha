@@ -5,7 +5,7 @@
 // belongs to, so a token that is expired, forged or from another site is refused.
 //
 // Moderators: the email addresses in the MILTHA_ADMINS environment variable (comma separated),
-// or any member given the "admin" role in Netlify → Identity.
+// or any member given the "admin" or "moderator" role in Netlify → Identity (user → Edit settings → Roles).
 
 const ALLOWED_HOST = /^(miltha\.org|www\.miltha\.org|dreamy-puffpuff-7f52f3\.netlify\.app|[a-z0-9-]+--dreamy-puffpuff-7f52f3\.netlify\.app|localhost(:\d+)?)$/;
 
@@ -41,7 +41,7 @@ export async function currentUser(req) {
     id: String(u.id),
     email,
     name: cleanName(u.user_metadata?.full_name) || email.split('@')[0],
-    admin: admins.includes(email) || (u.app_metadata?.roles || []).includes('admin'),
+    admin: admins.includes(email) || (u.app_metadata?.roles || []).some((r) => /^(admin|moderator)s?$/i.test(String(r).trim())),
   };
   if (cache.size > 500) cache.clear();
   cache.set(token, { user, until: now + 60_000 });
