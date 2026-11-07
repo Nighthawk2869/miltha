@@ -44,6 +44,11 @@
     <div class="page-title">MODERATION</div>
     <div class="page-subtitle">New posts and replies wait here until you approve them. Hiding one keeps it, so you can approve it later.</div>
   </div>
+  <!-- Netlify Forms: /api/posts files this form when a post or reply is waiting, and Netlify emails it to the
+     address set in Netlify → Project configuration → Notifications → Form submission notifications. -->
+  <form name="moderation-alert" data-netlify="true" netlify-honeypot="website" hidden>
+    <input name="kind"><input name="name"><input name="passage"><textarea name="text"></textarea><input name="link"><input name="website">
+  </form>
   <div class="mod-wrap" id="mod"><div class="mod-empty">Loading…</div></div>
 </div>
 <footer class="miltha-footer">

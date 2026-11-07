@@ -13,6 +13,20 @@ import { postsStore, newId, allPosts, publicPost } from '../lib/posts.mjs';
 const MAX_POST = 2000, MAX_REPLY = 1000, MAX_WAITING = 5;
 const kjv = new Map();
 
+// Email the moderators: files the hidden "moderation-alert" form (moderate.html), which Netlify emails
+// to the address set under Form submission notifications. A failure never stops the post itself.
+async function alertModerators(origin, fields) {
+  try {
+    const r = await fetch(origin + '/moderate.html', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({ 'form-name': 'moderation-alert', ...fields, link: 'https://miltha.org/moderate.html' }),
+      signal: AbortSignal.timeout(4000),
+    });
+    if (!r.ok) console.error('Moderation alert not accepted', r.status);
+  } catch (e) { console.error('Moderation alert not sent', e); }
+}
+
 async function verseText(origin, r) {
   let book = kjv.get(r.book);
   if (!book) {
@@ -59,6 +73,7 @@ export default async (req) => {
       verse, text, created: Date.now(), status, replies: [],
     };
     await store.setJSON('p/' + p.id, p);
+    if (status === 'pending') await alertModerators(siteOrigin(req), { kind: 'New post', name: user.name, passage: p.label, text });
     return json(200, { post: publicPost(p, user), waiting: status === 'pending' });
   }
 
@@ -75,6 +90,7 @@ export default async (req) => {
     if (p.replies.length >= 300) return json(400, { error: 'This discussion is full.' });
     p.replies.push({ id: newId(), uid: user.id, name: user.name, email: user.email, text, created: Date.now(), status });
     await store.setJSON('p/' + p.id, p);
+    if (status === 'pending') await alertModerators(siteOrigin(req), { kind: 'New reply', name: user.name, passage: p.label, text });
     return json(200, { post: publicPost(p, user), waiting: status === 'pending' });
   }
 
