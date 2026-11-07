@@ -162,7 +162,7 @@
     join: { title: 'JOIN MILTHA', sub: 'Free. Save verses and notes, keep your Daily Word reading, and share reflections with the community.',
             fields: [['name', 'YOUR NAME (SHOWN ON YOUR POSTS)', 'text', 'name'], ['email', 'EMAIL', 'email', 'email'], ['password', 'PASSWORD (AT LEAST 8 CHARACTERS)', 'password', 'new-password']],
             go: 'JOIN FREE', links: [['signin', 'ALREADY A MEMBER? SIGN IN']],
-            small: 'We will email you a link to confirm your address. Your email is never shown to others; your notes are private to you.' },
+            small: 'We will email you a link to confirm your address. Your email is never shown to others; your notes are private to you.', privacy: true },
     forgot: { title: 'RESET PASSWORD', sub: 'Enter your email and we will send you a link to choose a new password.', fields: [['email', 'EMAIL', 'email', 'email']],
               go: 'SEND LINK', links: [['signin', 'BACK TO SIGN IN']] },
     invite: { title: 'ACCEPT YOUR INVITATION', sub: 'Welcome to MILTHA. Choose your name and a password to finish setting up your account.',
@@ -189,7 +189,7 @@
       <button type="submit" class="ma-go">${v.go}</button>
       <div class="ma-msg ${kind || ''}" role="alert">${message ? esc(message) : ''}</div>
       <div class="ma-links">${v.links.map(([m, l]) => `<button type="button" class="ma-link" data-mode="${m}">${l}</button>`).join('')}</div>
-      ${v.small ? `<div class="ma-small">${esc(v.small)}</div>` : ''}
+      ${v.small ? `<div class="ma-small">${esc(v.small)}${v.privacy ? ' <a href="privacy.html" style="color:#C9A96E">Privacy</a>' : ''}</div>` : ''}
     </form>`;
     overlay.classList.add('open');
     const f = overlay.querySelector('form');
