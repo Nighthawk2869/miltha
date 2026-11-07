@@ -105,8 +105,8 @@ const STOP = new Set(`a about above after again against all also am an and any a
 both but by can could did do does doing down during each early earliest few for from further had has have having he her here hers him
 his how i if in into is it its itself just me more most my no nor not now of off on once only or other our out over own same she should
 so some such than that the their them then there these they this those through to too under until up very was we were what when where
-which while who whom why will with would you your yours tell explain say said says teach taught teaching believe believed think thought
-bible scripture scriptures verse verses testament view views write wrote written mean means meaning church father fathers christian christians early first century centuries ancient
+which while who whom why will with would you your yours tell explain say said says teach taught teaching believe believed think
+bible scripture scriptures verse verses testament deal handle cope overcome help need want feel feeling stop start get view views write wrote written mean means meaning church father fathers christian christians early first century centuries ancient
 according regarding concerning anything something give please did does thee thou thy thine ye unto hath doth saith shall shalt upon
 also therefore wherefore yea nay us one many much way whether thing things even though yet let may might must`.split(/\s+/));
 // A light stemmer, so "forgiveness", "forgiveth" and "forgiven" meet "forgive", and "sinned" meets "sin".
@@ -116,7 +116,7 @@ const SUFFIXES = ['fulness', 'ations', 'ation', 'nesses', 'ness', 'ments', 'ment
 export function stem(w) {
   if (w.length > 4 && w.endsWith('ies')) return w.slice(0, -3) + 'y';
   for (const x of SUFFIXES) {
-    if (w.endsWith(x) && w.length - x.length >= 3 && !(x === 's' && /(ss|us|is)$/.test(w))) { w = w.slice(0, -x.length); break; }
+    if (w.endsWith(x) && w.length - x.length >= (x === 'est' ? 4 : 3) && !(x === 's' && /(ss|us|is)$/.test(w))) { w = w.slice(0, -x.length); break; }
   }
   if (w.length > 3 && w.endsWith('e')) w = w.slice(0, -1);
   if (w.length > 3 && /([b-df-hj-np-tv-z])\1$/.test(w)) w = w.slice(0, -1);
@@ -124,6 +124,76 @@ export function stem(w) {
 }
 export const tokens = (t) => (t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').match(/[a-z]+/g) || [])
   .filter((w) => w.length > 2 && !STOP.has(w)).map(stem);
+
+// Modern words → the words the King James Version (and the Victorian translations of the Fathers) use instead.
+// A question's word also searches for these, at a slightly lower weight, so "baptism" finds "baptized",
+// "anxiety" finds "careful" and "take no thought", and "Holy Spirit" finds "Holy Ghost".
+const MODERN = {
+  baptism: 'baptize baptized baptizing baptizeth baptist', baptize: 'baptism baptized baptizing',
+  spirit: 'ghost', holy: 'ghost',
+  love: 'charity lovingkindness beloved', charity: 'love',
+  anxiety: 'careful care troubled', anxious: 'careful care troubled', worry: 'careful care troubled',
+  stress: 'careful care troubled heaviness', depression: 'sorrow heaviness mourn cast down', depressed: 'sorrow heaviness mourn cast down',
+  sad: 'sorrow heaviness mourn weep', sadness: 'sorrow heaviness mourn weep', grief: 'sorrow mourn weep', happy: 'blessed joy rejoice glad',
+  happiness: 'blessed joy rejoice glad', joy: 'rejoice glad gladness',
+  money: 'silver gold mammon riches', wealth: 'riches rich mammon', rich: 'riches', greed: 'covetousness covet',
+  generosity: 'alms liberal cheerful giver', generous: 'alms liberal bountiful', giving: 'alms giver give', charity_: '',
+  poverty: 'poor needy', poor: 'needy alms',
+  forgiveness: 'remission pardon', forgive: 'remission pardon', atonement: 'propitiation reconciliation ransom',
+  salvation: 'save saved saveth saviour', saved: 'salvation saviour', savior: 'saviour', eternal: 'everlasting',
+  justification: 'justify justified', sanctification: 'sanctify sanctified', redemption: 'redeem redeemed ransom',
+  resurrection: 'rise risen raised', heaven: 'paradise kingdom', hell: 'gehenna fire',
+  marriage: 'marry married wife husband', married: 'marry wife husband', divorce: 'divorcement put away',
+  sex: 'fornication adultery lust', sexual: 'fornication adultery lust', immorality: 'fornication adultery uncleanness',
+  drunkenness: 'drunk wine strong drink', alcohol: 'wine strong drink drunk', anger: 'wrath', angry: 'wrath wroth',
+  pride: 'proud haughty', humility: 'humble lowly meekness', humble: 'lowly meek', patience: 'longsuffering patient',
+  kindness: 'lovingkindness gentleness', gentleness: 'meekness', obedience: 'obey obeyed', obey: 'obedience obedient',
+  repentance: 'repent repented', confession: 'confess confessed', sin: 'iniquity transgression trespass',
+  wisdom: 'wise understanding', suffering: 'affliction tribulation', trials: 'temptation tribulation affliction',
+  temptation: 'tempted tempt', persecution: 'persecuted persecute',
+  church: 'assembly congregation', pastor: 'shepherd bishop elder', pastors: 'shepherds bishops elders',
+  leader: 'elder bishop ruler', leaders: 'elders bishops rulers', priest: 'priesthood presbyter', elder: 'presbyter bishop',
+  communion: 'supper bread cup body blood', eucharist: 'supper bread cup body blood thanks',
+  prayer: 'pray supplication', worship: 'bow serve',
+  sunday: 'first day week lord day', sabbath: 'seventh rest',
+  trinity: 'father son ghost', messiah: 'christ anointed', satan: 'devil adversary', demons: 'devils unclean spirits', demon: 'devil unclean spirit',
+  rapture: 'caught clouds coming', return: 'coming appearing', apocalypse: 'revelation end world',
+  women: 'woman', children: 'child', men: 'man', people: 'nation', parents: 'father mother honour',
+  creation: 'create created beginning made',
+  afterlife: 'paradise resurrection everlasting', soul: 'spirit', death: 'die dead', dying: 'die dead death',
+  fear: 'afraid', courage: 'courage strong fear not', trust: 'faith believe', faith: 'believe trust',
+  work: 'labour', neighbor: 'neighbour', honor: 'honour', savior_: '',
+};
+delete MODERN.charity_; delete MODERN.savior_;
+export const SYNONYMS = new Map();   // stem → [alternate stems]
+for (const [w, alts] of Object.entries(MODERN)) {
+  const k = stem(w), list = SYNONYMS.get(k) || [];
+  for (const a of alts.split(/\s+/)) { if (!a || STOP.has(a)) continue; const t = stem(a); if (t !== k && !list.includes(t)) list.push(t); }
+  SYNONYMS.set(k, list);
+}
+
+// Topics where the King James wording is too far from today's words for search to find the central passages.
+// When the question uses one of these words, these passages come first.
+const KEY_PASSAGES = {
+  'anxiety anxious worry worried stress': 'philippians 4:6-7|matthew 6:25-27|1peter 5:7',
+  'depression depressed sad sadness despair discouraged': 'psalms 42:5|psalms 34:18|2corinthians 1:3-4',
+  'grief grieving mourning': 'matthew 5:4|1thessalonians 4:13-14|psalms 34:18',
+  'lonely loneliness alone': 'hebrews 13:5|deuteronomy 31:6|psalms 68:6',
+  'money greed wealth': '1timothy 6:10|matthew 6:24|hebrews 13:5',
+  'anger angry': 'ephesians 4:26|james 1:19-20',
+  'forgiveness forgive forgiving': 'matthew 6:14-15|ephesians 4:32|colossians 3:13',
+  'addiction temptation': '1corinthians 10:13|1corinthians 6:12',
+  'trinity': 'matthew 28:19|2corinthians 13:14',
+  'communion eucharist': '1corinthians 11:23-26|luke 22:19-20',
+  'rapture': '1thessalonians 4:16-17',
+  'baptism baptize': 'matthew 28:19|acts 2:38|romans 6:3-4',
+};
+export const KEYS = new Map();   // stem → [{book, ch, from, to}]
+for (const [words, refs] of Object.entries(KEY_PASSAGES)) {
+  const list = refs.split('|').map((r) => { const m = r.match(/^(\S+) (\d+):(\d+)(?:-(\d+))?$/);
+    return { book: m[1], ch: +m[2], from: +m[3], to: +(m[4] || m[3]) }; });
+  for (const w of words.split(' ')) KEYS.set(stem(w), list);
+}
 
 // Author names in a question boost that author's works.
 const AUTHORS = { ignatius: 'ign-', polycarp: 'polycarp|martyrdom-of-polycarp', clement: '1-clement|clement-', justin: 'justin-',
@@ -169,9 +239,17 @@ export function search(I, query, { n = 5, group = (r) => r[0], perGroup = 2, flo
   if (!q.length) return [];
   const N = I.rows.length, k1 = 1.2, b = 0.75, score = new Map();
   for (const t of q) {
-    const l = I.post.get(t); if (!l || l.length > N * 0.25) continue;   // skip terms found in a quarter of everything
-    const idf = Math.log(1 + (N - l.length + 0.5) / (l.length + 0.5));
-    for (const [i, tf] of l) score.set(i, (score.get(i) || 0) + idf * tf * (k1 + 1) / (tf + k1 * (1 - b + b * I.len[i] / I.avg)));
+    // Each word of the question counts once per passage: its own best match, or a King James equivalent at 70%.
+    const best = new Map();
+    for (const [term, weight] of [[t, 1], ...(SYNONYMS.get(t) || []).map((a) => [a, 0.7])]) {
+      const l = I.post.get(term); if (!l || l.length > N * 0.25) continue;   // skip terms found in a quarter of everything
+      const idf = Math.log(1 + (N - l.length + 0.5) / (l.length + 0.5));
+      for (const [i, tf] of l) {
+        const sc = weight * idf * tf * (k1 + 1) / (tf + k1 * (1 - b + b * I.len[i] / I.avg));
+        if (sc > (best.get(i) || 0)) best.set(i, sc);
+      }
+    }
+    for (const [i, sc] of best) score.set(i, (score.get(i) || 0) + sc);
   }
   if (boost) for (const [i, s] of score) score.set(i, s * boost(I.rows[i]));
   const out = [], seen = {}, ranked = [...score].sort((a, b) => b[1] - a[1]);
@@ -250,9 +328,23 @@ async function gather(origin, question, history) {
   const have = new Set(sources.map((s) => s.href));
   const add = (s) => { if (!have.has(s.href)) { have.add(s.href); sources.push(s); } };
 
-  // Scripture by topic: one verse per chapter, at most two per book.
-  if (B) {
-    const hits = search(B, query, { n: refs.length ? 2 : 4, group: (r) => r[0] + '/' + r[1], perGroup: 1, floor: 0.5 });
+  // Key passages for everyday topics, then Scripture by topic: one verse per chapter, at most two per book.
+  let topical = refs.length ? 2 : 4;
+  if (B && !refs.length) {
+    const keyed = [];
+    for (const t of new Set(tokens(query))) for (const r of KEYS.get(t) || []) if (!keyed.some((k) => k.book === r.book && k.ch === r.ch)) keyed.push(r);
+    for (const r of keyed.slice(0, 3)) {
+      const verses = [];
+      for (let v = r.from; v <= r.to; v++) { const j = B.byKey.get(`${r.book}/${r.ch}/${v}`)?.[0]; if (j !== undefined) verses.push(`${v} ${B.rows[j][3]}`); }
+      if (!verses.length) continue;
+      add({ kind: 'bible', label: `KJV · ${bookLabel(r.book)} ${r.ch}:${r.from}${r.to > r.from ? '–' + r.to : ''}`,
+            href: `study.html#${r.book}/${r.ch}/${r.from}`, text: verses.join(' '), note: 'a central passage on this topic' });
+      topical--;
+    }
+  }
+  if (B && topical > 0) {
+    const hits = search(B, query, { n: topical + 2, group: (r) => r[0] + '/' + r[1], perGroup: 1, floor: 0.5 })
+      .filter((i) => !sources.some((s) => s.href.startsWith(`study.html#${B.rows[i][0]}/${B.rows[i][1]}/`))).slice(0, topical);
     const perBook = {};
     for (const i of hits) { const bk = B.rows[i][0]; if ((perBook[bk] = (perBook[bk] || 0) + 1) <= 2) add(verseSource(B, i)); }
   }
