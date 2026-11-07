@@ -1,0 +1,8 @@
+{
+  "name": "miltha",
+  "private": true,
+  "description": "MILTHA (miltha.org): the Bible in its earliest languages. Static pages plus Netlify Functions.",
+  "dependencies": {
+    "@netlify/blobs": "11.1.6"
+  }
+}

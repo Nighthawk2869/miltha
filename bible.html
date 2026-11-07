@@ -196,6 +196,7 @@
 <div class="sheet-backdrop" id="sheet-backdrop"></div>
 
 <script src="js/miltha.js"></script>
+<script src="js/account.js"></script>
 <script src="js/bible-data.js"></script>
 <script>
 /* Bible reader — verse text is fetched per book from data/bible/<translation>/<book>.json */
@@ -333,8 +334,8 @@ async function fathersOn(book,ch,vn){
       const k=Object.keys(map).find(e=>map[e]===ch+':'+vn);if(k)[c,v]=k.split(':').map(Number);
     }
     const [refs,works]=await Promise.all([fetchJSON(`data/fathers-refs/${book.id}/${c}.json`),fetchJSON('data/fathers-refs/works.json')]);
-    return {items:refs[v]||[],works,ref:`${book.name} ${c}:${v}`};
-  }catch(e){return {items:[],works:{}};}
+    return {items:refs[v]||[],works,ref:`${book.name} ${c}:${v}`,c,v};
+  }catch(e){return {items:[],works:{},c:ch,v:vn};}
 }
 function fathersSection(f){
   const item=(x,hidden)=>{const w=f.works[x[0]]||['',''];
@@ -356,7 +357,7 @@ async function renderDetail(vn){
     fathersOn(book,ch,vn)]);
   if(token!==loadToken||!document.getElementById('vb-'+vn)?.classList.contains('active'))return;
   const orig=book.testament==='ot'?'HEBREW':'GREEK';
-  let html=`<div class="br-section"><div class="br-section-label">WORD BY WORD</div><a class="br-wbw" href="study.html#${book.id}/${ch}/${vn}${currentTrans==='heb'?'/heb':''}">STUDY EVERY ${orig} WORD IN THIS VERSE →</a></div>`,rows='';
+  let html=`<div class="br-section" id="br-mine"></div><div class="br-section"><div class="br-section-label">WORD BY WORD</div><a class="br-wbw" href="study.html#${book.id}/${ch}/${vn}${currentTrans==='heb'?'/heb':''}">STUDY EVERY ${orig} WORD IN THIS VERSE →</a></div>`,rows='';
   others.forEach((t,i)=>{
     if(!texts[i])return;
     const T=TRANS[t],warn=numberingDiffers(t,ch)||numberingDiffers(currentTrans,ch);
@@ -378,6 +379,8 @@ async function renderDetail(vn){
   const f=PASSAGE_FATHERS[`${book.id}-${ch}`];
   if(f)html+=`<div class="br-section"><div class="br-section-label">CHURCH FATHER</div><div class="father-mini"><div class="fm-name">${f.father} · ${f.source}</div><div class="fm-quote">"${f.text}"</div></div></div>`;
   pane.innerHTML=html||`<div class="br-empty"><div class="br-empty-ara">${book.orig}</div><div class="br-empty-text">NO OTHER TEXTS<br>FOR THIS VERSE</div></div>`;
+  // Save this verse / private note (members); saved in KJV numbering
+  if(window.MilthaAccount)MilthaAccount.verseTools(document.getElementById('br-mine'),`${book.id}/${fathers.c}/${fathers.v}`);
 }
 function clearDetail(){
   setPanel('bible-right',false);

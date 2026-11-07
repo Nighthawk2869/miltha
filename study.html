@@ -140,6 +140,7 @@
 
     <div class="eng-label">KING JAMES VERSION</div>
     <div class="eng-verse" id="eng-verse"></div>
+    <div id="verse-mine" style="margin:14px 0 20px"></div>
     <div id="fathers-on"></div>
 
     <div class="action-links-row" style="margin-top:24px">
@@ -166,6 +167,7 @@
 </footer>
 
 <script src="js/miltha.js"></script>
+<script src="js/account.js"></script>
 <script src="js/bible-data.js"></script>
 <script src="js/wbw-data.js"></script>
 <script>
@@ -262,6 +264,8 @@ async function go(r,push=true){
     verseWords=chap[ov]||[];
     $('eng-verse').textContent=r.v===0?'(Psalm title — not numbered as a verse in the KJV.)':(kjv[r.ch-1]?.[r.v-1]||'');
     showFathers(r,token);
+    // Save this verse / private note (members); titles (verse 0) can't be saved
+    if(window.MilthaAccount){if(r.v>0)MilthaAccount.verseTools($('verse-mine'),`${r.book.id}/${r.ch}/${r.v}`);else $('verse-mine').innerHTML='';}
   }catch(e){
     if(token!==loadToken)return;
     verseWords=[];
