@@ -61,6 +61,11 @@
 .wd-def a:hover{border-bottom-style:solid}
 .def-toggle{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.18em;color:var(--gold);background:none;border:none;cursor:pointer;padding:8px 0;opacity:.85}
 .def-toggle:hover{opacity:1}
+.lxx-check{margin-top:8px;font-family:'Cinzel',serif;font-size:11px;letter-spacing:.14em;color:var(--flame);opacity:.9}
+.lxx-check.ok{color:#8fc08f}
+.row-note a{color:var(--gold)}
+.lxx-about{margin:22px 0 0;padding:16px 18px;border:1px solid var(--ash);background:var(--parchment);font-size:17px;line-height:1.65;color:var(--cream);opacity:.9}
+.lxx-about b{color:var(--gold);font-weight:600}
 .wd-note{background:rgba(232,129,58,.07);border:1px solid rgba(232,129,58,.25);border-left:2px solid var(--flame);padding:10px 13px;margin:12px 0 0;font-size:17px;font-style:italic;color:var(--cream);line-height:1.6}
 .wd-note-label{font-family:'Cinzel',serif;font-size:11px;font-style:normal;letter-spacing:.22em;color:var(--flame);margin-bottom:4px}
 .wd-miltha{background:var(--parchment);border-left:2px solid var(--gold);padding:12px 14px;margin-top:14px}
@@ -148,9 +153,13 @@
       <a class="action-link" id="read-link" href="bible.html">📖 READ THE WHOLE CHAPTER</a>
     </div>
 
+    <div class="lxx-about" id="lxx-about">
+      <b>HOW THE SEPTUAGINT WORDS WERE TAGGED.</b> No hand-checked, freely licensed analysis of the Septuagint exists yet, so its words were first tagged by a computer (the Morpheus parser). Computers make mistakes with Greek, so MILTHA checks every word against the New Testament, which scholars at Tyndale House tagged by hand: when the same word form appears there as one word, that reading is used. About three words in four are checked this way and marked <span style="color:#8fc08f">✓ CHECKED AGAINST THE NEW TESTAMENT</span>; the rest are marked <span style="color:var(--flame)">COMPUTER-TAGGED</span> — treat those as a helpful guide, not an authority. The transcription of Swete's edition also contains some misprints, which can make a word unreadable.
+    </div>
+
     <div class="source-note">
       Hebrew and Greek words, grammar and dictionary entries: <a href="https://STEPBible.github.io/STEPBible-Data" target="_blank" rel="noopener">STEPBible.org</a>, based on work at Tyndale House, Cambridge (CC BY 4.0).
-      Septuagint: Swete's edition as transcribed by the Open Greek and Latin project (<a href="https://github.com/nathans/lxx-swete" target="_blank" rel="noopener">CC BY-SA 4.0</a>). Peshitta Old Testament: Leiden Peshitta Institute edition, digitised by the ETCBC (<a href="https://github.com/ETCBC/peshitta" target="_blank" rel="noopener">CC BY-NC 4.0</a>).
+      Septuagint: Swete's edition as transcribed by the Open Greek and Latin project (<a href="https://github.com/nathans/lxx-swete" target="_blank" rel="noopener">CC BY-SA 4.0</a>); its words, grammar and dictionary forms from <a href="https://github.com/QuantForgeSoftware/lxx" target="_blank" rel="noopener">QuantForge's Morpheus analysis</a> (CC BY-SA 4.0), checked by MILTHA against STEPBible's New Testament tagging. Peshitta Old Testament: Leiden Peshitta Institute edition, digitised by the ETCBC (<a href="https://github.com/ETCBC/peshitta" target="_blank" rel="noopener">CC BY-NC 4.0</a>).
       The Old Testament follows the Leningrad Codex; the New Testament follows the Textus Receptus, the Greek text behind the King James Version, with other manuscript readings noted on each word.
     </div>
   </div>
@@ -335,11 +344,23 @@ async function render(){
     $('row-note').textContent=`Word-by-word grammar for the Aramaic Peshitta is not available yet. The ${r.book.testament==='ot'?'Hebrew':'Greek'} tab has every word fully explained.`;
   }else if(tab==='lxx'){
     setRef(`${refLabel(r)} · GREEK · SEPTUAGINT (SWETE)`);
-    let text='';
-    try{text=(await getJSON(`data/bible/lxx/${r.book.id}.json`))[r.ch-1]?.[r.v-1]||'';}catch(e){}
+    let words=null,text='';
+    try{[words]=await Promise.all([getJSON(`data/words-lxx/${r.book.id}/${r.ch}.json`).then(c=>c[r.v]||null),lxxTables()]);}catch(e){}
+    if(!words){try{text=(await getJSON(`data/bible/lxx/${r.book.id}.json`))[r.ch-1]?.[r.v-1]||'';}catch(e){}}
     if(r!==cur||tab!=='lxx')return;
-    row.innerHTML=text?text.split(/\s+/).map((w,i)=>`<span class="word-token plain"><span class="token-num">${i+1}</span><span class="token-orig">${esc(w)}</span></span>`).join(''):'<div class="status">NOT PRESENT IN THE SEPTUAGINT</div>';
-    $('row-note').textContent='The Greek translation of the Old Testament made before Christ and often quoted in the New Testament. Word-by-word grammar for it is not available yet; the Hebrew tab has every word fully explained.';
+    if(words&&words.length){
+      lxxWords=words;
+      row.innerHTML=words.map((w,i)=>{const L=LXX.lemmas[w[1]]||['','',''];
+        return `<button type="button" class="word-token" data-c="lxx" data-i="${i}" aria-label="Word ${i+1}: ${esc(grTranslit(lxxClean(w[0])))}">
+        <span class="token-num">${i+1}</span>
+        <span class="token-orig">${esc(lxxClean(w[0]))}</span>
+        <span class="token-translit">${esc(grTranslit(lxxClean(w[0])))}</span>
+        <span class="token-gloss">${esc(L[2]||'')||'&nbsp;'}</span></button>`;}).join('');
+      $('row-note').innerHTML='The Greek translation of the Old Testament made before Christ and often quoted in the New Testament. Tap any word. <a href="#lxx-about" class="lxx-about-link">How these words were tagged</a>';
+    }else{
+      row.innerHTML=text?text.split(/\s+/).map((w,i)=>`<span class="word-token plain"><span class="token-num">${i+1}</span><span class="token-orig">${esc(w)}</span></span>`).join(''):'<div class="status">NOT PRESENT IN THE SEPTUAGINT</div>';
+      $('row-note').textContent='The Greek translation of the Old Testament made before Christ and often quoted in the New Testament.';
+    }
   }else if(tab==='heb-nt'){
     const cw=WBW_DATA.heb;
     setRef(cw.ref);row.classList.add('rtl');
@@ -412,6 +433,57 @@ async function showWord(i){
   }
   setTimeout(()=>d.scrollIntoView({behavior:'smooth',block:'nearest'}),60);
 }
+/* ---------- Septuagint word by word (data/words-lxx, built by tools/build_lxx_words.py) ---------- */
+let LXX=null,lxxWords=[];
+async function lxxTables(){
+  if(!LXX){const [lemmas,gram,gk]=await Promise.all([getJSON('data/words-lxx/lemmas.json'),getJSON('data/words-lxx/grammar.json'),getJSON('data/words/grammar-gk.json')]);LXX={lemmas,gram:{...gk,...gram}};}
+  return LXX;
+}
+function lxxClean(w){return w.replace(/[.,;:·;!?"“”‘’()\[\]⸀⸁⸂⸃¶]+/g,'').replace(/[᾿ʼ’]$/,'’');}
+// Greek → Latin letters, in the same style as the rest of the page (ē, ō, ch, th, ph, h for rough breathing)
+function grTranslit(word){
+  const L={α:'a',β:'b',γ:'g',δ:'d',ε:'e',ζ:'z',η:'ē',θ:'th',ι:'i',κ:'k',λ:'l',μ:'m',ν:'n',ξ:'x',ο:'o',π:'p',ρ:'r',σ:'s',ς:'s',τ:'t',υ:'y',φ:'ph',χ:'ch',ψ:'ps',ω:'ō'};
+  const d=word.normalize('NFD'),chars=[];
+  for(const c of d){if(/[̀-ͯ]/.test(c)){if(c==='̔'&&chars.length)chars[chars.length-1].rough=true;continue;}chars.push({c:c.toLowerCase(),up:c!==c.toLowerCase()});}
+  let out='';
+  for(let i=0;i<chars.length;i++){
+    const a=chars[i].c,b=chars[i+1]?.c;
+    let t=L[a];if(t===undefined){out+=a;continue;}
+    if(a==='γ'&&'γκξχ'.includes(b||''))t='n';
+    if(a==='υ'&&i>0&&'αεηο'.includes(chars[i-1].c))t=chars[i-1].c==='ο'?'u':'u';
+    if(a==='ρ'&&chars[i].rough)t='rh';
+    out+=t;
+  }
+  // rough breathing sits on the first vowel (or the second of a diphthong): write it as an initial h
+  if(chars.some(x=>x.rough)&&chars[0]&&'αεηιουω'.includes(chars[0].c))out='h'+out;
+  return chars[0]?.up?out.charAt(0).toUpperCase()+out.slice(1):out;
+}
+async function showLxx(i){
+  const w=lxxWords[i],d=$('word-detail'),token=loadToken;
+  const T=await lxxTables();const L=T.lemmas[w[1]]||['','',''];
+  const checked=!w[2].startsWith('M:');
+  const gram=T.gram[w[2]]||T.gram[w[2].split(' + ')[0]]||'';
+  let html=`<div class="wd-top"><span class="wd-orig">${esc(lxxClean(w[0]))}</span><span class="wd-translit">${esc(grTranslit(lxxClean(w[0])))}</span>${L[2]?`<span class="wd-english">“${esc(L[2])}”</span>`:''}</div>
+    <div class="wd-grid"><div class="wd-item"><div class="wd-label">GRAMMAR</div><div class="wd-val">${esc(gram||'—')}</div>
+      <div class="lxx-check ${checked?'ok':''}">${checked?'✓ CHECKED AGAINST THE NEW TESTAMENT':'COMPUTER-TAGGED · NOT YET CHECKED'}</div></div>
+    <div class="wd-item" id="wd-dict">${L[1]?'':`<div class="wd-label">DICTIONARY FORM</div><div class="wd-val"><span class="lemma">${esc(L[0])}</span>${L[2]==='name'?' — a name':''}</div>`}</div></div>
+    <div id="wd-def-wrap"></div>
+    ${L[1]?`<div class="wd-links"><a href="https://www.stepbible.org/?q=strong=${encodeURIComponent(strongLabel(L[1]))}" target="_blank" rel="noopener">FIND EVERY USE OF THIS WORD ↗</a></div>`:''}`;
+  if(token!==loadToken||activeIdx!==i)return;
+  d.innerHTML=html;d.classList.add('visible');
+  if(L[1]){
+    const e=await lexEntry(L[1]);
+    if(token!==loadToken||activeIdx!==i)return;
+    $('wd-dict').innerHTML=e?`<div class="wd-label">DICTIONARY FORM · STRONG'S ${esc(strongLabel(L[1]))}</div><div class="wd-val"><span class="lemma">${esc(e[0])}</span> <em>${esc(cleanTranslit(e[1]))}</em> — ${esc(e[2])}</div>`
+      :`<div class="wd-label">DICTIONARY FORM</div><div class="wd-val"><span class="lemma">${esc(L[0])}</span></div>`;
+    if(e?.[3]){
+      $('wd-def-wrap').innerHTML=`<div class="wd-label" style="margin-top:4px">DICTIONARY ENTRY</div><div class="wd-def" id="wd-def">${e[3]}</div><button type="button" class="def-toggle" id="def-toggle">SHOW FULL ENTRY ↓</button>`;
+      const def=$('wd-def');
+      if(def.scrollHeight<=def.clientHeight+4){def.classList.add('open');$('def-toggle').remove();}
+    }
+  }
+  setTimeout(()=>d.scrollIntoView({behavior:'smooth',block:'nearest'}),60);
+}
 function showCurated(lang,i){
   const w=WBW_DATA[lang].words[i],d=$('word-detail');
   d.innerHTML=`<div class="wd-top"><span class="wd-orig">${esc(w.orig)}</span><span class="wd-translit">${esc(w.translit)}</span><span class="wd-english">“${esc(w.english)}”</span></div>
@@ -431,9 +503,9 @@ $('word-row').addEventListener('click',e=>{
   const t=e.target.closest('.word-token:not(.plain)');if(!t)return;
   const i=+t.dataset.i;
   document.querySelectorAll('.word-token').forEach(x=>x.classList.toggle('active',x===t&&activeIdx!==i));
-  if(activeIdx===i&&!t.dataset.c){activeIdx=-1;$('word-detail').classList.remove('visible');return;}
+  if(activeIdx===i&&(!t.dataset.c||t.dataset.c==='lxx')){activeIdx=-1;$('word-detail').classList.remove('visible');return;}
   activeIdx=i;
-  if(t.dataset.c)showCurated(t.dataset.c,i);else showWord(i);
+  if(t.dataset.c==='lxx')showLxx(i);else if(t.dataset.c)showCurated(t.dataset.c,i);else showWord(i);
 });
 $('word-detail').addEventListener('click',e=>{
   if(e.target.id==='def-toggle'){const d=$('wd-def');d.classList.toggle('open');e.target.textContent=d.classList.contains('open')?'SHOW LESS ↑':'SHOW FULL ENTRY ↓';return;}
