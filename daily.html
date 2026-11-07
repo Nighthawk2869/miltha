@@ -104,6 +104,7 @@
 
     <!-- Scripture Card -->
     <div id="daily-card"></div>
+    <div id="daily-mine" style="margin:16px 0 8px"></div>
 
     <!-- Platform Access Cards -->
     <div class="access-cards" style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:32px 0">
@@ -144,6 +145,7 @@
 </footer>
 
 <script src="js/miltha.js"></script>
+<script src="js/account.js"></script>
 <script src="js/bible-data.js"></script>
 <script>
 
@@ -436,6 +438,9 @@ async function showDay(offset){
     const day=await buildDay(PLAN[planIndex(d)]);
     if(token!==renderToken)return;
     renderDay(day);
+    // Mark as read (members) — today and earlier days only
+    const ymd=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    if(window.MilthaAccount){if(offset<=0)MilthaAccount.dailyTools($('daily-mine'),ymd);else{$('daily-mine').dataset.date='';$('daily-mine').innerHTML='';}}
   }catch(e){
     if(token!==renderToken)return;
     $('daily-card').innerHTML='<div class="scripture-card"><div class="card-inner"><div class="card-verse">The passage could not be loaded. Please check your connection and try again.</div></div></div>';

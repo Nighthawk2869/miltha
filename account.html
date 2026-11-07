@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>My Account — MILTHA</title>
+<link rel="stylesheet" href="css/miltha.css">
+<style>
+.acct-wrap{max-width:860px;margin:0 auto;padding:40px 20px 96px}
+.acct-card{background:var(--parchment);border:1px solid var(--ash);padding:24px;margin-bottom:18px}
+.acct-label{font-family:'Cinzel',serif;font-size:15px;letter-spacing:.26em;color:var(--gold);opacity:.88;margin-bottom:12px}
+.acct-name{font-family:'Cinzel',serif;font-size:26px;letter-spacing:.12em;color:var(--pure);margin-bottom:4px;word-break:break-word}
+.acct-email{font-size:19px;color:var(--cream);opacity:.75;margin-bottom:16px;word-break:break-all}
+.acct-btns{display:flex;gap:10px;flex-wrap:wrap}
+.acct-btn{font-family:'Cinzel',serif;font-size:13px;letter-spacing:.16em;padding:10px 16px;background:none;border:1px solid var(--ash2);color:var(--cream);cursor:pointer;text-decoration:none;display:inline-block;transition:all .2s}
+.acct-btn:hover{border-color:var(--gold);color:var(--gold)}
+.acct-btn.gold{background:var(--gold);border-color:var(--gold);color:var(--black);font-weight:600}
+.acct-btn.gold:hover{background:var(--pure);border-color:var(--pure);color:var(--black)}
+.acct-btn.danger:hover{border-color:var(--flame);color:var(--flame)}
+.acct-text{font-size:20px;line-height:1.65;color:var(--cream);opacity:.88}
+.acct-muted{font-size:17px;font-style:italic;color:var(--cream);opacity:.65;line-height:1.55}
+.stats{display:flex;gap:28px;flex-wrap:wrap;margin-bottom:14px}
+.stat-n{font-family:'Cinzel',serif;font-size:34px;color:var(--pure)}
+.stat-l{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.18em;color:var(--gold);opacity:.85}
+.days{display:flex;gap:5px;flex-wrap:wrap;margin:6px 0 16px}
+.day{width:30px;height:30px;border:1px solid var(--ash2);display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;font-size:11px;color:var(--cream);opacity:.75;text-decoration:none}
+.day.done{background:var(--gold);border-color:var(--gold);color:var(--black);opacity:1;font-weight:600}
+.day.today{outline:1px solid var(--gold);outline-offset:2px}
+.sv-tools{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.sv-filter{flex:1;min-width:180px;background:var(--stone);border:1px solid var(--ash);padding:10px 12px;font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--white);outline:none}
+.sv-filter:focus{border-color:var(--gold)}
+.sv-item{border-top:1px solid var(--ash);padding:16px 0}
+.sv-ref{font-family:'Cinzel',serif;font-size:16px;letter-spacing:.16em;color:var(--gold);margin-bottom:6px}
+.sv-verse{font-size:20px;font-style:italic;color:var(--white);opacity:.86;line-height:1.7;margin-bottom:8px}
+.sv-note{font-size:18px;color:var(--cream);line-height:1.6;white-space:pre-wrap;border-left:2px solid var(--gold);padding:4px 0 4px 12px;margin-bottom:10px;opacity:.92}
+.sv-links{display:flex;gap:16px;flex-wrap:wrap}
+.sv-link{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.14em;color:var(--gold);text-decoration:none;background:none;border:none;padding:0;cursor:pointer;opacity:.85}
+.sv-link:hover{opacity:1;text-decoration:underline}
+.sv-link.danger{color:var(--flame)}
+.mp-item{border-top:1px solid var(--ash);padding:14px 0}
+.mp-status{display:inline-block;font-family:'Cinzel',serif;font-size:11px;letter-spacing:.16em;padding:3px 8px;border:1px solid var(--ash2);color:var(--cream);margin-left:8px;vertical-align:middle}
+.mp-status.pending{border-color:var(--gold);color:var(--gold)}
+.mp-status.approved{border-color:#5c8a5c;color:#8fc08f}
+.mp-text{font-size:18px;color:var(--cream);opacity:.85;line-height:1.6;margin-top:6px;white-space:pre-wrap}
+.mod-banner{border-left:2px solid var(--flame)}
+</style>
+</head>
+<body>
+<nav class="miltha-nav" id="miltha-nav">
+  <a href="index.html" class="nav-brand">MILTHA <span>ܡܸܠܬ݂ܵܐ · THE WORD</span></a>
+  <ul class="nav-links">
+    <li><a href="daily.html">DAILY WORD</a></li>
+    <li><a href="knowledge.html">KNOWLEDGE ENGINE</a></li>
+    <li><a href="bible.html">BIBLE</a></li>
+    <li><a href="study.html">WORD BY WORD</a></li>
+    <li><a href="history.html">HISTORY</a></li>
+    <li><a href="library.html">LIBRARY</a></li>
+    <li><a href="community.html">COMMUNITY</a></li>
+  </ul>
+  <div class="nav-right"><a href="contribute.html" class="nav-btn nav-contribute">✦ CONTRIBUTE</a></div>
+</nav>
+<div class="page-content">
+  <div class="page-hero">
+    <div class="section-label" style="text-align:center">MEMBERS</div>
+    <div class="page-title">MY ACCOUNT</div>
+    <div class="page-subtitle">Your saved verses, private notes and daily reading.</div>
+  </div>
+  <div class="acct-wrap" id="acct">
+    <div class="acct-card"><div class="acct-muted">Loading…</div></div>
+  </div>
+</div>
+<footer class="miltha-footer">
+  <div class="footer-brand">MILTHA <span>ܡܸܠܺܬ݂ܵܐ · MILTHA.ORG</span></div>
+  <ul class="footer-links"><li><a href="daily.html">DAILY WORD</a></li><li><a href="bible.html">BIBLE</a></li><li><a href="community.html">COMMUNITY</a></li></ul>
+  <div class="footer-copy">© 2026 MILTHA · THE WORD, AS IT WAS SPOKEN.</div>
+</footer>
+<script src="js/miltha.js"></script>
+<script src="js/account.js"></script>
+<script>
+const A = window.MilthaAccount;
+const $ = id => document.getElementById(id);
+const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const NAMES = { song: 'Song of Solomon', psalms: 'Psalm' };
+const bookName = id => NAMES[id] || id.replace(/^(\d)/, '$1 ').replace(/(^| )([a-z])/g, (m, a, b) => a + b.toUpperCase());
+const refLabel = ref => { const [b, c, v] = ref.split('/'); return `${bookName(b)} ${c}:${v}`; };
+const kjvCache = {};
+const kjv = b => kjvCache[b] || (kjvCache[b] = fetch(`data/bible/kjv/${b}.json`).then(r => r.json()).catch(() => []));
+let data = null, filter = '';
+
+async function draw() {
+  const u = A.user();
+  if (!u) {
+    $('acct').innerHTML = `<div class="acct-card"><div class="acct-label">WELCOME</div>
+      <div class="acct-text" style="margin-bottom:16px">Sign in to see your saved verses, your private notes and your Daily Word reading, or join free in a minute.</div>
+      <div class="acct-btns"><button class="acct-btn gold" onclick="A.open('signin')">SIGN IN</button><button class="acct-btn" onclick="A.open('join')">JOIN FREE</button></div></div>`;
+    return;
+  }
+  try { data = await A.member(true); }
+  catch (e) { $('acct').innerHTML = `<div class="acct-card"><div class="acct-text">${esc(e.message)}</div></div>`; return; }
+  if (!A.user()) return draw();
+  const today = A.localDate(), year = today.slice(0, 4);
+  const streak = A.streak(data.daily, today), yearCount = data.daily.filter(d => d.startsWith(year)).length;
+  const last = [];
+  for (let i = 13; i >= 0; i--) { const d = new Date(); d.setDate(d.getDate() - i); last.push(A.localDate(d)); }
+  const verses = Object.entries(data.verses).sort((a, b) => b[1].saved - a[1].saved);
+
+  $('acct').innerHTML = `
+  <div class="acct-card">
+    <div class="acct-name">${esc(data.user.name)}</div>
+    <div class="acct-email">${esc(data.user.email)}</div>
+    <div class="acct-btns">
+      <button class="acct-btn" id="b-name">CHANGE NAME</button>
+      <button class="acct-btn" onclick="A.open('newpw')">CHANGE PASSWORD</button>
+      <button class="acct-btn" id="b-out">SIGN OUT</button>
+    </div>
+  </div>
+  <div id="mod-slot"></div>
+  <div class="acct-card">
+    <div class="acct-label">DAILY WORD</div>
+    <div class="stats">
+      <div><div class="stat-n">${streak}</div><div class="stat-l">DAY STREAK</div></div>
+      <div><div class="stat-n">${yearCount}</div><div class="stat-l">DAYS READ IN ${year}</div></div>
+      <div><div class="stat-n">${data.daily.length}</div><div class="stat-l">DAYS READ IN ALL</div></div>
+    </div>
+    <div class="stat-l" style="margin-bottom:4px">THE LAST TWO WEEKS</div>
+    <div class="days">${last.map(d => `<a class="day${data.daily.includes(d) ? ' done' : ''}${d === today ? ' today' : ''}" href="daily.html${d === today ? '' : '#' + d}" title="${d}">${+d.slice(8)}</a>`).join('')}</div>
+    <a class="acct-btn gold" href="daily.html">${data.daily.includes(today) ? "REREAD TODAY'S PASSAGE" : "READ TODAY'S PASSAGE"}</a>
+  </div>
+  <div class="acct-card" id="saved">
+    <div class="acct-label">SAVED VERSES · ${verses.length}</div>
+    ${verses.length ? `<div class="sv-tools"><input class="sv-filter" id="sv-filter" type="search" placeholder="Search your verses and notes…" value="${esc(filter)}" aria-label="Search saved verses"></div><div id="sv-list"></div>`
+      : `<div class="acct-muted">No saved verses yet. In the <a href="bible.html" style="color:var(--gold)">Bible reader</a>, tap any verse and choose ☆ SAVE THIS VERSE; you can add a private note to each one.</div>`}
+  </div>
+  <div class="acct-card">
+    <div class="acct-label">MY COMMUNITY POSTS</div>
+    <div id="my-posts"><div class="acct-muted">Loading…</div></div>
+  </div>
+  <div class="acct-card">
+    <div class="acct-label">YOUR DATA</div>
+    <div class="acct-muted" style="margin-bottom:14px">Your notes and reading are private: only you can see them. Your name is shown on posts you share in the Community; your email is never shown.
+      To close your account completely, email <a href="mailto:talk@miltha.org" style="color:var(--gold)">talk@miltha.org</a>.</div>
+    <button class="acct-btn danger" id="b-erase">DELETE MY SAVED VERSES, NOTES AND READING</button>
+  </div>`;
+
+  $('b-out').onclick = () => { A.signOut(); A.toast('YOU ARE SIGNED OUT'); };
+  $('b-name').onclick = async () => {
+    const n = prompt('Your name, as shown on your Community posts:', data.user.name);
+    if (n === null || !n.trim()) return;
+    try { await A.update({ data: { full_name: n.trim().slice(0, 40) } }); A.toast('NAME UPDATED'); draw(); } catch (e) { A.toast(e.message.toUpperCase()); }
+  };
+  $('b-erase').onclick = async () => {
+    if (!confirm('Delete all your saved verses, notes and Daily Word reading? This cannot be undone.')) return;
+    try { await A.erase(); A.toast('YOUR SAVED DATA IS DELETED'); draw(); } catch (e) { A.toast(e.message.toUpperCase()); }
+  };
+  if (verses.length) {
+    $('sv-filter').oninput = e => { filter = e.target.value; drawVerses(verses); };
+    drawVerses(verses);
+  }
+  drawPosts();
+  if (data.user.admin) drawModeration();
+  if (location.hash === '#saved') $('saved').scrollIntoView();
+}
+
+async function drawVerses(verses) {
+  const list = $('sv-list'); if (!list) return;
+  const texts = {};
+  await Promise.all([...new Set(verses.map(([r]) => r.split('/')[0]))].map(async b => { texts[b] = await kjv(b); }));
+  const q = filter.trim().toLowerCase();
+  const rows = verses.map(([ref, v]) => { const [b, c, n] = ref.split('/'); return { ref, v, text: texts[b]?.[c - 1]?.[n - 1] || '' }; })
+    .filter(x => !q || (refLabel(x.ref) + ' ' + x.text + ' ' + (x.v.note || '')).toLowerCase().includes(q));
+  list.innerHTML = rows.length ? rows.map(x => `<div class="sv-item">
+      <div class="sv-ref">${esc(refLabel(x.ref).toUpperCase())}</div>
+      <div class="sv-verse">${esc(x.text)}</div>
+      ${x.v.note ? `<div class="sv-note">${esc(x.v.note)}</div>` : ''}
+      <div class="sv-links">
+        <a class="sv-link" href="study.html#${x.ref}">${x.v.note ? 'EDIT NOTE · ' : 'ADD A NOTE · '}WORD BY WORD →</a>
+        <a class="sv-link" href="bible.html#${x.ref.split('/').slice(0, 2).join('/')}">READ THE CHAPTER →</a>
+        <button class="sv-link danger" data-remove="${x.ref}">REMOVE</button>
+      </div></div>`).join('') : '<div class="acct-muted">No saved verses match your search.</div>';
+  list.querySelectorAll('[data-remove]').forEach(b => b.onclick = async () => {
+    const r = b.dataset.remove;
+    if (data.verses[r]?.note && !confirm('Remove this verse and its note?')) return;
+    try { await A.saveVerse(r, false); draw(); } catch (e) { A.toast(e.message.toUpperCase()); }
+  });
+}
+
+async function drawPosts() {
+  const el = $('my-posts');
+  try {
+    const d = await A.api('/api/posts');
+    const mine = d.posts.filter(p => p.mine);
+    const label = s => ({ pending: 'WAITING FOR APPROVAL', approved: 'PUBLISHED', rejected: 'NOT PUBLISHED' }[s] || '');
+    el.innerHTML = mine.length ? mine.map(p => `<div class="mp-item">
+        <span class="sv-ref">${esc(p.label)}</span><span class="mp-status ${p.status}">${label(p.status)}</span>
+        <div class="mp-text">${esc(p.text)}</div>
+        ${p.status === 'approved' ? `<a class="sv-link" href="community.html#post-${p.id}">VIEW IN THE COMMUNITY →</a>` : ''}
+      </div>`).join('') : `<div class="acct-muted">You haven't posted yet. <a href="community.html" style="color:var(--gold)">Share a reflection on a passage →</a></div>`;
+  } catch (e) { el.innerHTML = `<div class="acct-muted">${esc(e.message)}</div>`; }
+}
+
+async function drawModeration() {
+  try {
+    const d = await A.api('/api/moderate');
+    const n = d.waiting.reduce((s, p) => s + (p.status === 'pending' ? 1 : 0) + p.replies.filter(r => r.status === 'pending').length, 0);
+    $('mod-slot').innerHTML = `<div class="acct-card mod-banner"><div class="acct-label">MODERATOR</div>
+      <div class="acct-text" style="margin-bottom:14px">${n ? `${n} ${n === 1 ? 'post or reply is' : 'posts and replies are'} waiting for your approval.` : 'Nothing is waiting for approval.'}</div>
+      <a class="acct-btn gold" href="moderate.html">OPEN MODERATION</a></div>`;
+  } catch (e) {}
+}
+
+A.onChange(draw);
+draw();
+</script>
+</body>
+</html>

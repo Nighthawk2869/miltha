@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Moderation — MILTHA</title>
+<link rel="stylesheet" href="css/miltha.css">
+<style>
+.mod-wrap{max-width:900px;margin:0 auto;padding:40px 20px 96px}
+.mod-card{background:var(--parchment);border:1px solid var(--ash);padding:22px;margin-bottom:12px}
+.mod-label{font-family:'Cinzel',serif;font-size:15px;letter-spacing:.26em;color:var(--gold);opacity:.88;margin:22px 0 12px}
+.mod-meta{font-family:'Cinzel',serif;font-size:13px;letter-spacing:.1em;color:var(--cream);opacity:.75;margin-bottom:8px;word-break:break-all}
+.mod-ref{font-family:'Cinzel',serif;font-size:15px;letter-spacing:.14em;color:var(--gold);margin-bottom:4px}
+.mod-verse{font-size:18px;font-style:italic;color:var(--white);opacity:.75;line-height:1.6;margin-bottom:8px}
+.mod-text{font-size:20px;color:var(--cream);line-height:1.65;white-space:pre-wrap;border-left:2px solid var(--gold);padding-left:12px;margin-bottom:12px}
+.mod-reply{margin:10px 0 0 18px;padding:12px;border:1px solid var(--ash)}
+.mod-btns{display:flex;gap:10px;flex-wrap:wrap}
+.mod-btn{font-family:'Cinzel',serif;font-size:13px;letter-spacing:.16em;padding:9px 16px;background:none;border:1px solid var(--ash2);color:var(--cream);cursor:pointer}
+.mod-btn.ok{background:var(--gold);border-color:var(--gold);color:var(--black);font-weight:600}
+.mod-btn.no:hover{border-color:var(--flame);color:var(--flame)}
+.mod-btn:disabled{opacity:.5;cursor:wait}
+.mod-status{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.16em;padding:3px 8px;border:1px solid var(--ash2);margin-left:8px}
+.mod-empty{font-size:19px;font-style:italic;color:var(--cream);opacity:.7}
+</style>
+</head>
+<body>
+<nav class="miltha-nav" id="miltha-nav">
+  <a href="index.html" class="nav-brand">MILTHA <span>ܡܸܠܬ݂ܵܐ · THE WORD</span></a>
+  <ul class="nav-links">
+    <li><a href="daily.html">DAILY WORD</a></li>
+    <li><a href="knowledge.html">KNOWLEDGE ENGINE</a></li>
+    <li><a href="bible.html">BIBLE</a></li>
+    <li><a href="study.html">WORD BY WORD</a></li>
+    <li><a href="history.html">HISTORY</a></li>
+    <li><a href="library.html">LIBRARY</a></li>
+    <li><a href="community.html">COMMUNITY</a></li>
+  </ul>
+  <div class="nav-right"><a href="contribute.html" class="nav-btn nav-contribute">✦ CONTRIBUTE</a></div>
+</nav>
+<div class="page-content">
+  <div class="page-hero">
+    <div class="section-label" style="text-align:center">MODERATORS</div>
+    <div class="page-title">MODERATION</div>
+    <div class="page-subtitle">New posts and replies wait here until you approve them. Hiding one keeps it, so you can approve it later.</div>
+  </div>
+  <div class="mod-wrap" id="mod"><div class="mod-empty">Loading…</div></div>
+</div>
+<footer class="miltha-footer">
+  <div class="footer-brand">MILTHA <span>ܡܸܠܺܬ݂ܵܐ · MILTHA.ORG</span></div>
+  <ul class="footer-links"><li><a href="daily.html">DAILY WORD</a></li><li><a href="bible.html">BIBLE</a></li><li><a href="community.html">COMMUNITY</a></li></ul>
+  <div class="footer-copy">© 2026 MILTHA · THE WORD, AS IT WAS SPOKEN.</div>
+</footer>
+<script src="js/miltha.js"></script>
+<script src="js/account.js"></script>
+<script>
+const A=window.MilthaAccount;
+const $=id=>document.getElementById(id);
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const when=t=>new Date(t).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+const STATUS={pending:'WAITING',approved:'PUBLISHED',rejected:'HIDDEN'};
+const btns=(p,r)=>{const s=(r||p).status;
+  return `<div class="mod-btns">${s!=='approved'?`<button class="mod-btn ok" data-a="approve" data-p="${p.id}" ${r?`data-r="${r.id}"`:''}>APPROVE</button>`:''}
+    ${s!=='rejected'?`<button class="mod-btn no" data-a="reject" data-p="${p.id}" ${r?`data-r="${r.id}"`:''}>${s==='approved'?'HIDE':'DECLINE'}</button>`:''}</div>`;};
+const card=(p,onlyWaiting)=>`<div class="mod-card">
+  <div class="mod-meta">${esc(p.name)} · ${esc(p.email)} · ${when(p.created)}<span class="mod-status">${STATUS[p.status]}</span></div>
+  <div class="mod-ref">${esc(p.label)}</div><div class="mod-verse">“${esc(p.verse)}”</div>
+  <div class="mod-text">${esc(p.text)}</div>${btns(p)}
+  ${p.replies.filter(r=>!onlyWaiting||r.status==='pending').map(r=>`<div class="mod-reply">
+    <div class="mod-meta">REPLY · ${esc(r.name)} · ${esc(r.email)} · ${when(r.created)}<span class="mod-status">${STATUS[r.status]}</span></div>
+    <div class="mod-text">${esc(r.text)}</div>${btns(p,r)}</div>`).join('')}
+</div>`;
+async function draw(){
+  if(!A.user()){$('mod').innerHTML='<div class="mod-empty">Please <a href="#" onclick="A.open(\'signin\');return false" style="color:var(--gold)">sign in</a> with a moderator account.</div>';return;}
+  let d;
+  try{d=await A.api('/api/moderate');}catch(e){$('mod').innerHTML=`<div class="mod-empty">${esc(e.message)}</div>`;return;}
+  $('mod').innerHTML=`<div class="mod-label">WAITING FOR APPROVAL · ${d.waiting.length}</div>
+    ${d.waiting.length?d.waiting.map(p=>card(p,p.status!=='pending')).join(''):'<div class="mod-empty">Nothing is waiting. Thank you for keeping the Community anchored to the Word.</div>'}
+    <div class="mod-label">RECENT POSTS</div>
+    ${d.recent.length?d.recent.map(p=>card(p,false)).join(''):'<div class="mod-empty">No other posts yet.</div>'}`;
+  document.querySelectorAll('[data-a]').forEach(b=>b.onclick=async()=>{
+    b.disabled=true;
+    try{await A.api('/api/moderate',{postId:b.dataset.p,replyId:b.dataset.r||undefined,action:b.dataset.a});
+      A.toast(b.dataset.a==='approve'?'APPROVED — NOW VISIBLE IN THE COMMUNITY':'HIDDEN FROM THE COMMUNITY');draw();}
+    catch(e){A.toast(e.message.toUpperCase());b.disabled=false;}});
+}
+A.onChange(draw);draw();
+</script>
+</body>
+</html>
