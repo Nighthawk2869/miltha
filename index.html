@@ -506,6 +506,11 @@ if ('IntersectionObserver' in window) {
   document.querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
 }
 </script>
+<!-- Netlify Forms: js/account.js posts "feedback" (the FEEDBACK button on every page); Netlify emails it to the
+     address set in Forms → Submission notifications. -->
+<form name="feedback" data-netlify="true" netlify-honeypot="website" hidden>
+  <textarea name="message"></textarea><input name="email"><input name="name"><input name="page"><input name="website">
+</form>
 <script src="js/account.js"></script>
 </body>
 </html>
