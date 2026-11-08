@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /account.html
+Disallow: /moderate.html
+Disallow: /api/
+
+Sitemap: https://miltha.org/sitemap.xml
