@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Search every verse of the King James Bible, or find every verse where a Hebrew or Greek word is used.">
+<title>Search the Scriptures — MILTHA</title>
+<link rel="stylesheet" href="css/miltha.css">
+<style>
+.sr-wrap{max-width:900px;margin:0 auto;padding:30px 20px 96px}
+.sr-form{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.sr-input{flex:1;min-width:220px;background:var(--stone);border:1px solid var(--ash2);padding:14px 16px;font-family:'Cormorant Garamond',serif;font-size:21px;color:var(--white);outline:none}
+.sr-input:focus{border-color:var(--gold)}
+.sr-select{background:var(--stone);border:1px solid var(--ash2);color:var(--cream);font-family:'Cinzel',serif;font-size:13px;letter-spacing:.12em;padding:0 12px;min-height:52px}
+.sr-go{font-family:'Cinzel',serif;font-size:14px;letter-spacing:.2em;padding:0 24px;min-height:52px;background:var(--gold);border:1px solid var(--gold);color:var(--black);font-weight:600;cursor:pointer}
+.sr-go:hover{background:var(--pure);border-color:var(--pure)}
+.sr-tips{font-size:17px;font-style:italic;color:var(--cream);opacity:.7;line-height:1.55;margin-bottom:22px}
+.sr-tips b{font-style:normal;color:var(--gold);font-weight:600}
+.sr-jump{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border:1px solid var(--gold);background:rgba(201,169,110,.06);padding:14px 18px;margin-bottom:18px}
+.sr-jump-ref{font-family:'Cinzel',serif;font-size:18px;letter-spacing:.14em;color:var(--pure)}
+.sr-sum{font-family:'Cinzel',serif;font-size:14px;letter-spacing:.2em;color:var(--gold);margin:6px 0 12px}
+.sr-books{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.sr-chip{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.1em;padding:7px 10px;border:1px solid var(--ash2);background:none;color:var(--cream);cursor:pointer}
+.sr-chip:hover{border-color:var(--gold);color:var(--gold)}
+.sr-chip.on{background:var(--gold);border-color:var(--gold);color:var(--black);font-weight:600}
+.sr-chip span{opacity:.7;margin-left:4px}
+.sr-item{border-top:1px solid var(--ash);padding:14px 0}
+.sr-ref{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:4px}
+.sr-ref a{font-family:'Cinzel',serif;font-size:15px;letter-spacing:.12em;color:var(--gold);text-decoration:none}
+.sr-ref a:hover{text-decoration:underline}
+.sr-ref .sr-small{font-size:11px;opacity:.75}
+.sr-text{font-size:21px;line-height:1.65;color:var(--white);opacity:.92}
+.sr-text mark{background:rgba(201,169,110,.28);color:var(--pure);padding:0 2px}
+.sr-form-chip{font-family:'Times New Roman',serif;font-size:20px;color:var(--gold);margin-left:4px}
+.sr-more{display:block;margin:20px auto 0;font-family:'Cinzel',serif;font-size:13px;letter-spacing:.2em;padding:12px 24px;background:none;border:1px solid var(--gold);color:var(--gold);cursor:pointer}
+.sr-more:hover{background:rgba(201,169,110,.1)}
+.sr-empty{font-size:20px;font-style:italic;color:var(--cream);opacity:.75;padding:20px 0}
+.sr-word{border:1px solid var(--ash);background:var(--parchment);padding:20px 22px;margin-bottom:16px}
+.sr-word-orig{font-size:40px;color:var(--pure);line-height:1.3}
+.sr-word-orig.heb{font-family:'Times New Roman',serif;direction:rtl}
+.sr-word-meta{font-size:19px;color:var(--cream);opacity:.85;margin-top:4px}
+.sr-word-meta em{color:var(--gold)}
+.sr-section{font-family:'Cinzel',serif;font-size:15px;letter-spacing:.22em;color:var(--gold);margin:28px 0 6px}
+.sr-section-note{font-size:16px;font-style:italic;color:var(--cream);opacity:.65;margin-bottom:6px}
+</style>
+</head>
+<body>
+<nav class="miltha-nav" id="miltha-nav">
+  <a href="index.html" class="nav-brand">MILTHA <span>ܡܸܠܬ݂ܵܐ · THE WORD</span></a>
+  <ul class="nav-links">
+    <li><a href="daily.html">DAILY WORD</a></li>
+    <li><a href="knowledge.html">KNOWLEDGE ENGINE</a></li>
+    <li><a href="bible.html">BIBLE</a></li>
+    <li><a href="study.html">WORD BY WORD</a></li>
+    <li><a href="history.html">HISTORY</a></li>
+    <li><a href="library.html">LIBRARY</a></li>
+    <li><a href="community.html">COMMUNITY</a></li>
+  </ul>
+  <div class="nav-right"><a href="contribute.html" class="nav-btn nav-contribute">✦ CONTRIBUTE</a></div>
+</nav>
+<div class="page-content">
+  <div class="page-hero">
+    <div class="section-label" style="text-align:center">SEARCH</div>
+    <div class="page-title">SEARCH THE SCRIPTURES</div>
+    <div class="page-subtitle">Every verse of the King James Bible — or every verse where a Hebrew or Greek word is used.</div>
+  </div>
+  <div class="sr-wrap">
+    <form class="sr-form" id="sr-form" role="search">
+      <input class="sr-input" id="sr-q" type="search" maxlength="120" placeholder="living water · &quot;the Lord is my shepherd&quot; · John 3:16" aria-label="Search the Bible" autocomplete="off">
+      <select class="sr-select" id="sr-t" aria-label="Which part of the Bible">
+        <option value="all">WHOLE BIBLE</option><option value="ot">OLD TESTAMENT</option><option value="nt">NEW TESTAMENT</option>
+      </select>
+      <button class="sr-go" type="submit">SEARCH</button>
+    </form>
+    <div class="sr-tips">All the words you type must be in the verse; each also finds its endings (<b>shepherd</b> finds shepherds, <b>love</b> finds loved and loveth). Put words in <b>"quotes"</b> to find them together, in order. To find every use of a Hebrew or Greek word, tap the word in <a href="study.html" style="color:var(--gold)">Word by Word</a> and choose <b>Every verse with this word</b>.</div>
+    <div id="sr-out"></div>
+  </div>
+</div>
+<footer class="miltha-footer">
+  <div class="footer-brand">MILTHA <span>ܡܸܠܺܬ݂ܵܐ · MILTHA.ORG</span></div>
+  <ul class="footer-links"><li><a href="daily.html">DAILY WORD</a></li><li><a href="bible.html">BIBLE</a></li><li><a href="community.html">COMMUNITY</a></li><li><a href="search.html">SEARCH</a></li><li><a href="privacy.html">PRIVACY</a></li></ul>
+  <div class="footer-copy">© 2026 MILTHA · THE WORD, AS IT WAS SPOKEN.</div>
+</footer>
+<script src="js/miltha.js"></script>
+<script src="js/account.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const NAMES={song:'Song of Solomon',psalms:'Psalm'};
+const bookName=id=>NAMES[id]||id.replace(/^(\d)/,'$1 ').replace(/(^| )([a-z])/g,(m,a,b)=>a+b.toUpperCase());
+const NT_START='matthew';
+let state={q:'',t:'all',b:'',o:0},last=null;
+
+function highlight(text,terms){
+  const res=(terms||[]).map(t=>{try{return new RegExp(t,'gi');}catch(e){return null;}}).filter(Boolean);
+  const marks=[];
+  for(const r of res){r.lastIndex=0;let m;while((m=r.exec(text.replace(/[’‘]/g,"'")))){if(!m[0].length){r.lastIndex++;continue;}marks.push([m.index,m.index+m[0].length]);}}
+  marks.sort((a,b)=>a[0]-b[0]);
+  let out='',i=0;
+  for(const [a,b] of marks){if(a<i)continue;out+=esc(text.slice(i,a))+'<mark>'+esc(text.slice(a,b))+'</mark>';i=b;}
+  return out+esc(text.slice(i));
+}
+const verseLinks=(b,c,v)=>`<a href="bible.html#${b}/${c}/${v}">${esc(bookName(b).toUpperCase())} ${c}:${v}</a><a class="sr-small" href="study.html#${b}/${c}/${v}">WORD BY WORD →</a>`;
+
+async function run(append){
+  const out=$('sr-out');
+  const p=new URLSearchParams({q:state.q,t:state.t});if(state.b)p.set('b',state.b);if(state.o)p.set('o',state.o);
+  const u=new URLSearchParams({q:state.q});if(state.t!=='all')u.set('t',state.t);if(state.b)u.set('b',state.b);
+  history.replaceState(null,'','search.html?'+u);
+  if(!append)out.innerHTML='<div class="sr-empty">Searching…</div>';
+  let d;
+  try{const r=await fetch('/api/search?'+p);d=await r.json();if(!r.ok)throw new Error(d.error||'Search failed.');}
+  catch(e){out.innerHTML=`<div class="sr-empty">${esc(e.message||'Search is unavailable right now.')}</div>`;return;}
+  last=d;
+  const rows=d.results.map(([b,c,v,t])=>`<div class="sr-item"><div class="sr-ref">${verseLinks(b,c,v)}</div><div class="sr-text">${highlight(t,d.terms)}</div></div>`).join('');
+  if(append){$('sr-more')?.remove();$('sr-list').insertAdjacentHTML('beforeend',rows);}
+  else{
+    const books=Object.entries(d.books);
+    const jump=d.ref?`<div class="sr-jump"><span class="sr-jump-ref">${esc(d.ref.label.toUpperCase())}</span><span style="display:flex;gap:10px;flex-wrap:wrap"><a class="sr-go" style="display:inline-flex;align-items:center;text-decoration:none" href="bible.html#${d.ref.book}/${d.ref.ch}/${d.ref.v}">OPEN IN THE BIBLE</a><a class="sr-more" style="margin:0;text-decoration:none" href="study.html#${d.ref.book}/${d.ref.ch}/${d.ref.v}">WORD BY WORD</a></span></div>`:'';
+    const all=books.reduce((s,[,n])=>s+n,0);
+    out.innerHTML=jump+(d.terms.length?`
+      <div class="sr-sum">${all.toLocaleString()} VERSE${all===1?'':'S'}${state.b?` · ${esc(bookName(state.b).toUpperCase())}: ${d.total.toLocaleString()}`:''}</div>
+      ${books.length>1?`<div class="sr-books"><button type="button" class="sr-chip${state.b?'':' on'}" data-b="">ALL BOOKS</button>${books.map(([b,n])=>`<button type="button" class="sr-chip${state.b===b?' on':''}" data-b="${b}">${esc(bookName(b).toUpperCase())}<span>${n}</span></button>`).join('')}</div>`:''}
+      <div id="sr-list">${rows||'<div class="sr-empty">No verses found. Try fewer words, or check the spelling (the King James Version uses older spellings, such as <i>shew</i> for show).</div>'}</div>`:'');
+    out.querySelectorAll('[data-b]').forEach(x=>x.onclick=()=>{state.b=x.dataset.b;state.o=0;run(false);});
+  }
+  if(d.total>state.o+d.results.length){
+    $('sr-list').insertAdjacentHTML('afterend',`<button type="button" class="sr-more" id="sr-more">MORE VERSES (${(d.total-state.o-d.results.length).toLocaleString()} MORE)</button>`);
+    $('sr-more').onclick=()=>{state.o+=d.results.length;run(true);};
+  }
+}
+
+/* ---------- every verse with a Hebrew or Greek word (search.html?w=G0026) ---------- */
+async function word(key){
+  const out=$('sr-out');out.innerHTML='<div class="sr-empty">Finding every verse…</div>';
+  const base=key.slice(0,5);
+  let idx,books,lex;
+  try{[idx,books,lex]=await Promise.all([fetch(`data/search/strongs/${key[0]}${Math.floor(parseInt(key.slice(1,5),10)/100)}.json`).then(r=>r.json()),fetch('data/search/strongs/books.json').then(r=>r.json()),fetch(`data/lexicon/${key[0]}${Math.floor(parseInt(key.slice(1,5),10)/100)}.json`).then(r=>r.ok?r.json():{}).catch(()=>({}))]);}
+  catch(e){out.innerHTML='<div class="sr-empty">This word list could not be loaded. Please try again.</div>';return;}
+  // a number without a letter takes in all its sub-entries (H7225 = H7225G…)
+  const keys=Object.keys(idx).filter(k=>k===key||(key.length===5&&k.slice(0,5)===base));
+  if(!keys.length){out.innerHTML='<div class="sr-empty">No verses were found for this word.</div>';return;}
+  const e=lex[key]||lex[keys[0]]||null;
+  const refs=[],forms=[];let more=0;
+  for(const k of keys){const x=idx[k];more+=x.more||0;for(const r of x.r)refs.push([r[0],r[1],r[2],x.f[r[3]],r[4]]);}
+  const seen=new Set(),uniq=refs.filter(r=>{const s=r.slice(0,3).join('.')+'|'+r[4];if(seen.has(s))return false;seen.add(s);return true;});
+  uniq.sort((a,b)=>a[4]-b[4]||a[0]-b[0]||a[1]-b[1]||a[2]-b[2]);
+  const ntStart=books.indexOf(NT_START),heb=key[0]==='H';
+  const groups=[
+    ['IN THE HEBREW OLD TESTAMENT',uniq.filter(r=>r[4]===0&&r[0]<ntStart),''],
+    ['IN THE GREEK NEW TESTAMENT',uniq.filter(r=>r[4]===0&&r[0]>=ntStart),''],
+    ['IN THE SEPTUAGINT (GREEK OLD TESTAMENT)',uniq.filter(r=>r[4]===1),'Computer-tagged Greek, checked against the New Testament where possible; the verse shown is from the King James Version.'],
+  ].filter(g=>g[1].length);
+  const total=uniq.length;
+  out.innerHTML=`<div class="sr-word">
+      <div class="sr-word-orig ${heb?'heb':''}">${esc(e?e[0]:key)}</div>
+      <div class="sr-word-meta">${e?`<em>${esc(e[1]||'')}</em> — ${esc(e[2]||'')} · `:''}STRONG'S ${esc(key.replace(/^([HG])0*/,'$1'))}</div>
+    </div>
+    <div class="sr-sum">${total.toLocaleString()} VERSE${total===1?'':'S'}${more?` · THE FIRST ${total.toLocaleString()} SHOWN (THIS WORD IS VERY COMMON)`:''}</div>
+    ${groups.map((g,gi)=>`<div class="sr-section">${g[0]} · ${g[1].length.toLocaleString()}</div>${g[2]?`<div class="sr-section-note">${g[2]}</div>`:''}<div id="sr-g${gi}"></div>`).join('')}`;
+  groups.forEach((g,gi)=>page(g[1],gi,0));
+}
+async function page(list,gi,from){
+  const el=$('sr-g'+gi),N=40,slice=list.slice(from,from+N);
+  const books=await fetch('data/search/strongs/books.json').then(r=>r.json());
+  let texts={};
+  try{texts=(await (await fetch('/api/search?refs='+slice.map(r=>`${books[r[0]]}.${r[1]}.${r[2]}`).join(','))).json()).verses||{};}catch(e){}
+  $('sr-more-'+gi)?.remove();
+  el.insertAdjacentHTML('beforeend',slice.map(r=>{const b=books[r[0]];
+    return `<div class="sr-item"><div class="sr-ref">${verseLinks(b,r[1],r[2])}<span class="sr-form-chip" ${/[\u0590-\u05FF]/.test(r[3])?'dir="rtl"':''}>${esc(r[3])}</span></div><div class="sr-text">${esc(texts[`${b}.${r[1]}.${r[2]}`]||'')}</div></div>`;}).join(''));
+  if(list.length>from+N){
+    el.insertAdjacentHTML('afterend',`<button type="button" class="sr-more" id="sr-more-${gi}">MORE (${(list.length-from-N).toLocaleString()} MORE)</button>`);
+    $('sr-more-'+gi).onclick=()=>page(list,gi,from+N);
+  }
+}
+
+$('sr-form').onsubmit=e=>{e.preventDefault();const q=$('sr-q').value.trim();if(!q)return;state={q,t:$('sr-t').value,b:'',o:0};run(false);};
+const P=new URLSearchParams(location.search);
+if(/^[HG]\d{4}[A-Z]?$/.test(P.get('w')||''))word(P.get('w'));
+else if(P.get('q')){state={q:P.get('q').slice(0,120),t:['ot','nt'].includes(P.get('t'))?P.get('t'):'all',b:/^[a-z0-9]+$/.test(P.get('b')||'')?P.get('b'):'',o:0};$('sr-q').value=state.q;$('sr-t').value=state.t;run(false);}
+else $('sr-q').focus();
+</script>
+</body>
+</html>

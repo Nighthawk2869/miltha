@@ -11,6 +11,8 @@
 .bible-center{display:flex;flex-direction:column;overflow:hidden;background:var(--black)}
 .bible-right{background:var(--stone);border-left:1px solid var(--ash);display:flex;flex-direction:column;overflow:hidden}
 .bl-header{padding:11px;border-bottom:1px solid var(--ash);flex-shrink:0}
+.bl-verse-search{display:block;margin-top:8px;font-family:'Cinzel',serif;font-size:12px;letter-spacing:.12em;color:var(--gold);text-decoration:none;line-height:1.5}
+.bl-verse-search:hover{text-decoration:underline}
 .bl-search{width:100%;background:var(--stone);border:1px solid var(--ash);padding:8px 11px;font-family:'Cormorant Garamond',serif;font-size:21px;color:var(--white);outline:none}
 .bl-search::placeholder{color:var(--cream);opacity:.78;font-style:italic}
 .bl-search:focus{border-color:var(--gold)}
@@ -153,7 +155,8 @@
 <div class="bible-layout">
   <div class="bible-left" id="bible-left">
     <div class="bl-header">
-      <input class="bl-search" type="text" placeholder="Search books..." oninput="filterBooks(this.value)">
+      <input class="bl-search" type="search" placeholder="Find a book or search verses…" oninput="filterBooks(this.value)" onkeydown="if(event.key==='Enter'&&this.value.trim()){if(filteredBooks.length===1)selectBook(filteredBooks[0].id,1);else location.href='search.html?q='+encodeURIComponent(this.value.trim());}" aria-label="Find a book, or search all verses">
+      <a class="bl-verse-search" id="bl-verse-search" href="search.html" hidden></a>
     </div>
     <div class="bl-list" id="bl-list"></div>
   </div>
@@ -240,7 +243,10 @@ function renderBookList(){
   });
   document.getElementById('bl-list').innerHTML=html||'<div class="bl-label">NO BOOKS FOUND</div>';
 }
-function filterBooks(q){filteredBooks=ALL_BOOKS.filter(b=>b.name.toLowerCase().includes(q.trim().toLowerCase()));renderBookList();}
+function filterBooks(q){filteredBooks=ALL_BOOKS.filter(b=>b.name.toLowerCase().includes(q.trim().toLowerCase()));renderBookList();
+  // offer a search of every verse for what was typed
+  const a=document.getElementById('bl-verse-search');q=q.trim();
+  a.hidden=!q;if(q){a.href='search.html?q='+encodeURIComponent(q);a.textContent='SEARCH ALL VERSES FOR “'+q.slice(0,40).toUpperCase()+'” →';}}
 function updateTransBar(){
   document.querySelectorAll('.trans-btn').forEach(btn=>{
     const t=btn.dataset.trans;
@@ -312,17 +318,24 @@ async function loadChapter(ch){
   const credit=forBook(t.credit,currentBook);
   if(credit)html+=`<div class="text-credit">${credit}</div>`;
   scroll.innerHTML=html;scroll.scrollTop=0;
+  // a link to one verse (bible.html#john/3/16): select it and bring it into view
+  if(pendingVerse&&document.getElementById('vb-'+pendingVerse)){
+    const vn=pendingVerse;pendingVerse=0;
+    const el=document.getElementById('vb-'+vn);
+    scroll.scrollTop=Math.max(0,el.offsetTop-scroll.offsetTop-80);
+    selectVerse(vn,true);
+  }
 }
 function setTrans(t){
   if(currentBook&&!available(t,currentBook))return;
   currentTrans=t;updateTransBar();
   if(currentBook)loadChapter(currentChapter);
 }
-function selectVerse(vn){
+function selectVerse(vn,quiet){
   document.querySelectorAll('.verse-block').forEach(v=>v.classList.remove('active'));
   document.getElementById('vb-'+vn)?.classList.add('active');
   document.getElementById('br-ref').textContent=`${currentBook.name} ${currentChapter}:${vn}`;
-  if(smallScreen(900)){setPanel('bible-left',false);setPanel('bible-right',true);}
+  if(smallScreen(900)&&!quiet){setPanel('bible-left',false);setPanel('bible-right',true);}
   renderDetail(vn);
 }
 /* Where the Church Fathers quote or discuss a verse: data/fathers-refs (KJV numbering) */
@@ -387,10 +400,13 @@ function clearDetail(){
   document.getElementById('br-ref').textContent='TAP A VERSE';
   document.getElementById('br-scroll').innerHTML='<div class="br-empty"><div class="br-empty-ara">ܡܸܠܬ݂ܵܐ</div><div class="br-empty-text">TAP ANY VERSE<br>TO SEE IT IN THE<br>OTHER TEXTS</div></div>';
 }
+let pendingVerse=0;
 function openFromHash(){
-  const [id,ch,t]=location.hash.slice(1).split('/');
+  const [id,ch,t,v]=location.hash.slice(1).split('/');
   const book=ALL_BOOKS.find(b=>b.id===id);if(!book)return false;
+  // #book/ch, #book/ch/translation, #book/ch/verse or #book/ch/translation/verse
   if(t&&TRANS[t]&&available(t,book))currentTrans=t;
+  pendingVerse=parseInt(/^\d+$/.test(t||'')?t:v)||0;
   selectBook(id,parseInt(ch)||1);return true;
 }
 renderBookList();updateTransBar();

@@ -171,7 +171,7 @@
     <li><a href="daily.html">DAILY WORD</a></li>
     <li><a href="bible.html">BIBLE</a></li>
     <li><a href="library.html">LIBRARY</a></li>
-  <li><a href="privacy.html">PRIVACY</a></li></ul>
+  <li><a href="search.html">SEARCH</a></li><li><a href="privacy.html">PRIVACY</a></li></ul>
   <div class="footer-copy">© 2026 MILTHA · THE WORD, AS IT WAS SPOKEN.</div>
 </footer>
 
@@ -419,7 +419,7 @@ async function showWord(i){
   }
   rootStrong=rootStrong.replace(/[{}+]/g,'');
   html+=`<div id="wd-def-wrap"></div>${noteHTML(w[5])}${curatedHTML(curatedFor(rootStrong),'MILTHA NOTE')}
-    <div class="wd-links"><a href="https://www.stepbible.org/?q=strong=${encodeURIComponent(strongLabel(rootStrong))}" target="_blank" rel="noopener">FIND EVERY USE OF THIS WORD ↗</a></div>`;
+    <div class="wd-links"><a href="search.html?w=${encodeURIComponent(rootStrong)}">EVERY VERSE WITH THIS WORD →</a></div>`;
   if(token!==loadToken||activeIdx!==i)return;
   d.innerHTML=html;d.classList.add('visible');
   const e=await lexEntry(rootStrong);
@@ -468,7 +468,7 @@ async function showLxx(i){
       <div class="lxx-check ${checked?'ok':''}">${checked?'✓ CHECKED AGAINST THE NEW TESTAMENT':'COMPUTER-TAGGED · NOT YET CHECKED'}</div></div>
     <div class="wd-item" id="wd-dict">${L[1]?'':`<div class="wd-label">DICTIONARY FORM</div><div class="wd-val"><span class="lemma">${esc(L[0])}</span>${L[2]==='name'?' — a name':''}</div>`}</div></div>
     <div id="wd-def-wrap"></div>
-    ${L[1]?`<div class="wd-links"><a href="https://www.stepbible.org/?q=strong=${encodeURIComponent(strongLabel(L[1]))}" target="_blank" rel="noopener">FIND EVERY USE OF THIS WORD ↗</a></div>`:''}`;
+    ${L[1]?`<div class="wd-links"><a href="search.html?w=${encodeURIComponent(L[1])}">EVERY VERSE WITH THIS WORD →</a></div>`:''}`;
   if(token!==loadToken||activeIdx!==i)return;
   d.innerHTML=html;d.classList.add('visible');
   if(L[1]){
