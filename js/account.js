@@ -113,7 +113,11 @@
 .ma-sub{font-size:18px;font-style:italic;color:#EDE4D0;opacity:.8;margin-bottom:18px;line-height:1.5}
 .ma-box label{display:block;font-family:'Cinzel',serif;font-size:12px;letter-spacing:.2em;color:#C9A96E;margin:12px 0 5px}
 .ma-box input{width:100%;box-sizing:border-box;background:#1E1C1A;border:1px solid #2E2C2A;padding:11px 12px;font-family:'Cormorant Garamond',serif;font-size:19px;color:#F5F0E8;outline:none}
-.ma-box input:focus{border-color:#C9A96E}
+.ma-box input:focus,.ma-box textarea:focus{border-color:#C9A96E}
+.ma-box textarea{width:100%;box-sizing:border-box;min-height:130px;resize:vertical;background:#1E1C1A;border:1px solid #2E2C2A;padding:11px 12px;font-family:'Cormorant Garamond',serif;font-size:19px;line-height:1.5;color:#F5F0E8;outline:none}
+.ma-fb{position:fixed;right:14px;bottom:14px;z-index:450;font-family:'Cinzel',serif;font-size:11px;letter-spacing:.16em;padding:9px 13px;background:rgba(18,17,14,.92);border:1px solid rgba(201,169,110,.55);color:#C9A96E;cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,.45)}
+.ma-fb:hover{background:#C9A96E;color:#0A0A0F}
+@media print{.ma-fb{display:none}}
 .ma-go{width:100%;margin-top:20px;font-family:'Cinzel',serif;font-size:14px;letter-spacing:.22em;padding:13px;background:#C9A96E;border:1px solid #C9A96E;color:#0A0A0F;font-weight:600;cursor:pointer}
 .ma-go:hover{background:#FFFFFF;border-color:#FFFFFF}
 .ma-go:disabled{opacity:.6;cursor:wait}
@@ -168,6 +172,9 @@
     invite: { title: 'ACCEPT YOUR INVITATION', sub: 'Welcome to MILTHA. Choose your name and a password to finish setting up your account.',
               fields: [['name', 'YOUR NAME (SHOWN ON YOUR POSTS)', 'text', 'name'], ['password', 'PASSWORD (AT LEAST 8 CHARACTERS)', 'password', 'new-password']],
               go: 'CREATE MY ACCOUNT', links: [] },
+    feedback: { title: 'SEND FEEDBACK', sub: 'What helped, what was confusing, or anything that looks wrong? Your note goes straight to the MILTHA team, with the page you are on.',
+                fields: [['message', 'YOUR MESSAGE', 'textarea', 'off'], ['email', 'YOUR EMAIL (OPTIONAL, IF YOU WOULD LIKE A REPLY)', 'email', 'email']],
+                go: 'SEND', links: [] },
     newpw: { title: 'NEW PASSWORD', sub: 'Choose a new password for your account.', fields: [['password', 'NEW PASSWORD (AT LEAST 8 CHARACTERS)', 'password', 'new-password']],
              go: 'SAVE PASSWORD', links: [] },
   };
@@ -185,7 +192,9 @@
     overlay.innerHTML = `<form class="ma-box" role="dialog" aria-modal="true" aria-labelledby="ma-title" novalidate>
       <button type="button" class="ma-close" aria-label="Close">×</button>
       <div class="ma-title" id="ma-title">${v.title}</div><div class="ma-sub">${esc(v.sub)}</div>
-      ${v.fields.map(([n, l, t, ac]) => `<label for="ma-${n}">${l}</label><input id="ma-${n}" name="${n}" type="${t}" autocomplete="${ac}" required ${n === 'password' ? 'minlength="8"' : ''} ${n === 'name' ? 'maxlength="40"' : ''}>`).join('')}
+      ${v.fields.map(([n, l, t, ac]) => t === 'textarea'
+        ? `<label for="ma-${n}">${l}</label><textarea id="ma-${n}" name="${n}" maxlength="3000" required></textarea>`
+        : `<label for="ma-${n}">${l}</label><input id="ma-${n}" name="${n}" type="${t}" autocomplete="${ac}" ${mode === 'feedback' && n === 'email' ? '' : 'required'} ${n === 'password' ? 'minlength="8"' : ''} ${n === 'name' ? 'maxlength="40"' : ''}>`).join('')}
       <button type="submit" class="ma-go">${v.go}</button>
       <div class="ma-msg ${kind || ''}" role="alert">${message ? esc(message) : ''}</div>
       <div class="ma-links">${v.links.map(([m, l]) => `<button type="button" class="ma-link" data-mode="${m}">${l}</button>`).join('')}</div>
@@ -196,7 +205,8 @@
     f.querySelector('.ma-close').onclick = closeWindow;
     f.querySelectorAll('.ma-link').forEach(b => b.onclick = () => openWindow(b.dataset.mode));
     f.onsubmit = e => { e.preventDefault(); submit(mode, f); };
-    const first = f.querySelector('input'); if (first) setTimeout(() => first.focus(), 30);
+    if (mode === 'feedback' && user() && f.elements.email) f.elements.email.value = user().email;
+    const first = f.querySelector('input, textarea'); if (first) setTimeout(() => first.focus(), 30);
   }
   function closeWindow() { if (!overlay) return; overlay.classList.remove('open'); if (lastFocus && lastFocus.focus) lastFocus.focus(); }
 
@@ -205,7 +215,8 @@
     const msg = f.querySelector('.ma-msg'), go = f.querySelector('.ma-go');
     const say = (t, k) => { msg.textContent = t; msg.className = 'ma-msg ' + (k || ''); };
     const email = val('email'), password = f.elements.password ? f.elements.password.value : '';
-    if (f.elements.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return say('Please enter your email address.', 'err');
+    if (mode === 'feedback' && val('message').length < 3) return say('Please write your message.', 'err');
+    if (f.elements.email && !(mode === 'feedback' && !email) && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return say('Please enter your email address.', 'err');
     if (f.elements.password && password.length < 8) return say('Please use a password of at least 8 characters.', 'err');
     if ((mode === 'join' || mode === 'invite') && !val('name')) return say('Please enter your name.', 'err');
     go.disabled = true; say('');
@@ -214,6 +225,15 @@
       else if (mode === 'join') { await Account.signUp(val('name'), email, password); f.querySelectorAll('input').forEach(i => i.disabled = true); go.style.display = 'none';
         say('Thank you! We have sent a confirmation link to ' + email + '. Open it to finish joining (check your spam folder if it does not arrive in a few minutes).', 'ok'); return; }
       else if (mode === 'forgot') { await Account.recover(email); say('If that email has an account, a link to choose a new password is on its way.', 'ok'); go.style.display = 'none'; return; }
+      else if (mode === 'feedback') {
+        // a Netlify form ("feedback", declared in index.html); Netlify emails it to the team
+        const r = await fetch('/', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({ 'form-name': 'feedback', message: val('message').slice(0, 3000), email,
+            name: user() ? user().name : '', page: location.href.slice(0, 300) }) });
+        if (!r.ok) throw new Error('Your message could not be sent. Please try again, or email talk@miltha.org.');
+        f.querySelectorAll('input, textarea').forEach(i => i.disabled = true); go.style.display = 'none';
+        say('Thank you! Your message has been sent.', 'ok'); return;
+      }
       else if (mode === 'newpw') { await Account.update({ password }); closeWindow(); toast('YOUR NEW PASSWORD IS SAVED'); }
       else if (mode === 'invite') {
         // Netlify Identity accepts an invitation by verifying its token together with the new password.
@@ -360,6 +380,16 @@
     draw();
   };
 
-  function init() { navButton(); handleEmailLink(); }
+  function feedbackButton() {
+    if (document.getElementById('ma-fb')) return;
+    const b = document.createElement('button');
+    b.type = 'button'; b.id = 'ma-fb'; b.className = 'ma-fb'; b.textContent = 'FEEDBACK';
+    b.setAttribute('aria-label', 'Send feedback about this page');
+    b.onclick = () => openWindow('feedback');
+    document.body.appendChild(b);
+  }
+  Account.feedback = () => openWindow('feedback');
+
+  function init() { navButton(); feedbackButton(); handleEmailLink(); }
   document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', init) : init();
 })();
